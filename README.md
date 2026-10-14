@@ -40,10 +40,10 @@ npm run dev
 프로젝트 루트의 `.env.local`에 실행 환경을 설정합니다.
 
 ```dotenv
-MEETEAM_API_BASE_URL=https://your-api-server.example.com
+MEETEAM_API_BASE_URL=https://meeteam.fignal.me
 ```
 
-- `MEETEAM_API_BASE_URL`: 서버가 요청을 전달할 백엔드 주소입니다. 생략하면 코드의 개발용 API 주소를 사용합니다. 임시 터널은 만료될 수 있으므로 배포 환경에서는 명시적으로 설정하는 것을 권장합니다.
+- `MEETEAM_API_BASE_URL`: 서버가 요청을 전달할 백엔드 주소입니다. 생략하면 `https://meeteam.fignal.me`를 사용합니다. 별도 개발 서버를 사용하는 경우 해당 환경의 주소로 설정합니다.
 - `NEXT_PUBLIC_API_MODE=mock`: 실제 서버 대신 MSW를 사용하는 선택 설정입니다. 생략하면 실제 API를 사용합니다.
 
 MSW 모드에서는 `20260001` / `demo1234`로 로그인하고 `20260002` / `demo1234`로 가입 흐름을 확인할 수 있습니다. 실제 서버 계정이 아닌 테스트 계정입니다. 모의 데이터는 브라우저에 저장되며, 정의하지 않은 API 요청은 실제 서버로 전달하지 않습니다.
