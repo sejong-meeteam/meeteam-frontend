@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-mt-bg: #fcfcfe;
+  --color-mt-bg-soft: #f6f9fe;
+  --color-mt-badge-bg: #eff5fd;
+  --color-mt-border: #d7e4f8;
+  --color-mt-primary: #6aa0e6;
+  --color-mt-logo-blue: #7ba9e8;
+  --color-mt-text-primary: #202730;
+  --color-mt-text-secondary: #5f6d82;
+  --color-mt-text-nav: #647185;
+  --color-mt-white: #fefeff;
+  --color-mt-hero-blue: #1683f8;
+  --color-mt-danger: #e85d5d;
+  --color-mt-danger-soft: #fff1f1;
+  --color-mt-mint: #67c5c2;
+}
+
+body {
+  margin: 0;
+  color: var(--color-mt-text-primary);
+  background: var(--color-mt-bg);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button {
+  cursor: pointer;
+}
