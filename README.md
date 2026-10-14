@@ -2,6 +2,15 @@
 
 세종대학교 구성원이 프로젝트를 모집하고 함께할 팀원을 찾는 웹 서비스입니다.
 
+현재 관리 버전은 `0.2.0`입니다. 릴리스 기준 코드는 Git 태그 `v0.2.0`으로 확인합니다.
+
+## 문서
+
+- [변경 이력](CHANGELOG.md)
+- [구조 및 인증·API 동작](docs/architecture.md)
+- [환경 설정·배포·운영](docs/operations.md)
+- [버전 관리·릴리스·롤백 절차](docs/releases.md)
+
 ## 주요 기능
 
 - 세종대 포털 기반 로그인·가입 및 로그인 상태에 따른 접근 제어
@@ -38,6 +47,8 @@ npm run dev
 ### 환경 설정
 
 프로젝트 루트의 `.env.local`에 실행 환경을 설정합니다.
+
+`.env.example`을 복사해 시작하고, 실제 비밀번호·토큰 등은 저장소에 올리지 않습니다.
 
 ```dotenv
 MEETEAM_API_BASE_URL=https://meeteam.fignal.me
