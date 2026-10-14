@@ -36,10 +36,10 @@ export default function HomeOverview() {
           연동은 이후 주차에 이어집니다.
         </p>
         <Link
-          href="/projects"
+          href="/showcase"
           className="mt-7 inline-flex items-center gap-2 rounded-xl bg-mt-primary px-5 py-3 text-sm font-bold text-mt-white"
         >
-          페이지 구조 살펴보기 <ArrowRight className="h-4 w-4" />
+          공통 UI 살펴보기 <ArrowRight className="h-4 w-4" />
         </Link>
       </section>
 

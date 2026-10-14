@@ -6,6 +6,7 @@ import { Bell, Settings } from 'lucide-react';
 import AppLogo from '@/components/shared/AppLogo';
 
 const NAV_ITEMS = [
+  { href: '/showcase', label: '공통 UI' },
   { href: '/teammates', label: '팀원 찾기' },
   { href: '/projects', label: '프로젝트 찾기' },
   { href: '/projects/create', label: '프로젝트 등록' },
