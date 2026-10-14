@@ -41,10 +41,12 @@ npm run dev
 
 ```dotenv
 MEETEAM_API_BASE_URL=https://meeteam.fignal.me
+NEXT_PUBLIC_SITE_URL=https://www.meeteam.fignal.me
 ```
 
 - `MEETEAM_API_BASE_URL`: 서버가 요청을 전달할 백엔드 주소입니다. 생략하면 `https://meeteam.fignal.me`를 사용합니다. 별도 개발 서버를 사용하는 경우 해당 환경의 주소로 설정합니다.
 - `NEXT_PUBLIC_API_MODE=mock`: 실제 서버 대신 MSW를 사용하는 선택 설정입니다. 생략하면 실제 API를 사용합니다.
+- `NEXT_PUBLIC_SITE_URL`: canonical URL과 OG 공유 이미지의 기준 주소입니다. 생략하면 `https://www.meeteam.fignal.me`를 사용합니다.
 
 MSW 모드에서는 `20260001` / `demo1234`로 로그인하고 `20260002` / `demo1234`로 가입 흐름을 확인할 수 있습니다. 실제 서버 계정이 아닌 테스트 계정입니다. 모의 데이터는 브라우저에 저장되며, 정의하지 않은 API 요청은 실제 서버로 전달하지 않습니다.
 

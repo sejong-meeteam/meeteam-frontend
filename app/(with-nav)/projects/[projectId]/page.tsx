@@ -4,7 +4,7 @@ import ProjectDetailPage from '@/components/features/project/detail/ProjectDetai
 import { fetchProjectDetail } from '@/components/features/project/projectApi';
 import { PROJECT_DETAIL_FALLBACK_IMAGE_SRC } from '@/components/features/project/projectImage';
 
-const DEFAULT_SITE_URL = 'https://meeteam.alom-sejong.com';
+const DEFAULT_SITE_URL = 'https://www.meeteam.fignal.me';
 const SITE_NAME = 'meeTeam';
 
 type ProjectDetailPageParams = {
@@ -16,10 +16,6 @@ function getSiteOrigin() {
 
   if (configuredUrl) {
     return configuredUrl;
-  }
-
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
   }
 
   return DEFAULT_SITE_URL;

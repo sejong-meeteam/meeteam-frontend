@@ -13,7 +13,7 @@ const jua = Jua({
   weight: '400',
 });
 
-const DEFAULT_SITE_URL = 'https://meeteam.alom-sejong.com';
+const DEFAULT_SITE_URL = 'https://www.meeteam.fignal.me';
 const SITE_NAME = '미팀 - meeTeam';
 const SITE_DESCRIPTION = '대학생 전용 팀빌딩 플랫폼';
 const OG_IMAGE = '/brand/meeteam_logo_hat.png';
@@ -23,10 +23,6 @@ function getSiteOrigin() {
 
   if (configuredUrl) {
     return configuredUrl;
-  }
-
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
   }
 
   return DEFAULT_SITE_URL;
