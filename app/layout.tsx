@@ -5,8 +5,8 @@ import ToastViewport from '@/components/shared/ToastViewport';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'meeTeam | 3주차 프론트엔드 기반',
-  description: 'meeTeam 프론트엔드의 라우팅과 공통 UI 구조',
+  title: 'meeTeam',
+  description: '대학생 팀빌딩 플랫폼 meeTeam',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

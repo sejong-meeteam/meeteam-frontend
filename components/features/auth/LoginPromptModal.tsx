@@ -14,9 +14,6 @@ export default function LoginPromptModal() {
     <BaseModal isOpen={isOpen} onClose={closeLoginModal}>
       <section className="mx-auto w-full max-w-md space-y-5 rounded-2xl bg-mt-white p-6 shadow-lg">
         <h2 className="text-xl font-bold">{title}</h2>
-        <p className="text-sm text-mt-text-secondary">
-          로그인 기능은 다음 단계에서 연결할 예정입니다.
-        </p>
         <div className="flex justify-end gap-2">
           <BaseButton variant="gray" onClick={closeLoginModal}>
             닫기

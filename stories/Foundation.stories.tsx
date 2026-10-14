@@ -23,18 +23,10 @@ export const SharedUi: Story = {
 
 export const PublicRoute: Story = {
   name: '공개 경로',
-  render: () => (
-    <PlannedPage title="프로젝트 찾기" description="공개 화면의 경로와 공통 레이아웃입니다." />
-  ),
+  render: () => <PlannedPage title="프로젝트 찾기" />,
 };
 
 export const AuthRoute: Story = {
   name: '인증 필요 경로',
-  render: () => (
-    <PlannedPage
-      title="내 프로필"
-      description="인증 필요 화면의 경로와 공통 레이아웃입니다."
-      access="인증 필요"
-    />
-  ),
+  render: () => <PlannedPage title="내 프로필" />,
 };

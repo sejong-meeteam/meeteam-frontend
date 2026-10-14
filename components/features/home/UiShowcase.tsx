@@ -30,12 +30,7 @@ export default function UiShowcase() {
   return (
     <div className="space-y-8 pb-12">
       <header className="rounded-3xl border border-mt-border bg-mt-white p-6 sm:p-8">
-        <p className="text-sm font-bold text-mt-primary">3주차 · 공통 UI</p>
-        <h1 className="mt-2 text-3xl font-bold">컴포넌트 쇼케이스</h1>
-        <p className="mt-3 text-mt-text-secondary">
-          이번 주에 마련한 공통 컴포넌트의 모양과 기본 상호작용을 확인할 수 있습니다. 아래 입력값은
-          저장되지 않습니다.
-        </p>
+        <h1 className="text-3xl font-bold">컴포넌트 쇼케이스</h1>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -53,9 +48,6 @@ export default function UiShowcase() {
             </BaseButton>
             <BaseButton disabled>비활성 버튼</BaseButton>
           </div>
-          <p className="text-sm text-mt-text-secondary">
-            크기와 강조 수준을 공통 속성으로 지정합니다.
-          </p>
         </section>
 
         <section className="space-y-5 rounded-2xl border border-mt-border bg-mt-white p-6">
@@ -74,16 +66,11 @@ export default function UiShowcase() {
               </button>
             ))}
           </div>
-          <p className="text-sm text-mt-text-secondary">선택 상태를 화면 내부에서 관리합니다.</p>
         </section>
 
         <section className="space-y-5 rounded-2xl border border-mt-border bg-mt-white p-6">
           <h2 className="text-xl font-bold">입력창과 드롭다운</h2>
-          <BaseField
-            label="프로젝트 이름"
-            htmlFor="showcase-name"
-            hintText="입력한 내용은 서버로 전송되지 않습니다."
-          >
+          <BaseField label="프로젝트 이름" htmlFor="showcase-name">
             <BaseInput id="showcase-name" placeholder="프로젝트 이름을 입력하세요" />
           </BaseField>
           <BaseField label="소개" htmlFor="showcase-intro" required={false}>
@@ -137,9 +124,6 @@ export default function UiShowcase() {
             <ChevronDown className="h-5 w-5" />
             <h2 className="text-xl font-bold text-mt-text-primary">공통 모달</h2>
           </div>
-          <p className="text-mt-text-secondary">
-            모달의 열림 상태와 닫기 동작을 확인할 수 있습니다.
-          </p>
           <BaseButton onClick={() => setModalOpen(false)}>확인</BaseButton>
         </div>
       </BaseModal>
