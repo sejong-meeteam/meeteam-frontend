@@ -3,6 +3,7 @@ import { projectApplicationSchema } from '@/components/features/project/apply/sc
 import { isProjectOpen, isRecruitmentOpen } from './projectContract';
 import { JOB_OPTIONS } from './fixtures';
 import { getMembers } from './storage';
+import { addMockNotification } from './notificationHandlers';
 import { toProjectDetail } from './responseMappers';
 import {
   getApplications,
@@ -142,6 +143,15 @@ export const projectWeek6Handlers = [
       appliedAt: new Date().toISOString(),
     };
     saveApplication(application);
+    addMockNotification(
+      project.leaderId,
+      'PROJECT_APPLY',
+      project.id,
+      project.name,
+      member.memberId,
+      member.name,
+    );
+    addMockNotification(member.memberId, 'PROJECT_MY_APPLY', project.id, project.name);
     return success({
       applicationId: application.applicationId,
       projectId: project.id,
@@ -178,22 +188,25 @@ export const projectWeek6Handlers = [
         item.projectId === Number(params.projectId),
     );
     if (!application) return failure(404, '지원서를 찾을 수 없습니다.');
-    if (member.memberId !== application.applicantId)
-      return failure(403, '본인의 지원서만 조회할 수 있습니다.');
+    const project = getProjects().find((item) => item.id === application.projectId);
+    if (member.memberId !== application.applicantId && member.memberId !== project?.leaderId)
+      return failure(403, '지원서 조회 권한이 없습니다.');
+    const applicant = getMembers().find((item) => item.memberId === application.applicantId);
+    if (!applicant) return failure(404, '지원자를 찾을 수 없습니다.');
     const field = JOB_OPTIONS.fields.find((field) =>
       field.positions.some((position) => position.id === application.jobPositionId),
     );
     return success({
       applicationId: application.applicationId,
-      applicantId: member.memberId,
-      applicantName: member.name,
-      applicantEmail: member.email,
-      profileImageUrl: member.profileImageUrl,
-      age: new Date().getFullYear() - Number(member.birthDate.slice(0, 4)),
-      gender: member.gender,
+      applicantId: applicant.memberId,
+      applicantName: applicant.name,
+      applicantEmail: applicant.email,
+      profileImageUrl: applicant.profileImageUrl,
+      age: new Date().getFullYear() - Number(applicant.birthDate.slice(0, 4)),
+      gender: applicant.gender,
       techStacks: JOB_OPTIONS.fields
         .flatMap((field) => field.techStacks)
-        .filter((skill) => member.techStackIds.includes(skill.id))
+        .filter((skill) => applicant.techStackIds.includes(skill.id))
         .map((skill, index) => ({ ...skill, displayOrder: index + 1 })),
       motivation: application.motivation,
       status: application.status,
@@ -239,32 +252,6 @@ export const projectWeek6Handlers = [
     return success({
       projectId: Number(params.projectId),
       ...toggleLike(member.memberId, Number(params.projectId)),
-    });
-  }),
-  http.get('/api/v1/projects/:projectId/qna', ({ params }) => {
-    if (!getProjects().some((item) => item.id === Number(params.projectId)))
-      return failure(404, '프로젝트를 찾을 수 없습니다.');
-    return success({
-      content:
-        Number(params.projectId) === 102
-          ? [
-              {
-                qnaId: 1,
-                questionerName: '김민지',
-                question: '팀 회의는 얼마나 자주 진행하나요?',
-                isSecret: false,
-                answers: [
-                  {
-                    answerId: 1,
-                    writerName: '이준호',
-                    content: '일주일에 한 번 온라인으로 진행합니다.',
-                  },
-                ],
-              },
-            ]
-          : [],
-      number: 0,
-      last: true,
     });
   }),
 ];

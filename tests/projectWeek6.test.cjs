@@ -161,7 +161,8 @@ test('missing project and unavailable role are rejected', async () => {
 });
 test('another user cannot view or cancel an application', async () => {
   const result = await api.submitApplication(102, payload);
-  storage.setSession(2);
+  storage.saveMember({ ...storage.getMembers()[1], memberId: 3 });
+  storage.setSession(3);
   assert.equal((await api.getMyApplications()).length, 0);
   await assert.rejects(
     api.getApplicationDetail(102, result.applicationId),

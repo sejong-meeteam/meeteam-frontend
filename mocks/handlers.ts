@@ -1,5 +1,9 @@
 import { delay, http, HttpResponse } from 'msw';
 import { projectWeek6Handlers } from './projectWeek6Handlers';
+import { notificationHandlers } from './notificationHandlers';
+import { projectManagementHandlers } from './projectManagementHandlers';
+import { qnaHandlers } from './qnaHandlers';
+import { isProjectOpen } from './projectContract';
 import { toProjectCard, toProjectDetail, toMemberCard, pageResponse } from './responseMappers';
 import { z } from 'zod';
 import { profileImageSchema } from '@/components/features/profile/schema';
@@ -180,6 +184,9 @@ function imageDataUrl(file: File | null): Promise<string | null> {
 }
 
 export const handlers = [
+  ...notificationHandlers,
+  ...projectManagementHandlers,
+  ...qnaHandlers,
   ...projectWeek6Handlers,
   ...['/api/v1/members/search', '/api/v1/main/members'].map((url) =>
     http.get(url, async ({ request }) => {
@@ -204,21 +211,6 @@ export const handlers = [
       );
       return success(pageResponse(cards, params));
     }),
-  ),
-  http.get('/api/v1/notifications/unread/count', () =>
-    getSessionMember() ? success({ unreadCount: 0 }) : failure(401, '로그인이 필요합니다.'),
-  ),
-  http.get('/api/v1/notifications', ({ request }) =>
-    getSessionMember()
-      ? success(pageResponse([], new URL(request.url).searchParams))
-      : failure(401, '로그인이 필요합니다.'),
-  ),
-  http.get(
-    '/api/v1/subscribe',
-    () =>
-      new HttpResponse(': mock\nretry: 60000\n\n', {
-        headers: { 'Content-Type': 'text/event-stream' },
-      }),
   ),
   http.post('/api/v1/auth/login/sejong', async ({ request }) => {
     const parsed = loginRequestSchema.safeParse(await request.json().catch(() => null));
@@ -410,6 +402,8 @@ export const handlers = [
     if (keyword === '네트워크오류') return HttpResponse.error();
     const category = params.get('projectCategory') ?? '';
     const jobField = params.get('jobField') ?? '';
+    const platform = params.get('platformCategory') ?? '';
+    const recruitingOnly = params.get('recruitment') === 'RECRUITING';
     const techStackId = Number(params.get('techStackId'));
     const page = Math.max(0, Number(params.get('page')) || 0);
     const size = Math.min(20, Math.max(1, Number(params.get('size')) || 8));
@@ -419,6 +413,8 @@ export const handlers = [
         (!keyword ||
           `${project.name} ${project.leaderName}`.toLocaleLowerCase().includes(keyword)) &&
         (!category || project.category === category) &&
+        (!platform || project.platform === platform) &&
+        (!recruitingOnly || isProjectOpen(project)) &&
         (!jobField || project.recruitments.some((item) => item.jobFieldCode === jobField)) &&
         (!techStackId ||
           project.recruitments.some((item) => item.techStackIds.includes(techStackId))),
