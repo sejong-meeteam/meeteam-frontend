@@ -23,7 +23,7 @@ export async function proxyApi(request: NextRequest, context: RouteContext, pref
 
   const url = new URL(`${prefix}/${path.join('/')}${request.nextUrl.search}`, API_ORIGIN);
   const headers = new Headers();
-  for (const name of ['accept', 'authorization', 'content-type', 'cookie']) {
+  for (const name of ['accept', 'authorization', 'content-type', 'cookie', 'last-event-id']) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
@@ -38,8 +38,13 @@ export async function proxyApi(request: NextRequest, context: RouteContext, pref
           : await request.arrayBuffer(),
       cache: 'no-store',
       redirect: 'manual',
+      signal: request.signal,
     });
     const responseHeaders = new Headers({ 'Cache-Control': 'no-store' });
+    if (upstream.headers.get('content-type')?.includes('text/event-stream')) {
+      responseHeaders.set('Cache-Control', 'no-cache, no-transform');
+      responseHeaders.set('X-Accel-Buffering', 'no');
+    }
     for (const name of ['content-type', 'authorization', 'location']) {
       const value = upstream.headers.get(name);
       if (value) responseHeaders.set(name, value);

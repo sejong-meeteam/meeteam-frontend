@@ -5,22 +5,34 @@ import { RotateCw } from 'lucide-react';
 import SkeletonBlock from '@/components/shared/SkeletonBlock';
 import ToastMessage from '@/components/shared/ToastMessage';
 import { NotificationCard } from './NotificationCard';
-import { fetchNotifications } from './notificationApi';
+import {
+  fetchNotifications,
+  fetchUnreadNotificationCount,
+  markAllNotificationsRead,
+} from './notificationApi';
 import { useNotificationStore } from './store';
 import type { NotificationItem } from './types';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const NOTIFICATION_PAGE_SIZE = 20;
 
 export default function NotificationsPage() {
+  const memberId = useAuthStore((state) => state.memberId);
+  return <NotificationList key={memberId ?? 'anonymous'} />;
+}
+
+function NotificationList() {
+  const ownerId = useAuthStore((state) => state.memberId);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isMarkingRead, setIsMarkingRead] = useState(false);
   const latestNotification = useNotificationStore((state) => state.latestNotification);
   const setGlobalUnreadCount = useNotificationStore((state) => state.setUnreadCount);
-  const unreadCount = notifications.filter((notification) => notification.unread).length;
+  const unreadCount = useNotificationStore((state) => state.unreadCount);
 
   const loadNotifications = useCallback(
     async (nextPage = 0) => {
@@ -36,16 +48,18 @@ export default function NotificationsPage() {
         setErrorMessage(null);
 
         const result = await fetchNotifications(nextPage, NOTIFICATION_PAGE_SIZE);
+        const serverUnreadCount = await fetchUnreadNotificationCount();
+        if (useAuthStore.getState().memberId !== ownerId) return;
 
         setNotifications((current) =>
-          isFirstPage ? result.notifications : [...current, ...result.notifications],
+          (isFirstPage ? result.notifications : [...current, ...result.notifications]).map(
+            (notification) => ({ ...notification, unread: false }),
+          ),
         );
         setPage(result.page);
         setHasMore(result.hasMore);
 
-        if (isFirstPage) {
-          setGlobalUnreadCount(0);
-        }
+        setGlobalUnreadCount(serverUnreadCount);
       } catch (error) {
         setErrorMessage(
           error instanceof Error ? error.message : '알림 목록을 불러오지 못했습니다.',
@@ -55,7 +69,7 @@ export default function NotificationsPage() {
         setIsLoadingMore(false);
       }
     },
-    [setGlobalUnreadCount],
+    [ownerId, setGlobalUnreadCount],
   );
 
   useEffect(() => {
@@ -76,14 +90,20 @@ export default function NotificationsPage() {
     });
   }, [latestNotification]);
 
-  const handleMarkAllRead = () => {
-    setNotifications((current) =>
-      current.map((notification) => ({
-        ...notification,
-        unread: false,
-      })),
-    );
-    setGlobalUnreadCount(0);
+  const handleMarkAllRead = async () => {
+    if (isMarkingRead) return;
+    try {
+      setIsMarkingRead(true);
+      setErrorMessage(null);
+      const nextUnreadCount = await markAllNotificationsRead();
+      if (useAuthStore.getState().memberId !== ownerId) return;
+      setNotifications((current) => current.map((item) => ({ ...item, unread: false })));
+      setGlobalUnreadCount(nextUnreadCount);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : '읽음 처리에 실패했습니다.');
+    } finally {
+      setIsMarkingRead(false);
+    }
   };
 
   return (
@@ -101,11 +121,11 @@ export default function NotificationsPage() {
 
           <button
             type="button"
-            onClick={handleMarkAllRead}
-            disabled={unreadCount === 0}
+            onClick={() => void handleMarkAllRead()}
+            disabled={unreadCount === 0 || isMarkingRead || isLoading}
             className="w-fit text-sm leading-5 font-semibold text-mt-primary transition-colors hover:text-mt-primary"
           >
-            모두 읽음 처리
+            {isMarkingRead ? '처리 중' : '모두 읽음 처리'}
           </button>
         </div>
 

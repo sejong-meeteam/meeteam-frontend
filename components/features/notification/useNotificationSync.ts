@@ -1,24 +1,21 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useAuthStore } from '@/stores/useAuthStore';
 
-import {
-  fetchUnreadNotificationCount,
-  mapNotificationEvent,
-  NOTIFICATION_API_BASE_URL,
-  NOTIFICATION_EVENT_TYPES,
-} from './notificationApi';
+import { fetchUnreadNotificationCount } from './notificationApi';
 import { useNotificationStore } from './store';
+import { readNotificationStream } from './notificationStream';
 
 export function useNotificationSync(enabled: boolean) {
+  const memberId = useAuthStore((state) => state.memberId);
   const setUnreadCount = useNotificationStore((state) => state.setUnreadCount);
-  const incrementUnreadCount = useNotificationStore((state) => state.incrementUnreadCount);
   const pushRealtimeNotification = useNotificationStore((state) => state.pushRealtimeNotification);
   const resetNotifications = useNotificationStore((state) => state.resetNotifications);
 
   useEffect(() => {
+    resetNotifications();
     if (!enabled) {
-      resetNotifications();
       return undefined;
     }
 
@@ -32,9 +29,7 @@ export function useNotificationSync(enabled: boolean) {
           setUnreadCount(nextUnreadCount);
         }
       } catch {
-        if (active) {
-          setUnreadCount(0);
-        }
+        // Preserve the last known count when the server cannot be reached.
       }
     };
 
@@ -43,36 +38,43 @@ export function useNotificationSync(enabled: boolean) {
     return () => {
       active = false;
     };
-  }, [enabled, resetNotifications, setUnreadCount]);
+  }, [enabled, memberId, resetNotifications, setUnreadCount]);
 
   useEffect(() => {
     if (!enabled) {
       return undefined;
     }
 
-    const eventSource = new EventSource(`${NOTIFICATION_API_BASE_URL}/api/v1/subscribe`, {
-      withCredentials: true,
-    });
-    const handleNotification = (event: MessageEvent<string>) => {
-      const notification = mapNotificationEvent(event);
-
-      if (!notification) {
-        return;
+    const controller = new AbortController();
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let lastEventId = '';
+    let retryDelay = 1000;
+    const connect = async () => {
+      try {
+        await readNotificationStream(
+          controller.signal,
+          (notification) => {
+            retryDelay = 1000;
+            pushRealtimeNotification(notification);
+          },
+          lastEventId,
+          (id) => {
+            lastEventId = id;
+          },
+        );
+      } catch {
+        // apiFetch handles expired sessions; transient failures reconnect below.
       }
-
-      pushRealtimeNotification(notification);
-      incrementUnreadCount();
+      if (!controller.signal.aborted) {
+        retryTimer = setTimeout(() => void connect(), retryDelay);
+        retryDelay = Math.min(retryDelay * 2, 30000);
+      }
     };
-
-    NOTIFICATION_EVENT_TYPES.forEach((type) => {
-      eventSource.addEventListener(type, handleNotification);
-    });
+    void connect();
 
     return () => {
-      NOTIFICATION_EVENT_TYPES.forEach((type) => {
-        eventSource.removeEventListener(type, handleNotification);
-      });
-      eventSource.close();
+      controller.abort();
+      clearTimeout(retryTimer);
     };
-  }, [enabled, incrementUnreadCount, pushRealtimeNotification]);
+  }, [enabled, memberId, pushRealtimeNotification]);
 }

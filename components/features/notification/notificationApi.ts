@@ -125,7 +125,15 @@ export async function fetchUnreadNotificationCount() {
   return result.unReadCount ?? result.unreadCount ?? 0;
 }
 
-export function mapNotificationEvent(event: MessageEvent<string>): NotificationItem | null {
+// The backend marks all notifications read when listing them; it has no separate write endpoint.
+export async function markAllNotificationsRead() {
+  await fetchNotifications(0, 1);
+  return fetchUnreadNotificationCount();
+}
+
+export function mapNotificationEvent(
+  event: Pick<MessageEvent<string>, 'data' | 'lastEventId'>,
+): NotificationItem | null {
   const envelope = parseNotificationEnvelope(event.data);
   const type = envelope?.type;
 
