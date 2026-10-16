@@ -2,7 +2,7 @@
 
 세종대학교 구성원이 프로젝트를 모집하고 함께할 팀원을 찾는 웹 서비스입니다.
 
-현재 관리 버전은 `0.2.0`입니다. 릴리스 기준 코드는 Git 태그 `v0.2.0`으로 확인합니다.
+현재 관리 버전은 `0.3.0`입니다. 릴리스 기준 코드는 Git 태그 `v0.3.0`으로 확인합니다.
 
 ## 문서
 
@@ -10,6 +10,7 @@
 - [구조 및 인증·API 동작](docs/architecture.md)
 - [환경 설정·배포·운영](docs/operations.md)
 - [버전 관리·릴리스·롤백 절차](docs/releases.md)
+- [관리·알림·Q&A API 정책 및 검증 범위](docs/service-verification.md)
 
 ## 주요 기능
 
@@ -96,6 +97,8 @@ public/               URL로 접근하는 정적 파일
 npm run lint             # 코드 검사
 npm run format:check     # 포맷 검사
 npm run test:unit        # 단위 테스트
+npm run test:service     # MSW 사용자 흐름 통합 테스트 (test:unit에도 포함)
+npm run test:regression  # 지원·취소·관심 등록 회귀 테스트
 npm run storybook        # 컴포넌트 개발 환경
 npm run build-storybook  # Storybook 정적 산출물 생성
 npm run build            # 서비스 빌드

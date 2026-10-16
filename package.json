@@ -1,6 +1,6 @@
 {
   "name": "meeteam-front-new",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "engines": {
     "node": "24.x"
@@ -11,6 +11,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:unit": "vitest run --config vitest.unit.config.ts",
+    "test:service": "vitest run --config vitest.unit.config.ts tests/unit/service",
+    "test:regression": "node --test tests/projectWeek6.test.cjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "storybook": "storybook dev -p 6006",
