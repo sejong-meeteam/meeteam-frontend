@@ -20,6 +20,7 @@ type ProjectManageShellProps = {
   projectId: string;
   activeTab: 'members' | 'applicants' | 'edit';
   pendingApplicantsCount?: number;
+  refreshKey?: number;
   onRecruitmentStatusChange?: (status: ProjectRecruitmentStatus) => void;
   children: ReactNode;
 };
@@ -90,6 +91,7 @@ export default function ProjectManageShell({
   projectId,
   activeTab,
   pendingApplicantsCount,
+  refreshKey = 0,
   onRecruitmentStatusChange,
   children,
 }: ProjectManageShellProps) {
@@ -198,6 +200,7 @@ export default function ProjectManageShell({
     onRecruitmentStatusChange,
     pendingApplicantsCount,
     projectId,
+    refreshKey,
     redirectToProjectDetailIfPermissionDenied,
   ]);
 
@@ -324,6 +327,11 @@ export default function ProjectManageShell({
               )}
             </div>
           </div>
+
+          <p className="text-sm text-text-gray">
+            모집 중단은 직접 변경할 수 있으며, 모든 모집 포지션이 마감되면 모집 완료로 자동
+            전환됩니다.
+          </p>
 
           <nav className="-mx-4 -mb-6 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
             <ul className="flex min-w-max items-center">

@@ -23,7 +23,8 @@ export default function ProjectMemberRemovalModal({
       title="팀원을 방출할까요?"
       description={
         <>
-          정말로 <span className="font-bold">{memberName}</span>님을 방출하시겠습니까?
+          <span className="font-bold">{memberName}</span>님을 방출하면 팀원 목록과 모집 인원에
+          반영됩니다. 이 작업을 진행할까요?
         </>
       }
       closeLabel="취소"

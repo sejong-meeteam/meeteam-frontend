@@ -10,6 +10,8 @@ import SkeletonBlock from '@/components/shared/SkeletonBlock';
 import ToastMessage from '@/components/shared/ToastMessage';
 import { useAuthStore } from '@/stores/useAuthStore';
 import type { ProjectRecord } from '@/types/project';
+import { canAnswerQna, visibleQna } from './qnaPermissions';
+import { qnaContentSchema } from './qnaSchema';
 import {
   createProjectQnaAnswer,
   createProjectQnaQuestion,
@@ -248,14 +250,6 @@ function AuthRequiredQuestionPrompt() {
   );
 }
 
-function canWriteAnswer(project: ProjectRecord, qna: ProjectQna, memberId: number | null) {
-  if (!memberId) {
-    return false;
-  }
-
-  return memberId === qna.questionerId || memberId === project.leaderProfileId;
-}
-
 export default function ProjectQnaSection({ project }: { project: ProjectRecord }) {
   const handleAuthRequired = useAuthRequiredModal();
   const memberId = useAuthStore((state) => state.memberId);
@@ -278,6 +272,9 @@ export default function ProjectQnaSection({ project }: { project: ProjectRecord 
 
     const loadQnas = async () => {
       try {
+        setQnas([]);
+        setAnswerDrafts({});
+        setActiveAnswerQnaId(null);
         setIsLoading(true);
         setErrorMessage(null);
 
@@ -308,7 +305,7 @@ export default function ProjectQnaSection({ project }: { project: ProjectRecord 
     return () => {
       active = false;
     };
-  }, [project.id]);
+  }, [project.id, memberId]);
 
   const replaceQna = (nextQna: ProjectQna) => {
     setQnas((current) => current.map((qna) => (qna.id === nextQna.id ? nextQna : qna)));
@@ -316,6 +313,7 @@ export default function ProjectQnaSection({ project }: { project: ProjectRecord 
 
   const handleQuestionSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isQuestionSubmitting) return;
 
     if (!isAuthenticated) {
       handleAuthRequired(new Error('로그인이 필요합니다.'), {
@@ -324,12 +322,12 @@ export default function ProjectQnaSection({ project }: { project: ProjectRecord 
       return;
     }
 
-    const question = questionDraft.trim();
-
-    if (!question) {
-      setErrorMessage('질문 내용을 입력해 주세요.');
+    const parsed = qnaContentSchema.safeParse(questionDraft);
+    if (!parsed.success) {
+      setErrorMessage(parsed.error.issues[0].message);
       return;
     }
+    const question = parsed.data;
 
     try {
       setIsQuestionSubmitting(true);
@@ -352,12 +350,18 @@ export default function ProjectQnaSection({ project }: { project: ProjectRecord 
   };
 
   const handleAnswerSubmit = async (qnaId: number) => {
-    const answer = answerDrafts[qnaId]?.trim() ?? '';
-
-    if (!answer) {
-      setErrorMessage('답변 내용을 입력해 주세요.');
+    if (submittingAnswerId !== null) return;
+    const qna = qnas.find((item) => item.id === qnaId);
+    if (!qna || !canAnswerQna(qna, project.leaderProfileId, memberId)) {
+      setErrorMessage('질문 작성자와 프로젝트 리더만 답변할 수 있습니다.');
       return;
     }
+    const parsed = qnaContentSchema.safeParse(answerDrafts[qnaId] ?? '');
+    if (!parsed.success) {
+      setErrorMessage(parsed.error.issues[0].message);
+      return;
+    }
+    const answer = parsed.data;
 
     try {
       setSubmittingAnswerId(qnaId);
@@ -410,8 +414,9 @@ export default function ProjectQnaSection({ project }: { project: ProjectRecord 
         <ProjectQnaSkeleton />
       ) : qnas.length > 0 ? (
         <div className="space-y-3">
-          {qnas.map((qna) => {
-            const canAnswer = canWriteAnswer(project, qna, memberId);
+          {qnas.map((item) => {
+            const qna = visibleQna(item, project.leaderProfileId, memberId);
+            const canAnswer = canAnswerQna(qna, project.leaderProfileId, memberId);
             const isAnswerComposerOpen = activeAnswerQnaId === qna.id;
 
             return (

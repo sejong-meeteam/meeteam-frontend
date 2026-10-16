@@ -132,7 +132,7 @@ export default function ProjectDetailPage({ projectId }: { projectId: string }) 
     return () => {
       active = false;
     };
-  }, [localProject, projectId]);
+  }, [localProject, projectId, memberId]);
 
   if (isLoading && !project) {
     return <ProjectDetailSkeleton />;
@@ -243,6 +243,15 @@ export default function ProjectDetailPage({ projectId }: { projectId: string }) 
       removeMember(project.id, memberId);
       setIsLeaveModalOpen(false);
       showToast({ tone: 'success', message: '프로젝트에서 나갔어요.' });
+      try {
+        const nextProject = await fetchProjectDetail(project.id);
+        setProject(nextProject);
+        setTeamMembers(nextProject.members);
+      } catch {
+        setErrorMessage(
+          '탈퇴는 완료됐지만 최신 모집 정보를 불러오지 못했습니다. 새로고침해 주세요.',
+        );
+      }
     } catch (error) {
       if (openAuthRequiredModal(error)) {
         setIsLeaveModalOpen(false);

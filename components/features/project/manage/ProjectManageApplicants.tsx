@@ -64,6 +64,7 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
   const [decisionLoadingId, setDecisionLoadingId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [detailErrorMessage, setDetailErrorMessage] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const loadApplicants = useCallback(async () => {
     try {
@@ -179,7 +180,8 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
         setDetailApplicant(null);
       }
 
-      void loadApplicants();
+      await loadApplicants();
+      setRefreshKey((current) => current + 1);
     } catch (error) {
       if (handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage/applicants` })) {
         return;
@@ -202,6 +204,7 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
       projectId={projectId}
       activeTab="applicants"
       pendingApplicantsCount={pendingApplicantsCount}
+      refreshKey={refreshKey}
     >
       <div className="space-y-6">
         <ToastMessage message={errorMessage} />

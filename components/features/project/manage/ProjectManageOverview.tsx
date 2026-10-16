@@ -39,6 +39,7 @@ export default function ProjectManageOverview({ projectId }: ProjectManageOvervi
   const [isRemoving, setIsRemoving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const loadTeamManagement = useCallback(async () => {
     try {
@@ -125,6 +126,7 @@ export default function ProjectManageOverview({ projectId }: ProjectManageOvervi
 
       await expelProjectMember(projectId, selectedMember.id);
       await loadTeamManagement();
+      setRefreshKey((current) => current + 1);
       setSelectedMember(null);
     } catch (error) {
       if (handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage` })) {
@@ -178,7 +180,7 @@ export default function ProjectManageOverview({ projectId }: ProjectManageOvervi
 
   if (isLoading && !teamManagement) {
     return (
-      <ProjectManageShell projectId={projectId} activeTab="members">
+      <ProjectManageShell projectId={projectId} activeTab="members" refreshKey={refreshKey}>
         <ProjectManageOverviewSkeleton />
       </ProjectManageShell>
     );
@@ -186,7 +188,7 @@ export default function ProjectManageOverview({ projectId }: ProjectManageOvervi
 
   if (!teamManagement) {
     return (
-      <ProjectManageShell projectId={projectId} activeTab="members">
+      <ProjectManageShell projectId={projectId} activeTab="members" refreshKey={refreshKey}>
         <section className="rounded-3xl border border-mt-border bg-mt-white px-8 py-12 text-center shadow-sm">
           <h2 className="text-xl font-bold text-mt-text-primary">
             팀원 정보를 불러오지 못했습니다.
@@ -211,7 +213,7 @@ export default function ProjectManageOverview({ projectId }: ProjectManageOvervi
   ];
 
   return (
-    <ProjectManageShell projectId={projectId} activeTab="members">
+    <ProjectManageShell projectId={projectId} activeTab="members" refreshKey={refreshKey}>
       <div className="space-y-6 md:space-y-8">
         <ToastMessage message={errorMessage} />
 
