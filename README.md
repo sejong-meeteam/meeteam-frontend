@@ -2,7 +2,7 @@
 
 세종대학교 구성원이 프로젝트를 모집하고 함께할 팀원을 찾는 웹 서비스입니다.
 
-현재 관리 버전은 `0.3.0`입니다. 릴리스 기준 코드는 Git 태그 `v0.3.0`으로 확인합니다.
+현재 관리 버전은 `0.3.1`입니다. 배포 검증 후 생성하는 Git 태그 `v0.3.1`을 릴리스 기준으로 사용합니다.
 
 ## 문서
 
@@ -11,6 +11,7 @@
 - [환경 설정·배포·운영](docs/operations.md)
 - [버전 관리·릴리스·롤백 절차](docs/releases.md)
 - [관리·알림·Q&A API 정책 및 검증 범위](docs/service-verification.md)
+- [테스트 실행·Storybook·검증 경계](docs/testing.md)
 
 ## 주요 기능
 
@@ -22,17 +23,18 @@
 
 ## 기술 스택
 
-| 영역          | 기술                          |
-| ------------- | ----------------------------- |
-| 프레임워크    | Next.js 16, React 19          |
-| 언어          | TypeScript                    |
-| 스타일        | Tailwind CSS v4, Lucide React |
-| 상태 관리     | Zustand, TanStack Query       |
-| 입력 검증     | Zod                           |
-| API 테스트    | MSW                           |
-| 컴포넌트 개발 | Storybook                     |
-| 단위 테스트   | Vitest                        |
-| 코드 품질     | ESLint, Prettier              |
+| 영역            | 기술                          |
+| --------------- | ----------------------------- |
+| 프레임워크      | Next.js 16, React 19          |
+| 언어            | TypeScript                    |
+| 스타일          | Tailwind CSS v4, Lucide React |
+| 상태 관리       | Zustand, TanStack Query       |
+| 입력 검증       | Zod                           |
+| API 테스트      | MSW                           |
+| 컴포넌트 개발   | Storybook                     |
+| 단위 테스트     | Vitest                        |
+| 브라우저 테스트 | Cypress, axe-core             |
+| 코드 품질       | ESLint, Prettier              |
 
 ## 시작하기
 
@@ -73,6 +75,7 @@ types/                공유 타입
 mocks/                MSW 핸들러와 모의 데이터
 stories/              Storybook 컴포넌트 예시
 tests/                단위 테스트와 API 계약 테스트
+cypress/              서비스·Storybook 브라우저 테스트
 assets/               컴포넌트에서 가져오는 이미지·아이콘
 public/               URL로 접근하는 정적 파일
 ```
@@ -99,11 +102,16 @@ npm run format:check     # 포맷 검사
 npm run test:unit        # 단위 테스트
 npm run test:service     # MSW 사용자 흐름 통합 테스트 (test:unit에도 포함)
 npm run test:regression  # 지원·취소·관심 등록 회귀 테스트
+npm run test:types       # 앱·Cypress 타입 검사
+npm run test:e2e         # MSW 기반 브라우저 사용자 흐름
+npm run test:stories     # Storybook 상호작용·접근성 검사
 npm run storybook        # 컴포넌트 개발 환경
 npm run build-storybook  # Storybook 정적 산출물 생성
 npm run build            # 서비스 빌드
 npm run start            # 빌드한 서비스 실행
 ```
+
+브라우저 테스트는 실제 API를 호출하지 않습니다. 테스트 서버의 포트와 실행 조건, 검증 범위는 [테스트 문서](docs/testing.md)를 확인합니다.
 
 ## 배포
 
