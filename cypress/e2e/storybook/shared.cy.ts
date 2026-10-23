@@ -1,5 +1,5 @@
 function story(id: string) {
-  cy.visit(`http://127.0.0.1:6006/iframe.html?id=${id}&viewMode=story`);
+  cy.visit(`iframe.html?id=${id}&viewMode=story`);
   cy.get('#storybook-root').should('not.be.empty');
   cy.document().should((document) =>
     expect(
