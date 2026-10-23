@@ -1,6 +1,6 @@
 import { JOB_OPTIONS, type MockMember } from './fixtures';
 import type { ProjectRecord } from './projectContract';
-import { getLikes, getSessionMember } from './storage';
+import { getLikes, getMembers, getSessionMember } from './storage';
 
 export function toProjectRecruitments(project: ProjectRecord) {
   return project.recruitments.map((item) => {
@@ -68,7 +68,11 @@ export function toProjectDetail(project: ProjectRecord) {
       { memberId: project.leaderId, name: project.leaderName, profileImageUrl: null },
       ...(project.memberIds ?? [])
         .filter((id) => id !== project.leaderId)
-        .map((memberId) => ({ memberId, name: '팀원', profileImageUrl: null })),
+        .map((memberId) => ({
+          memberId,
+          name: getMembers().find((member) => member.memberId === memberId)?.name ?? '팀원',
+          profileImageUrl: null,
+        })),
     ],
     recruitments: toProjectRecruitments(project),
     likeCount: getLikes().filter((item) => item.endsWith(`:${project.id}`)).length,

@@ -449,6 +449,7 @@ export default function ProfileOverview({
                 type="button"
                 onClick={() => void handleSave()}
                 disabled={isSaving || !hasChanges}
+                data-cy="profile-save-button"
                 className="inline-flex h-11 min-w-26 items-center justify-center rounded-xl bg-mt-primary px-5 text-sm font-bold text-mt-white shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSaving ? '저장 중' : '저장하기'}

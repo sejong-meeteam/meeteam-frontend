@@ -1,6 +1,6 @@
 {
   "name": "meeteam-front-new",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "engines": {
     "node": "24.x"
@@ -13,6 +13,12 @@
     "test:unit": "vitest run --config vitest.unit.config.ts",
     "test:service": "vitest run --config vitest.unit.config.ts tests/unit/service",
     "test:regression": "node --test tests/projectWeek6.test.cjs",
+    "dev:e2e": "node scripts/start-e2e.mjs",
+    "test:e2e:run": "cypress run --browser electron --spec 'cypress/e2e/service/*.cy.ts'",
+    "test:e2e": "start-server-and-test dev:e2e http://127.0.0.1:3005 test:e2e:run",
+    "test:stories:run": "cypress run --browser electron --config baseUrl=http://127.0.0.1:6006 --spec 'cypress/e2e/storybook/*.cy.ts'",
+    "test:stories": "start-server-and-test 'storybook dev --ci --host 127.0.0.1 --port 6006' http://127.0.0.1:6006 test:stories:run",
+    "test:types": "tsc --noEmit && tsc --project cypress/tsconfig.json --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "storybook": "storybook dev -p 6006",
@@ -32,19 +38,23 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^10.2.8",
+    "@storybook/addon-docs": "^10.2.8",
+    "@storybook/nextjs-vite": "^10.2.8",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "axe-core": "4.14.0",
+    "cypress": "15.14.0",
+    "cypress-axe": "1.7.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "prettier": "^3.8.1",
+    "start-server-and-test": "3.0.13",
+    "storybook": "^10.2.8",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "storybook": "^10.2.8",
-    "@storybook/nextjs-vite": "^10.2.8",
-    "@storybook/addon-docs": "^10.2.8",
-    "@storybook/addon-a11y": "^10.2.8",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"
   },

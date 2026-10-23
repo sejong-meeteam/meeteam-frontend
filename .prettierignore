@@ -5,3 +5,6 @@ build
 coverage
 package-lock.json
 *.min.js
+storybook-static
+cypress/screenshots
+cypress/videos
