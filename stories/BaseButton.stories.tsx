@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import BaseButton from '@/components/shared/BaseButton';
 
 const meta = {
+  id: 'shared-button',
   title: '공통 UI/버튼',
   component: BaseButton,
   tags: ['autodocs'],

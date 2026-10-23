@@ -4,8 +4,13 @@ import BaseButton from '@/components/shared/BaseButton';
 import BaseModal from '@/components/shared/BaseModal';
 import SkeletonBlock from '@/components/shared/SkeletonBlock';
 import { useToastStore } from '@/stores/useToastStore';
+import ConfirmModal from '@/components/shared/ConfirmModal';
 
-const meta = { title: '공통 UI/모달과 피드백', tags: ['autodocs'] } satisfies Meta;
+const meta = {
+  id: 'shared-feedback',
+  title: '공통 UI/모달과 피드백',
+  tags: ['autodocs'],
+} satisfies Meta;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
@@ -14,7 +19,7 @@ function ModalExample() {
   return (
     <>
       <BaseButton onClick={() => setOpen(true)}>모달 열기</BaseButton>
-      <BaseModal isOpen={open} onClose={() => setOpen(false)}>
+      <BaseModal isOpen={open} onClose={() => setOpen(false)} ariaLabel="공통 모달">
         <div className="space-y-4 rounded-2xl bg-mt-white p-6">
           <h2 className="text-xl font-bold">공통 모달</h2>
           <p className="text-mt-text-secondary">열림, 닫기, ESC 동작을 확인합니다.</p>
@@ -51,5 +56,38 @@ export const Skeleton: Story = {
       <SkeletonBlock className="h-10 w-full" />
       <SkeletonBlock className="h-10 w-4/5" />
     </div>
+  ),
+};
+
+function ConfirmExample({ busy = false }: { busy?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  return (
+    <>
+      <BaseButton onClick={() => setOpen(true)}>삭제 확인 열기</BaseButton>
+      {confirmed ? <p role="status">삭제가 완료되었습니다.</p> : null}
+      <ConfirmModal
+        isOpen={open}
+        title="프로젝트를 삭제할까요?"
+        description="삭제한 프로젝트는 복구할 수 없습니다."
+        confirmLabel={busy ? '삭제 중' : '삭제하기'}
+        isSubmitting={busy}
+        onClose={() => setOpen(false)}
+        onConfirm={() => {
+          setConfirmed(true);
+          setOpen(false);
+        }}
+      />
+    </>
+  );
+}
+export const Confirmation: Story = { render: () => <ConfirmExample /> };
+export const Submitting: Story = { render: () => <ConfirmExample busy /> };
+export const Empty: Story = {
+  render: () => (
+    <section aria-label="빈 목록" className="rounded-xl bg-white p-6">
+      <h2 className="text-xl font-bold">등록된 항목이 없습니다.</h2>
+      <p>새로운 프로젝트를 등록해 보세요.</p>
+    </section>
   ),
 };

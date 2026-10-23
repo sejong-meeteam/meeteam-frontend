@@ -5,6 +5,7 @@ import '../app/globals.css';
 const preview: Preview = {
   parameters: {
     nextjs: { appDirectory: true },
+    a11y: { test: 'error' },
     controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },
   },
   decorators: [

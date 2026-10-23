@@ -7,6 +7,7 @@ import BaseTag from '@/components/shared/BaseTag';
 import BaseTextarea from '@/components/shared/BaseTextarea';
 
 const meta = {
+  id: 'shared-form',
   title: '공통 UI/입력과 선택',
   tags: ['autodocs'],
 } satisfies Meta;
@@ -37,7 +38,12 @@ export const ErrorState: Story = {
   render: () => (
     <div className="w-full max-w-md">
       <BaseField label="프로젝트 이름" htmlFor="storybook-error" errorText="필수 항목입니다.">
-        <BaseInput id="storybook-error" error placeholder="이름을 입력하세요" />
+        <BaseInput
+          id="storybook-error"
+          error
+          aria-describedby="storybook-error-error"
+          placeholder="이름을 입력하세요"
+        />
       </BaseField>
     </div>
   ),
@@ -76,5 +82,13 @@ export const Tags: Story = {
       <BaseTag size="S">기본</BaseTag>
       <BaseTag size="M">중간 크기</BaseTag>
     </div>
+  ),
+};
+
+export const Disabled: Story = {
+  render: () => (
+    <BaseField label="변경할 수 없는 값" htmlFor="disabled-field">
+      <BaseInput id="disabled-field" value="저장 중인 내용" disabled readOnly />
+    </BaseField>
   ),
 };
