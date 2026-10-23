@@ -2,7 +2,7 @@
 
 세종대학교 구성원이 프로젝트를 모집하고 함께할 팀원을 찾는 웹 서비스입니다.
 
-현재 관리 버전은 `0.3.1`입니다. 배포 검증 후 생성하는 Git 태그 `v0.3.1`을 릴리스 기준으로 사용합니다.
+현재 관리 버전은 `0.3.2`입니다. 배포 검증 후 생성하는 Git 태그 `v0.3.2`를 릴리스 기준으로 사용합니다.
 
 ## 문서
 
@@ -105,16 +105,26 @@ npm run test:regression  # 지원·취소·관심 등록 회귀 테스트
 npm run test:types       # 앱·Cypress 타입 검사
 npm run test:e2e         # MSW 기반 브라우저 사용자 흐름
 npm run test:stories     # Storybook 상호작용·접근성 검사
+npm run test:stories:static # 서비스 하위 경로의 정적 Storybook 검증
 npm run storybook        # 컴포넌트 개발 환경
 npm run build-storybook  # Storybook 정적 산출물 생성
+npm run build-storybook:deploy # public/storybook에 배포용 정적 파일 생성
 npm run build            # 서비스 빌드
 npm run start            # 빌드한 서비스 실행
 ```
 
 브라우저 테스트는 실제 API를 호출하지 않습니다. 테스트 서버의 포트와 실행 조건, 검증 범위는 [테스트 문서](docs/testing.md)를 확인합니다.
 
+## Storybook
+
+공개 컴포넌트 문서는 [서비스의 /storybook](https://www.meeteam.fignal.me/storybook)에서 확인합니다. 진입 시 `/storybook/index.html`로 이동하여 상대 경로의 미리보기·스크립트를 정상 로드합니다. 쿼리가 포함된 개별 스토리 링크도 유지됩니다.
+
+로컬에서는 `npm run storybook` 실행 후 `http://localhost:6006`으로 접속합니다. 공개 Storybook에는 예시 데이터만 사용하며 실제 API에 연결하지 않습니다. 내부 자료·계정·토큰을 스토리에 넣지 않습니다.
+
 ## 배포
 
 Vercel에 저장소를 연결하고 `main`을 배포 브랜치로 지정합니다. 배포 환경의 `MEETEAM_API_BASE_URL`에 실행 중인 백엔드 주소를 설정합니다. MSW를 사용하는 별도 테스트 배포가 아니라면 `NEXT_PUBLIC_API_MODE=mock`은 설정하지 않습니다.
+
+저장소의 `vercel.json`은 `npm run build:vercel`을 실행합니다. Storybook을 `public/storybook`에 생성한 뒤 Next.js를 빌드하여 동일 커밋의 서비스와 컴포넌트 문서를 함께 배포합니다. 생성된 파일은 Git에 커밋하지 않습니다. 일반 `npm run build`는 기존처럼 Next.js만 빌드합니다.
 
 배포 후 공개 목록 조회와 로그인·세션 유지, 프로필 저장, 프로젝트 등록·지원 흐름을 실제 API 기준으로 확인합니다.

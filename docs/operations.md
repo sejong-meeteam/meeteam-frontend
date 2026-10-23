@@ -18,6 +18,16 @@ Node.js 24를 사용합니다. `.env.example`을 `.env.local`로 복사하고 �
 4. 서비스 도메인을 연결하고 환경 변수 수정 후 재배포합니다.
 5. Vercel 배포 성공 여부와 실제 서비스 응답을 각각 확인합니다. GitHub 태그를 만드는 것만으로 별도 배포가 보장되지는 않습니다.
 
+### Storybook 동시 배포
+
+`vercel.json`의 빌드 명령은 `npm run build:vercel`입니다. `build-storybook:deploy`로 `public/storybook`을 생성한 뒤 `next build`를 실행합니다. Vercel의 출력 디렉터리는 기존 Next.js 자동 설정을 유지합니다. 별도 Storybook 프로젝트·서브도메인·백엔드가 필요하지 않습니다.
+
+공유 주소는 `https://www.meeteam.fignal.me/storybook`이며 `/storybook/index.html`로 리다이렉트합니다. Storybook 페이지를 새로고침해도 같은 정적 파일을 사용합니다. `/storybook/index.json`은 스토리 목록, `/storybook/iframe.html`은 미리보기입니다.
+
+`.storybook/main.ts`는 브랜드·학교 이미지 디렉터리만 정적 입력으로 허용합니다. `public/storybook`을 다시 복사하거나 MSW 워커를 Storybook에 포함하지 않습니다. Vite의 자동 `public` 복사도 비활성화합니다. 생성된 산출물은 Git·ESLint·Prettier 대상에서 제외하며, Storybook 빌드 실패 시 서비스 빌드도 진행하지 않습니다.
+
+Storybook에는 공개 가능한 컴포넌트 예시만 포함합니다. 실제 계정, 토큰, 운영 데이터나 내부 문서를 추가하지 않습니다. 공개 Storybook의 링크·이미지를 확인할 때 실제 프로젝트 데이터를 수정하지 않습니다.
+
 ## 배포 후 확인
 
 - 메인·프로젝트·팀원 목록이 정상 표시되는지 확인합니다.
@@ -26,6 +36,7 @@ Node.js 24를 사용합니다. `.env.example`을 `.env.local`로 복사하고 �
 - 프로필 저장, 프로젝트 등록, 지원 제출·취소는 승인된 테스트 데이터로 확인합니다.
 - 페이지 소스의 `og:image`, `og:url`, canonical이 공개 프론트 도메인을 가리키는지 확인합니다.
 - 공유 이미지가 인증 없이 HTTP 200과 이미지 Content-Type으로 반환되는지 확인합니다. 메신저 캐시는 배포 후에도 이전 미리보기를 유지할 수 있습니다.
+- `/storybook` 진입·스토리 선택·직접 링크·새로고침과 `/storybook` 하위의 JS·CSS·이미지 응답을 확인합니다. 미리보기의 모달 등 기본 상호작용도 실행합니다.
 
 ## 장애 점검
 

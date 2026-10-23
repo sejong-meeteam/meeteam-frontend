@@ -15,9 +15,12 @@ npm run test:unit        # 단위 + MSW API 통합
 npm run test:regression  # 기존 지원 흐름 회귀
 npm run test:e2e         # Next 테스트 서버 시작 → Cypress → 서버 종료
 npm run test:stories     # Storybook 시작 → Cypress + axe → 서버 종료
+npm run test:stories:static # 정적 Storybook 생성 → Next에서 하위 경로 검증
 ```
 
 서비스 E2E는 `127.0.0.1:3005`, Storybook 검증은 `127.0.0.1:6006`을 사용합니다. 해당 포트를 비워 두고 두 브라우저 테스트 명령은 순서대로 실행합니다. Cypress 기본 브라우저는 설치된 Electron입니다. 최초 설치 시 Cypress 실행 파일 다운로드 및 운영체제 의존성이 필요할 수 있습니다.
+
+`test:stories:static`은 서비스 프로덕션 빌드 없이 `public/storybook`만 생성하고 테스트용 Next 개발 서버의 `/storybook` 아래에서 확인합니다. 기존 Storybook 검사 10개와 진입·새로고침·이미지·스타일·런타임 경로 검사 4개를 실행합니다. 정적 생성은 두 번 반복해도 출력 디렉터리를 입력으로 재복사하지 않습니다. 개발 서버의 `/storybook`을 직접 보려면 먼저 `npm run build-storybook:deploy`를 실행합니다.
 
 직접 Cypress 화면을 사용하려면 별도 터미널에서 `npm run dev:e2e`를 실행한 뒤 `npx cypress open`으로 서비스 spec을 선택합니다. Storybook spec은 `npm run storybook`이 필요합니다.
 
@@ -49,6 +52,8 @@ npm run test:stories     # Storybook 시작 → Cypress + axe → 서버 종료
 
 스토리의 고정 `id`는 Cypress 진입 경로이므로 변경 시 spec도 수정합니다. 입력 요소는 가능한 레이블·역할 또는 기존 `data-cy`로 찾고, 무조건적인 대기나 예외 무시는 추가하지 않습니다. 접근성 실패는 규칙 제외 대신 원인을 수정합니다.
 
+Vercel에는 Storybook과 서비스를 함께 배포합니다. 공개 주소·빌드 순서와 정적 자산 정책은 [운영 문서](operations.md#storybook-동시-배포)를 참고합니다. Storybook은 서비스의 인증 초기화 컴포넌트를 마운트하지 않고 예시 데이터로만 렌더링합니다.
+
 ## 실패 분석과 제한
 
 실패 화면은 `cypress/screenshots/`에 남고 Git에는 포함하지 않습니다. 콘솔의 실패 assertion·axe 대상과 화면을 함께 확인합니다. 민감한 실제 계정이나 운영 데이터를 테스트 fixture에 넣지 않습니다.
@@ -59,15 +64,16 @@ npm run test:stories     # Storybook 시작 → Cypress + axe → 서버 종료
 
 ## 최근 로컬 결과
 
-2026-10-23, `0.3.1` 배포 준비 코드 기준입니다.
+2026-10-23, `0.3.2` 배포 준비 코드 기준입니다.
 
-| 검사                      | 결과                      |
-| ------------------------- | ------------------------- |
-| 단위·MSW 통합             | 95개 통과                 |
-| 기존 지원 흐름 회귀       | 13개 통과                 |
-| 서비스 브라우저 E2E       | 18개 통과                 |
-| Storybook 상호작용·접근성 | 10개 통과 (이 중 axe 5개) |
-| 앱·Cypress 타입 검사      | 통과                      |
-| ESLint                    | 오류 0개, 기존 경고 4개   |
+| 검사                      | 결과                       |
+| ------------------------- | -------------------------- |
+| 단위·MSW 통합             | 100개 통과                 |
+| 기존 지원 흐름 회귀       | 13개 통과                  |
+| 서비스 브라우저 E2E       | 18개 통과                  |
+| Storybook 상호작용·접근성 | 10개 통과 (이 중 axe 5개)  |
+| 정적 Storybook 하위 경로  | 14개 통과 (기존 10개 포함) |
+| 앱·Cypress 타입 검사      | 통과                       |
+| ESLint                    | 오류 0개, 기존 경고 4개    |
 
-위 결과는 로컬 테스트 결과이며 운영 배포 검증이 아닙니다.
+개발 Storybook의 10개 검사를 정적 배포에서도 재사용하므로 두 결과를 독립적인 테스트 개수로 합산하지 않습니다. 위 결과는 로컬 테스트 결과이며 운영 배포 검증이 아닙니다.
