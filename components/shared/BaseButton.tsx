@@ -21,7 +21,7 @@ const SIZE_MAP: Record<BaseButtonSize, string> = {
 };
 
 const VARIANT_MAP: Record<BaseButtonVariant, string> = {
-  primary: 'border-none bg-mt-primary text-mt-white',
+  primary: 'border-none bg-action-primary text-mt-white',
   gray: 'border border-mt-border bg-mt-white text-mt-text-secondary',
 };
 

@@ -22,7 +22,7 @@ export default function LoginPromptModal() {
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={closeLoginModal}>
+    <BaseModal isOpen={isOpen} onClose={closeLoginModal} ariaLabel={title}>
       <section className="mx-auto flex w-full max-w-md flex-col gap-6 rounded-2xl bg-mt-white p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">

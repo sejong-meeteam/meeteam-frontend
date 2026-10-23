@@ -42,6 +42,7 @@ export default function BaseInput({
       <input
         type={type}
         disabled={disabled}
+        aria-invalid={error || undefined}
         className={`rounded-xl border border-mt-border bg-mt-white text-mt-text-primary outline-none transition-all duration-200 ease-out
           placeholder:text-mt-text-secondary
           focus:border-mt-primary focus:bg-mt-white focus:outline-none focus:ring-2 focus:ring-mt-logo-blue/20

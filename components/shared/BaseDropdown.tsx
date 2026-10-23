@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useId } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import SelectMenu from '@/components/shared/SelectMenu';
 
@@ -34,6 +34,8 @@ export default function BaseDropdown({
   dataCy,
 }: BaseDropdownProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
   const label = value || placeholder;
 
   useEffect(() => {
@@ -52,6 +54,7 @@ export default function BaseDropdown({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onToggle();
+        buttonRef.current?.focus();
       }
     };
 
@@ -67,9 +70,12 @@ export default function BaseDropdown({
   return (
     <div ref={containerRef} className={`relative ${containerClassName}`}>
       <button
+        ref={buttonRef}
         type="button"
         onClick={onToggle}
         disabled={disabled}
+        aria-expanded={open}
+        aria-controls={open ? menuId : undefined}
         data-cy={dataCy}
         className={`flex w-full rounded-xl border border-mt-border text-mt-text-nav
           disabled:cursor-not-allowed disabled:bg-mt-bg-soft disabled:text-mt-text-secondary ${buttonClassName}`}
@@ -82,7 +88,15 @@ export default function BaseDropdown({
         )}
       </button>
       {open && items.length > 0 && (
-        <SelectMenu items={items} onSelect={onSelect} className={selectMenuClassName} />
+        <SelectMenu
+          id={menuId}
+          items={items}
+          onSelect={(item) => {
+            onSelect(item);
+            requestAnimationFrame(() => buttonRef.current?.focus());
+          }}
+          className={selectMenuClassName}
+        />
       )}
     </div>
   );

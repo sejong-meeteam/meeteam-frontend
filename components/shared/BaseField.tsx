@@ -33,9 +33,20 @@ export default function BaseField({
       {children}
 
       {errorText ? (
-        <p className="text-sm leading-5 text-mt-hero-blue">{errorText}</p>
+        <p
+          id={htmlFor ? `${htmlFor}-error` : undefined}
+          role="alert"
+          className="text-sm leading-5 text-feedback-error"
+        >
+          {errorText}
+        </p>
       ) : hintText ? (
-        <p className="text-sm leading-5 text-mt-text-secondary">{hintText}</p>
+        <p
+          id={htmlFor ? `${htmlFor}-hint` : undefined}
+          className="text-sm leading-5 text-mt-text-secondary"
+        >
+          {hintText}
+        </p>
       ) : null}
     </div>
   );

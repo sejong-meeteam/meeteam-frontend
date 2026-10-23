@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { type ReactNode, useId } from 'react';
 import BaseButton from '@/components/shared/BaseButton';
 import BaseModal from '@/components/shared/BaseModal';
 
@@ -31,11 +31,22 @@ export default function ConfirmModal({
   onClose,
   onConfirm,
 }: ConfirmModalProps) {
+  const titleId = useId();
+  const descriptionId = useId();
   return (
-    <BaseModal isOpen={isOpen} onClose={isSubmitting ? () => undefined : onClose}>
+    <BaseModal
+      isOpen={isOpen}
+      onClose={isSubmitting ? () => undefined : onClose}
+      labelledBy={titleId}
+      describedBy={descriptionId}
+    >
       <div className="rounded-2xl bg-mt-white p-6 shadow-2xl">
-        <h2 className="text-xl font-extrabold text-mt-text-primary">{title}</h2>
-        <p className="mt-2 text-sm leading-6 text-mt-text-secondary">{description}</p>
+        <h2 id={titleId} className="text-xl font-extrabold text-mt-text-primary">
+          {title}
+        </h2>
+        <p id={descriptionId} className="mt-2 text-sm leading-6 text-mt-text-secondary">
+          {description}
+        </p>
 
         {children ? <div className="mt-5">{children}</div> : null}
 

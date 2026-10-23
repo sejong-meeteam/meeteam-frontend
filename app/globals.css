@@ -16,6 +16,8 @@
   --mt-badge-bg: #eff5fd;
   --mt-border: #d7e4f8;
   --mt-primary: #6aa0e6;
+  --mt-action-primary: #3668a9;
+  --mt-error-text: #155eb5;
   --mt-logo-blue: #7ba9e8;
   --mt-mascot-blue: #bed6f5;
   --mt-cheek-blue: #8cb9f1;
@@ -48,6 +50,8 @@
   --color-mt-badge-bg: var(--mt-badge-bg);
   --color-mt-border: var(--mt-border);
   --color-mt-primary: var(--mt-primary);
+  --color-action-primary: var(--mt-action-primary);
+  --color-feedback-error: var(--mt-error-text);
   --color-mt-logo-blue: var(--mt-logo-blue);
   --color-mt-mascot-blue: var(--mt-mascot-blue);
   --color-mt-cheek-blue: var(--mt-cheek-blue);

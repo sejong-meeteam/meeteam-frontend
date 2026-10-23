@@ -115,7 +115,7 @@ export function NotificationCard({
         {actionHref && actionLabel ? (
           <Link
             href={actionHref}
-            className="mt-3 inline-flex items-center gap-0.5 text-sm leading-5 font-bold text-mt-primary transition-colors hover:text-mt-primary"
+            className="mt-3 inline-flex items-center gap-0.5 text-sm leading-5 font-bold text-action-primary transition-colors hover:text-action-primary"
           >
             {actionLabel}
             <ChevronRight className="h-4 w-4" aria-hidden strokeWidth={1.8} />
