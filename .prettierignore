@@ -6,5 +6,6 @@ coverage
 package-lock.json
 *.min.js
 storybook-static
+public/storybook
 cypress/screenshots
 cypress/videos

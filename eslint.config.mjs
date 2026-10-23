@@ -11,6 +11,7 @@ export default defineConfig([
     'build/**',
     'coverage/**',
     'storybook-static/**',
+    'public/storybook/**',
     'public/mockServiceWorker.js',
     'next-env.d.ts',
   ]),

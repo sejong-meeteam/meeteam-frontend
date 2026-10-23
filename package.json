@@ -1,6 +1,6 @@
 {
   "name": "meeteam-front-new",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "engines": {
     "node": "24.x"
@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:vercel": "npm run build-storybook:deploy && next build",
     "start": "next start",
     "lint": "eslint",
     "test:unit": "vitest run --config vitest.unit.config.ts",
@@ -18,11 +19,14 @@
     "test:e2e": "start-server-and-test dev:e2e http://127.0.0.1:3005 test:e2e:run",
     "test:stories:run": "cypress run --browser electron --config baseUrl=http://127.0.0.1:6006 --spec 'cypress/e2e/storybook/*.cy.ts'",
     "test:stories": "start-server-and-test 'storybook dev --ci --host 127.0.0.1 --port 6006' http://127.0.0.1:6006 test:stories:run",
+    "test:stories:static:run": "cypress run --browser electron --config baseUrl=http://127.0.0.1:3005/storybook --spec 'cypress/e2e/storybook/*.cy.ts,cypress/e2e/storybook-deployment/*.cy.ts'",
+    "test:stories:static": "npm run build-storybook:deploy && start-server-and-test dev:e2e http://127.0.0.1:3005 test:stories:static:run",
     "test:types": "tsc --noEmit && tsc --project cypress/tsconfig.json --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "build-storybook:deploy": "storybook build --output-dir public/storybook --disable-telemetry"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.13.0",

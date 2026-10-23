@@ -1,6 +1,15 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/storybook',
+        destination: '/storybook/index.html',
+        permanent: false,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**.amazonaws.com' },
