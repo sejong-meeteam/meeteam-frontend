@@ -21,8 +21,8 @@ const SIZE_MAP: Record<BaseButtonSize, string> = {
 };
 
 const VARIANT_MAP: Record<BaseButtonVariant, string> = {
-  primary: 'border-none bg-action-primary text-mt-white',
-  gray: 'border border-mt-border bg-mt-white text-mt-text-secondary',
+  primary: 'border-none bg-action-primary text-mt-white enabled:hover:bg-action-primary/90',
+  gray: 'border border-mt-border bg-mt-white text-mt-text-secondary enabled:hover:bg-mt-bg-soft',
 };
 
 export default function BaseButton({
@@ -45,7 +45,8 @@ export default function BaseButton({
       onClick={onClick}
       disabled={disabled}
       {...props}
-      className={`inline-flex items-center justify-center rounded-xl font-bold cursor-pointer shadow-sm
+      className={`inline-flex items-center justify-center rounded-xl font-bold cursor-pointer shadow-sm transition-colors
+        focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action-primary
         disabled:cursor-not-allowed disabled:opacity-50
         ${variantClass}
         ${sizeClass}

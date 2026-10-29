@@ -297,3 +297,17 @@ body {
     transform: none;
   }
 }
+
+/* Design-system documentation: the grid uses the same product color tokens. */
+.ds-preview-grid {
+  background-color: var(--mt-bg);
+  background-image:
+    linear-gradient(to right, var(--mt-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--mt-border) 1px, transparent 1px);
+  background-size: 1.5rem 1.5rem;
+}
+
+.ds-root input:focus-visible {
+  outline: 2px solid var(--mt-action-primary);
+  outline-offset: 3px;
+}
