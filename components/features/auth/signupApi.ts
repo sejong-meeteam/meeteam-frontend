@@ -21,7 +21,30 @@ async function readJson<T>(response: Response) {
   return payload as T;
 }
 
-export async function fetchJobOptions() {
+const JOB_OPTIONS_CACHE_MS = 5 * 60 * 1000;
+let cachedJobOptions: { fields: JobFieldOption[]; expiresAt: number } | null = null;
+let jobOptionsRequest: Promise<JobFieldOption[]> | null = null;
+
+export function fetchJobOptions(): Promise<JobFieldOption[]> {
+  if (cachedJobOptions && cachedJobOptions.expiresAt > Date.now()) {
+    return Promise.resolve(cachedJobOptions.fields);
+  }
+
+  if (!jobOptionsRequest) {
+    jobOptionsRequest = loadJobOptions()
+      .then((fields) => {
+        cachedJobOptions = { fields, expiresAt: Date.now() + JOB_OPTIONS_CACHE_MS };
+        return fields;
+      })
+      .finally(() => {
+        jobOptionsRequest = null;
+      });
+  }
+
+  return jobOptionsRequest;
+}
+
+async function loadJobOptions() {
   const response = await apiFetch(`${API_BASE_URL}/api/v1/jobs/options`, {
     method: 'GET',
     cache: 'no-store',
