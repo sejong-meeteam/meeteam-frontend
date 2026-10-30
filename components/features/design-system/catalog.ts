@@ -28,6 +28,8 @@ export const CATEGORY_LABELS: Record<ComponentCategory, string> = {
   Feedback: '피드백',
 };
 
+export const COMPONENT_CATEGORIES = Object.keys(CATEGORY_LABELS) as ComponentCategory[];
+
 export const COMPONENTS: ComponentDefinition[] = [
   {
     id: 'button',
@@ -560,3 +562,24 @@ export const FOUNDATIONS = [
   },
   { id: 'icons', name: 'Iconography', koreanName: '아이콘', description: '직관적인 시각 언어' },
 ] as const;
+
+export const FOUNDATION_SECTIONS: Record<string, { id: string; label: string }[]> = {
+  colors: [
+    { id: 'palette', label: '컬러 팔레트' },
+    { id: 'usage', label: '사용 기준' },
+  ],
+  typography: [
+    { id: 'font', label: '서체' },
+    { id: 'scale', label: '타입 스케일' },
+    { id: 'usage', label: '사용 기준' },
+  ],
+  spacing: [
+    { id: 'scale', label: '간격 스케일' },
+    { id: 'radius', label: '모서리' },
+    { id: 'elevation', label: '그림자' },
+  ],
+  icons: [
+    { id: 'library', label: '아이콘 라이브러리' },
+    { id: 'usage', label: '사용 기준' },
+  ],
+};
