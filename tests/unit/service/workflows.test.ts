@@ -74,6 +74,34 @@ async function createAndApply() {
 }
 
 describe('MSW service integration (not live-server E2E)', () => {
+  it('제목만 수정하면 기존 사진을 유지하고 명시적으로 삭제하면 재조회에서도 사라진다', async () => {
+    const { id } = await projectApi.createProject(createPayload);
+    const project = getProjects().find((item) => item.id === id)!;
+    const imageUrl = '/brand/meeteam-logo.png';
+    replaceMockProject({ ...project, imageUrl });
+    const prefill = await projectApi.fetchProjectEditPrefill(id);
+
+    await projectApi.updateProject(
+      id,
+      projectApi.buildProjectEditPayload(
+        { ...prefill.values, projectName: '사진을 유지한 제목 수정' },
+        JOB_OPTIONS.fields,
+      ),
+    );
+    expect((await projectApi.fetchProjectEditPrefill(id)).coverImageUrl).toBe(imageUrl);
+    expect((await projectApi.fetchProjectDetail(id)).coverImageUrl).toBe(imageUrl);
+
+    await projectApi.updateProject(
+      id,
+      projectApi.buildProjectEditPayload(
+        { ...prefill.values, removeImage: true },
+        JOB_OPTIONS.fields,
+      ),
+    );
+    expect((await projectApi.fetchProjectEditPrefill(id)).coverImageUrl).toBe('');
+    expect((await projectApi.fetchProjectDetail(id)).coverImageUrl).toBe('');
+  });
+
   it('로그인 → 프로필 저장 → 프로젝트 등록·수정 → 지원·승인 → 팀원·알림·자동 마감 갱신 → 탈퇴 → 삭제', async () => {
     clearSession();
     await expect(

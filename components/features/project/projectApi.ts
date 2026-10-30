@@ -281,6 +281,7 @@ type ProjectEditRequestPayload = {
     techStackIds: number[];
   }>;
   confirmDeletePositionsWithPendingApplicants: boolean;
+  removeImage?: boolean;
 };
 
 export type ProjectApplicationRequestPayload = {
@@ -679,6 +680,7 @@ export function buildProjectEditPayload(
     recruitments: buildRecruitmentRequests(values, jobFields),
     confirmDeletePositionsWithPendingApplicants:
       options.confirmDeletePositionsWithPendingApplicants ?? false,
+    ...(values.removeImage && !values.coverImage ? { removeImage: true } : {}),
   } satisfies ProjectEditRequestPayload;
 }
 

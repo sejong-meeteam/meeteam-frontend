@@ -289,6 +289,53 @@ describe('buildProjectEditPayload', () => {
 });
 
 describe('projectApi mutation contracts', () => {
+  it.each([
+    { scenario: '사진을 건드리지 않고 제목만 수정', removeImage: undefined, replace: false },
+    { scenario: '삭제하지 않음을 명시', removeImage: false, replace: false },
+    { scenario: '기존 사진 삭제', removeImage: true, replace: false },
+    { scenario: '새 사진으로 교체', removeImage: false, replace: true },
+    { scenario: '삭제한 뒤 새 사진 선택', removeImage: true, replace: true },
+  ])(
+    'updateProject는 $scenario 의도를 multipart request에 구분해 보낸다',
+    async ({ removeImage, replace }) => {
+      const file = replace ? new File(['cover'], 'new-cover.png', { type: 'image/png' }) : null;
+      const payload = projectApi.buildProjectEditPayload(
+        { ...PROJECT_VALUES, projectName: '수정한 제목', removeImage, coverImage: file },
+        JOB_FIELDS,
+      );
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          result: {
+            projectId: 1201,
+            name: '수정한 제목',
+            recruitmentStatus: 'RECRUITING',
+            autoRejectedApplicantCount: 0,
+          },
+        }),
+      } as Response);
+
+      await projectApi.updateProject(1201, payload, file);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/v1/projects/1201',
+        expect.objectContaining({ method: 'PUT', credentials: 'include' }),
+      );
+      const [, requestInit] = vi.mocked(global.fetch).mock.calls[0] ?? [];
+      const formData = requestInit?.body as FormData;
+      const requestBlob = formData.get('request') as Blob;
+      const request = JSON.parse(await requestBlob.text());
+
+      expect(request.name).toBe('수정한 제목');
+      if (removeImage && !replace) {
+        expect(request.removeImage).toBe(true);
+      } else {
+        expect(request).not.toHaveProperty('removeImage');
+      }
+      expect(formData.get('file')).toBe(file);
+    },
+  );
+
   it('createProject는 multipart form data로 request JSON과 파일을 보낸다', async () => {
     const payload = projectApi.buildProjectCreatePayload(PROJECT_VALUES, JOB_FIELDS);
     const file = new File(['cover'], 'cover.png', { type: 'image/png' });

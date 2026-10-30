@@ -137,6 +137,7 @@ export const projectManagementHandlers = [
         name: z.string(),
         leaderJobPositionCode: z.string(),
         confirmDeletePositionsWithPendingApplicants: z.boolean().optional(),
+        removeImage: z.boolean().optional(),
       })
       .passthrough()
       .safeParse(JSON.parse(raw instanceof Blob ? await raw.text() : String(raw)));
@@ -172,6 +173,7 @@ export const projectManagementHandlers = [
     const next = syncStatus({
       ...project,
       ...parsed.data,
+      imageUrl: value.removeImage ? null : project.imageUrl,
       recruitments: parsed.data.recruitments.map((item) => ({
         ...item,
         currentCount:

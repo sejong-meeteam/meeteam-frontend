@@ -65,6 +65,7 @@ export type ProjectFormValues = {
   recruitDeadline: string;
   isRecruitUntilComplete: boolean;
   coverImage?: File | null;
+  removeImage?: boolean;
 };
 
 export type ProjectRecruitmentDetail = {

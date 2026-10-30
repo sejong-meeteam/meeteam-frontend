@@ -169,6 +169,7 @@ export default function ProjectForm({
   const [coverImage, setCoverImage] = useState<File | null>(
     hydratedInitialValues.coverImage ?? null,
   );
+  const [removeImage, setRemoveImage] = useState(hydratedInitialValues.removeImage ?? false);
   const [openRecruitDropdown, setOpenRecruitDropdown] = useState<{
     index: number;
     key: Exclude<OpenDropdownKey, null>;
@@ -423,6 +424,7 @@ export default function ProjectForm({
           recruitDeadline,
           isRecruitUntilComplete,
           coverImage,
+          removeImage,
         },
         { jobFields },
       );
@@ -620,8 +622,11 @@ export default function ProjectForm({
                 <BaseField errorText="" hintText="" label="프로젝트 커버 이미지">
                   <CoverImageUploader
                     value={coverImage}
-                    initialPreviewUrl={initialCoverImageUrl}
-                    onChange={setCoverImage}
+                    initialPreviewUrl={removeImage ? undefined : initialCoverImageUrl}
+                    onChange={(file) => {
+                      setCoverImage(file);
+                      setRemoveImage(isEdit && Boolean(initialCoverImageUrl) && file === null);
+                    }}
                   />
                 </BaseField>
               </>
