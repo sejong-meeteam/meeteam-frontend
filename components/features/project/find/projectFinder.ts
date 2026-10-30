@@ -17,8 +17,6 @@ type ProjectCardData = {
 };
 
 export const INITIAL_VISIBLE_COUNT = 8;
-export const LOAD_MORE_COUNT = 4;
-export const LOAD_DELAY_MS = 800;
 
 export const RECRUIT_STATUS_OPTIONS = ['전체 상태', '모집 중만 보기'] as const;
 

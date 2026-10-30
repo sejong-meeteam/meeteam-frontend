@@ -5,7 +5,7 @@ import { ProjectCard } from '@/components/features/project/ProjectCard';
 import { ProjectCardSkeleton } from '@/components/features/project/ProjectCardSkeleton';
 import SortSelect from '@/components/shared/SortSelect';
 import ToastMessage from '@/components/shared/ToastMessage';
-import { PROJECT_SORT_OPTIONS } from './projectFinder';
+import { INITIAL_VISIBLE_COUNT, PROJECT_SORT_OPTIONS } from './projectFinder';
 import type { ProjectSearchCard } from './projectFindApi';
 import type { SortFilter } from './types';
 
@@ -64,7 +64,7 @@ export function ProjectFindResults({
 
       {isInitialLoading ? (
         <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, index) => (
+          {Array.from({ length: INITIAL_VISIBLE_COUNT }).map((_, index) => (
             <li key={`project-initial-skeleton-${index}`}>
               <ProjectCardSkeleton />
             </li>
@@ -121,9 +121,20 @@ export function ProjectFindResults({
         </div>
       )}
 
+      {errorMessage && projects.length > 0 ? (
+        <button
+          type="button"
+          onClick={onRetry}
+          data-cy="project-retry-button"
+          className="mx-auto block rounded-xl border border-mt-border px-5 py-3 text-sm font-semibold text-mt-text-primary hover:bg-mt-bg-soft"
+        >
+          다시 불러오기
+        </button>
+      ) : null}
+
       {isLoadingMore ? (
         <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: INITIAL_VISIBLE_COUNT }).map((_, index) => (
             <li key={`project-skeleton-${index}`}>
               <ProjectCardSkeleton />
             </li>

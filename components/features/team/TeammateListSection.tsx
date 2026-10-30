@@ -106,6 +106,17 @@ export function TeammateListSection({
         </div>
       ) : null}
 
+      {errorMessage && teammates.length > 0 ? (
+        <button
+          type="button"
+          onClick={onRetry}
+          data-cy="teammate-retry-button"
+          className="mx-auto block rounded-xl border border-mt-border px-5 py-3 text-sm font-semibold text-mt-text-primary hover:bg-mt-bg-soft"
+        >
+          다시 불러오기
+        </button>
+      ) : null}
+
       {isLoadingMore ? (
         <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {Array.from({ length: TEAMMATE_LIST_CONFIG.loadMoreCount }).map((_, index) => (

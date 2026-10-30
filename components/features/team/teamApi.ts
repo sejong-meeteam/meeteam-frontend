@@ -48,14 +48,17 @@ export interface FetchTeammatesResult {
   last: boolean;
 }
 
-export async function fetchTeammates({
-  name = '',
-  jobFieldId,
-  techStackNames = [],
-  sort = 'projectCount',
-  page = 0,
-  size = 15,
-}: FetchTeammatesParams = {}): Promise<FetchTeammatesResult> {
+export async function fetchTeammates(
+  {
+    name = '',
+    jobFieldId,
+    techStackNames = [],
+    sort = 'projectCount',
+    page = 0,
+    size = 15,
+  }: FetchTeammatesParams = {},
+  signal?: AbortSignal,
+): Promise<FetchTeammatesResult> {
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
@@ -79,6 +82,7 @@ export async function fetchTeammates({
   const response = await apiFetch(`${API_BASE_URL}/api/v1/members/search?${params.toString()}`, {
     method: 'GET',
     cache: 'no-store',
+    signal,
   });
 
   const payload = (await response

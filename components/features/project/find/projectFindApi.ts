@@ -67,6 +67,7 @@ export async function fetchProjectSearchResults(
   filters: ProjectFinderFilters,
   page: number,
   size: number,
+  signal?: AbortSignal,
 ) {
   const unsupportedFieldSelected = filters.field === '마케팅' || filters.field === '기타';
   if (unsupportedFieldSelected) {
@@ -111,6 +112,7 @@ export async function fetchProjectSearchResults(
   const response = await apiFetch(`${API_BASE_URL}/api/v1/projects/search?${params.toString()}`, {
     method: 'GET',
     cache: 'no-store',
+    signal,
   });
 
   const payload = (await response
