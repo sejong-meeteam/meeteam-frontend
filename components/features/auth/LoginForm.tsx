@@ -101,6 +101,7 @@ export default function LoginForm({
         memberId: profile.memberId,
         name: profile.name,
         email: profile.email,
+        role: profile.role,
       });
       await onSuccess?.();
 

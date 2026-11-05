@@ -63,10 +63,37 @@ export function getMembers(): MockMember[] {
     const stored = localStorage.getItem(MEMBERS_KEY);
     if (!stored) return INITIAL_MEMBERS;
     const parsed: unknown = JSON.parse(stored);
-    return Array.isArray(parsed) ? (parsed as MockMember[]) : INITIAL_MEMBERS;
+    return Array.isArray(parsed) ? withInitialMembers(parsed as MockMember[]) : INITIAL_MEMBERS;
   } catch {
     return INITIAL_MEMBERS;
   }
+}
+
+// 이전 데모 데이터에도 관리자 계정과 회원 상태 필드가 포함되도록 기본 회원 정보를 보강합니다.
+function withInitialMembers(members: MockMember[]) {
+  const initialById = new Map(INITIAL_MEMBERS.map((member) => [member.memberId, member]));
+  const storedIds = new Set(members.map((member) => member.memberId));
+  return [
+    ...members.map((member) => ({ ...initialById.get(member.memberId), ...member })),
+    ...INITIAL_MEMBERS.filter((member) => !storedIds.has(member.memberId)),
+  ];
+}
+
+export function getMemberStatus(member: MockMember) {
+  if (
+    member.status === 'SUSPENDED' &&
+    member.suspendedUntil &&
+    new Date(member.suspendedUntil).getTime() <= Date.now()
+  )
+    return 'ACTIVE';
+  return member.status ?? 'ACTIVE';
+}
+
+export function updateMember(member: MockMember) {
+  localStorage.setItem(
+    MEMBERS_KEY,
+    JSON.stringify(getMembers().map((item) => (item.memberId === member.memberId ? member : item))),
+  );
 }
 
 export function saveMember(member: MockMember) {
@@ -76,7 +103,8 @@ export function saveMember(member: MockMember) {
 
 export function getSessionMember() {
   const memberId = Number(localStorage.getItem(SESSION_KEY));
-  return getMembers().find((member) => member.memberId === memberId) ?? null;
+  const member = getMembers().find((item) => item.memberId === memberId);
+  return member && getMemberStatus(member) === 'ACTIVE' ? member : null;
 }
 
 export function setSession(memberId: number) {

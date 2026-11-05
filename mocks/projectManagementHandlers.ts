@@ -46,7 +46,7 @@ function syncStatus(project: ProjectRecord): ProjectRecord {
           : 'RECRUITING',
   };
 }
-function removeMember(project: ProjectRecord, memberId: number) {
+export function removeMember(project: ProjectRecord, memberId: number) {
   const application = getApplications().find(
     (item) =>
       item.projectId === project.id && item.applicantId === memberId && item.status === 'ACCEPTED',

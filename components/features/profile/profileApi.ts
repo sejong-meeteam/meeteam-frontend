@@ -1,4 +1,4 @@
-import type { ApiEnvelope, JobFieldOption } from '@/types/auth';
+import type { ApiEnvelope, JobFieldOption, MemberRole } from '@/types/auth';
 
 import { API_BASE_URL, apiFetch } from '@/components/features/auth/apiClient';
 import { createApiError } from '@/components/features/auth/authError';
@@ -36,6 +36,7 @@ export interface MemberProfileResponse {
   profileImageUrl: string | null;
   profileImageName?: string | null;
   projectCards: ProfileProjectCard[];
+  role?: MemberRole;
 }
 
 interface MemberDetailResponse {

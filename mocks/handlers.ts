@@ -3,7 +3,8 @@ import { projectWeek6Handlers } from './projectWeek6Handlers';
 import { notificationHandlers } from './notificationHandlers';
 import { projectManagementHandlers } from './projectManagementHandlers';
 import { qnaHandlers } from './qnaHandlers';
-import { isProjectOpen } from './projectContract';
+import { adminHandlers } from './adminHandlers';
+import { isProjectOpen, isProjectVisible } from './projectContract';
 import { toProjectCard, toProjectDetail, toMemberCard, pageResponse } from './responseMappers';
 import { z } from 'zod';
 import { profileImageSchema } from '@/components/features/profile/schema';
@@ -15,12 +16,14 @@ import {
 import { DEMO_PROJECTS, JOB_OPTIONS, type MockMember } from '@/mocks/fixtures';
 import {
   clearSession,
+  getMemberStatus,
   getMembers,
   getProjects,
   getSessionMember,
   saveMember,
   saveProject,
   setSession,
+  updateMember,
 } from '@/mocks/storage';
 
 const LOGIN_ID = '20260001';
@@ -69,8 +72,18 @@ function success<T>(result: T) {
   return HttpResponse.json({ code: 'COMMON200', message: '요청에 성공했습니다.', result });
 }
 
-function failure(status: number, message: string) {
-  return HttpResponse.json({ code: 'MOCK_ERROR', message, result: null }, { status });
+function failure(status: number, message: string, code = 'MOCK_ERROR') {
+  return HttpResponse.json({ code, message, result: null }, { status });
+}
+
+function isPubliclyListed(member: MockMember) {
+  return getMemberStatus(member) === 'ACTIVE' && member.role !== 'ADMIN';
+}
+
+function formatSuspendedUntil(value: string | null | undefined) {
+  if (!value) return '영구 정지';
+  const date = new Date(value);
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}까지`;
 }
 
 function positionById(id: number) {
@@ -184,6 +197,7 @@ function imageDataUrl(file: File | null): Promise<string | null> {
 }
 
 export const handlers = [
+  ...adminHandlers,
   ...notificationHandlers,
   ...projectManagementHandlers,
   ...qnaHandlers,
@@ -197,6 +211,7 @@ export const handlers = [
       const fieldId = Number(params.get('jobFieldId'));
       const fieldNames: Record<number, string> = { 2: '디자인', 3: '프론트', 4: '백엔드' };
       const cards = getMembers()
+        .filter(isPubliclyListed)
         .map(toMemberCard)
         .filter(
           (member) =>
@@ -218,14 +233,26 @@ export const handlers = [
     if (parsed.data.password !== DEMO_PASSWORD)
       return failure(401, '데모 계정 정보를 확인해 주세요.');
 
-    if (parsed.data.studentId === LOGIN_ID) {
-      setSession(1);
-      return success({ isNewMember: false, code: null });
-    }
     if (parsed.data.studentId === NEW_MEMBER_ID) {
       return success({ isNewMember: true, code: REGISTER_CODE });
     }
-    return failure(401, '데모 계정 정보를 확인해 주세요.');
+    const member = getMembers().find((item) =>
+      parsed.data.studentId === LOGIN_ID
+        ? item.memberId === 1
+        : item.studentId === parsed.data.studentId,
+    );
+    if (!member) return failure(401, '데모 계정 정보를 확인해 주세요.');
+    const status = getMemberStatus(member);
+    if (status === 'WITHDRAWN') return failure(401, '데모 계정 정보를 확인해 주세요.');
+    if (status === 'SUSPENDED')
+      return failure(
+        403,
+        `이용이 정지된 계정입니다. (${formatSuspendedUntil(member.suspendedUntil)}, 사유: ${member.suspendReason ?? '운영 정책 위반'})`,
+        'MEMBER_SUSPENDED',
+      );
+    updateMember({ ...member, lastLoginAt: new Date().toISOString() });
+    setSession(member.memberId);
+    return success({ isNewMember: false, code: null });
   }),
 
   http.post('/api/v1/auth/register/sejong', async ({ request }) => {
@@ -257,6 +284,11 @@ export const handlers = [
       blogUrl: parsed.data.blogUrl,
       projectCount: 0,
       profileImageUrl: await imageDataUrl(file instanceof File ? file : null),
+      studentId: NEW_MEMBER_ID,
+      role: 'USER',
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
     };
     saveMember(member);
     setSession(member.memberId);
@@ -282,28 +314,32 @@ export const handlers = [
   http.get('/api/v1/members/me', async () => {
     await delay(300);
     const member = getSessionMember();
-    return member ? success(toMyProfile(member)) : failure(401, '로그인이 필요합니다.');
+    return member
+      ? success({ ...toMyProfile(member), role: member.role ?? 'USER' })
+      : failure(401, '로그인이 필요합니다.');
   }),
 
   http.get('/api/v1/members', async () => {
     await delay(250);
     return success(
-      getMembers().map((member) => {
-        const profile = toPublicProfile(member);
-        return {
-          memberId: profile.memberId,
-          profileImageUrl: profile.profileImageUrl,
-          name: profile.name,
-          representativePosition: profile.representativePosition,
-          fieldCategory:
-            JOB_OPTIONS.fields.find((field) =>
-              field.positions.some((position) => position.id === member.jobPositionIds[0]),
-            )?.name ?? '기타',
-          isParticipating: profile.isParticipating,
-          participatedProjectCount: profile.participatedProjectCount,
-          skills: profile.skills,
-        };
-      }),
+      getMembers()
+        .filter(isPubliclyListed)
+        .map((member) => {
+          const profile = toPublicProfile(member);
+          return {
+            memberId: profile.memberId,
+            profileImageUrl: profile.profileImageUrl,
+            name: profile.name,
+            representativePosition: profile.representativePosition,
+            fieldCategory:
+              JOB_OPTIONS.fields.find((field) =>
+                field.positions.some((position) => position.id === member.jobPositionIds[0]),
+              )?.name ?? '기타',
+            isParticipating: profile.isParticipating,
+            participatedProjectCount: profile.participatedProjectCount,
+            skills: profile.skills,
+          };
+        }),
     );
   }),
 
@@ -351,7 +387,9 @@ export const handlers = [
 
   http.get('/api/v1/members/:memberId', async ({ params }) => {
     await delay(250);
-    const member = getMembers().find((item) => item.memberId === Number(params.memberId));
+    const member = getMembers().find(
+      (item) => item.memberId === Number(params.memberId) && getMemberStatus(item) !== 'WITHDRAWN',
+    );
     return member ? success(toPublicProfile(member)) : failure(404, '프로필을 찾을 수 없습니다.');
   }),
 
@@ -410,6 +448,7 @@ export const handlers = [
     const sort = params.get('sort') ?? 'LATEST';
     const filtered = getProjects().filter(
       (project) =>
+        isProjectVisible(project) &&
         (!keyword ||
           `${project.name} ${project.leaderName}`.toLocaleLowerCase().includes(keyword)) &&
         (!category || project.category === category) &&
@@ -442,7 +481,9 @@ export const handlers = [
 
   http.get('/api/v1/projects/:projectId', async ({ params }) => {
     await delay(250);
-    const project = getProjects().find((item) => item.id === Number(params.projectId));
+    const project = getProjects().find(
+      (item) => item.id === Number(params.projectId) && isProjectVisible(item),
+    );
     return project
       ? success({
           ...toProjectDetail(project),

@@ -51,8 +51,12 @@ export type ProjectRecord = ProjectCreateRequest & {
   isLiked?: boolean;
   likeCount?: number;
   recruitmentStatus?: 'RECRUITING' | 'CLOSED' | 'SUSPENDED';
+  visibility?: 'VISIBLE' | 'HIDDEN' | 'DELETED';
 };
 
+export function isProjectVisible(project: ProjectRecord) {
+  return (project.visibility ?? 'VISIBLE') === 'VISIBLE';
+}
 export function todayLocalDate() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;

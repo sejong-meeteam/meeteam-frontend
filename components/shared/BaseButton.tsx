@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
 type BaseButtonSize = 'XL' | 'L' | 'M' | 'S' | 'XS';
-type BaseButtonVariant = 'primary' | 'gray';
+type BaseButtonVariant = 'primary' | 'gray' | 'danger';
 
 export interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: BaseButtonSize;
@@ -23,6 +23,7 @@ const SIZE_MAP: Record<BaseButtonSize, string> = {
 const VARIANT_MAP: Record<BaseButtonVariant, string> = {
   primary: 'border-none bg-action-primary text-mt-white enabled:hover:bg-action-primary/90',
   gray: 'border border-mt-border bg-mt-white text-mt-text-secondary enabled:hover:bg-mt-bg-soft',
+  danger: 'border-none bg-mt-danger text-mt-white enabled:hover:bg-mt-danger/90',
 };
 
 export default function BaseButton({
