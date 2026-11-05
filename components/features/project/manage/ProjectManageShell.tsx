@@ -3,7 +3,7 @@
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Settings, UserPlus, Users } from 'lucide-react';
+import { Github, Settings, UserPlus, Users } from 'lucide-react';
 import { useAuthRequiredModal } from '@/components/features/auth/useAuthRequiredModal';
 import { isPermissionDeniedError } from '@/components/features/auth/authError';
 import {
@@ -18,7 +18,7 @@ import type { ProjectRecruitmentStatus } from '@/types/project';
 
 type ProjectManageShellProps = {
   projectId: string;
-  activeTab: 'members' | 'applicants' | 'edit';
+  activeTab: 'members' | 'applicants' | 'github' | 'edit';
   pendingApplicantsCount?: number;
   refreshKey?: number;
   onRecruitmentStatusChange?: (status: ProjectRecruitmentStatus) => void;
@@ -46,6 +46,12 @@ const TABS: ManageTab[] = [
     label: '지원자 관리',
     icon: UserPlus,
     count: 0,
+  },
+  {
+    key: 'github',
+    href: '/github',
+    label: 'GitHub 연동',
+    icon: Github,
   },
   {
     key: 'edit',

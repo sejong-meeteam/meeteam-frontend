@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { withdrawMember } from '@/components/features/auth/loginApi';
+import GithubAccountCard from '@/components/features/profile/GithubAccountCard';
 import ConfirmModal from '@/components/shared/ConfirmModal';
 import ToastMessage from '@/components/shared/ToastMessage';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -52,6 +53,8 @@ export default function ProfileSettingsPage() {
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <ToastMessage message={errorMessage} />
+
+      <GithubAccountCard />
 
       <div className="rounded-3xl border border-mt-border bg-mt-white p-6 shadow-sm md:p-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

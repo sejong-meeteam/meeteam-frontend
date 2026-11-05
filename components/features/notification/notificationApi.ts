@@ -16,6 +16,9 @@ export const NOTIFICATION_EVENT_TYPES = [
   'PROJECT_APPROVE',
   'PROJECT_REJECT',
   'PROJECT_END',
+  'GITHUB_REPO_INVITED',
+  'GITHUB_REVIEW_REQUESTED',
+  'GITHUB_PR_MERGED',
 ] satisfies NotificationType[];
 
 type BackendNotificationPayload = {
@@ -253,6 +256,32 @@ function getNotificationCopy(
         variant: 'ended',
         actionHref: '/projects',
         actionLabel: '프로젝트 찾기',
+      };
+    case 'GITHUB_REPO_INVITED':
+      return {
+        title: 'GitHub 저장소 초대가 도착했습니다.',
+        description:
+          message ??
+          `'${projectName}' 프로젝트 저장소에 초대되었습니다. GitHub에서 초대를 수락해주세요.`,
+        variant: 'github',
+        actionHref: 'https://github.com/notifications',
+        actionLabel: 'GitHub에서 수락',
+      };
+    case 'GITHUB_REVIEW_REQUESTED':
+      return {
+        title: '코드 리뷰 요청이 있습니다.',
+        description: message ?? `'${projectName}' 프로젝트에서 PR 리뷰를 요청받았습니다.`,
+        variant: 'github',
+        actionHref: projectHref,
+        actionLabel: '개발 현황 보기',
+      };
+    case 'GITHUB_PR_MERGED':
+      return {
+        title: 'PR이 머지되었습니다.',
+        description: message ?? `'${projectName}' 프로젝트에 내 PR이 머지되었습니다.`,
+        variant: 'github',
+        actionHref: projectHref,
+        actionLabel: '개발 현황 보기',
       };
   }
 }

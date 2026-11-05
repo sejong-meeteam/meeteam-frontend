@@ -1,4 +1,5 @@
 import type { ApiEnvelope } from '@/types/auth';
+import type { GithubActivityLevel, GithubActivitySummary } from '@/types/github';
 
 import { API_BASE_URL, apiFetch } from '@/components/features/auth/apiClient';
 import { extractApiData } from '@/components/features/auth/signupTransform';
@@ -23,6 +24,7 @@ export type ProjectSearchCard = {
     name: string;
     avatar: string;
   };
+  githubActivityLevel: GithubActivityLevel | null;
   recruitInfo: Array<{
     id: string | number;
     role: string;
@@ -51,6 +53,7 @@ interface BackendProjectCardResponse {
     isClosed?: boolean;
     closed?: boolean;
   }>;
+  githubActivity?: GithubActivitySummary | null;
 }
 
 interface ProjectSearchSlice {
@@ -148,6 +151,7 @@ function mapProjectCard(project: BackendProjectCardResponse): ProjectSearchCard 
       name: project.creatorName,
       avatar: project.creatorImageUrl ?? '',
     },
+    githubActivityLevel: project.githubActivity?.activityLevel ?? null,
     recruitInfo:
       project.recruitments?.map((recruitment, index) => ({
         id: `${project.projectId}-${index + 1}`,

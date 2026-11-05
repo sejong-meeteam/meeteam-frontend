@@ -435,6 +435,8 @@ export default function ProjectDetailPage({ projectId }: { projectId: string }) 
           activeTab={activeTab}
           onTabChange={setActiveTab}
           canApply={!isCurrentUserParticipant}
+          isParticipant={isCurrentUserParticipant}
+          canManageProject={canManageProject}
           onCopyExternalUrl={handleCopyExternalUrl}
         />
       </div>

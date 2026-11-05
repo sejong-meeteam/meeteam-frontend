@@ -7,6 +7,7 @@ import {
   CircleCheck,
   CircleX,
   Clock3,
+  Github,
   UserRoundPlus,
 } from 'lucide-react';
 import type { NotificationCardProps, NotificationCardVariant } from './types';
@@ -61,6 +62,14 @@ const CARD_VARIANT_STYLES: Record<
     iconClassName: 'text-mt-text-nav',
     titleClassName: 'text-mt-text-nav',
     descriptionClassName: 'text-mt-text-secondary',
+  },
+  github: {
+    containerClassName: 'border-mt-border shadow-sm',
+    iconWrapperClassName: 'bg-mt-badge-bg',
+    icon: Github,
+    iconClassName: 'text-mt-text-primary',
+    titleClassName: 'text-mt-text-primary',
+    descriptionClassName: 'text-mt-text-nav',
   },
 };
 
