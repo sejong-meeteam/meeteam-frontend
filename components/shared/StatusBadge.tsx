@@ -7,7 +7,12 @@ type StatusBadgeStatus =
   | 'suspended'
   | 'completed'
   | 'pending'
-  | 'leader';
+  | 'leader'
+  | 'active'
+  | 'withdrawn'
+  | 'hidden'
+  | 'deleted'
+  | 'admin';
 type StatusBadgeSize = 'xs' | 'sm' | 'md';
 
 type StatusBadgeProps = {
@@ -26,6 +31,12 @@ const STATUS_CLASS: Record<StatusBadgeStatus, string> = {
   completed: 'border-transparent bg-mt-text-nav text-mt-white',
   pending: 'border-transparent bg-mt-border text-mt-primary',
   leader: 'border-transparent bg-mt-badge-bg text-mt-primary',
+  active: 'border-mt-category-other-border bg-mt-category-other-bg text-mt-category-other-text',
+  withdrawn: 'border-mt-border bg-mt-bg-soft text-mt-text-secondary',
+  hidden:
+    'border-mt-category-creative-border bg-mt-category-creative-bg text-mt-category-creative-text',
+  deleted: 'border-mt-danger/30 bg-mt-danger-soft text-mt-danger',
+  admin: 'border-mt-category-club-border bg-mt-category-club-bg text-mt-category-club-text',
 };
 
 const DEFAULT_LABEL: Record<StatusBadgeStatus, string> = {
@@ -36,6 +47,11 @@ const DEFAULT_LABEL: Record<StatusBadgeStatus, string> = {
   completed: '모집 완료',
   pending: '대기',
   leader: '리더',
+  active: '활성',
+  withdrawn: '탈퇴',
+  hidden: '숨김',
+  deleted: '삭제됨',
+  admin: '관리자',
 };
 
 const SIZE_CLASS: Record<StatusBadgeSize, string> = {

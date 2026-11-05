@@ -1,4 +1,5 @@
 const PROTECTED_PATH_PATTERNS = [
+  /^\/admin(?:\/|$)/,
   /^\/notifications(?:\/|$)/,
   /^\/projects\/create(?:\/|$)/,
   /^\/projects\/[^/]+\/apply(?:\/|$)/,

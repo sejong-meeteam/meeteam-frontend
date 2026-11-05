@@ -51,6 +51,13 @@ export type MockMember = {
   blogUrl: string;
   projectCount: number;
   profileImageUrl: string | null;
+  studentId?: string;
+  role?: 'USER' | 'ADMIN';
+  status?: 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWN';
+  suspendedUntil?: string | null;
+  suspendReason?: string | null;
+  createdAt?: string;
+  lastLoginAt?: string | null;
 };
 
 export type MockProjectCard = {
@@ -93,6 +100,74 @@ export const DEMO_PROJECTS: Record<number, MockProjectCard[]> = {
   ],
 };
 
+const DEMO_MEMBER_SEEDS = [
+  ['박서연', 'FEMALE', 1, [1, 3]],
+  ['최도윤', 'MALE', 3, [5, 6]],
+  ['정하은', 'FEMALE', 5, [9]],
+  ['강지후', 'MALE', 2, [4]],
+  ['조유나', 'FEMALE', 4, [8, 7]],
+  ['윤시우', 'MALE', 1, [1, 2]],
+  ['장서윤', 'FEMALE', 5, [9]],
+  ['임준서', 'MALE', 3, [5, 7]],
+  ['한지아', 'FEMALE', 1, [2, 3]],
+  ['오현우', 'MALE', 4, [8]],
+  ['서채원', 'FEMALE', 2, [4, 2]],
+  ['신우진', 'MALE', 3, [6, 7]],
+  ['권나연', 'FEMALE', 5, [9]],
+  ['황건우', 'MALE', 1, [1]],
+  ['안수아', 'FEMALE', 3, [5, 6, 7]],
+  ['송민재', 'MALE', 2, [4]],
+  ['류다인', 'FEMALE', 1, [1, 2, 3]],
+  ['전태윤', 'MALE', 4, [8]],
+  ['홍예린', 'FEMALE', 5, [9]],
+  ['고은찬', 'MALE', 3, [5]],
+  ['문소율', 'FEMALE', 1, [2]],
+  ['양지환', 'MALE', 4, [8, 7]],
+  ['손하린', 'FEMALE', 2, [4, 1]],
+  ['배승현', 'MALE', 3, [6]],
+] as const;
+
+export const DEMO_SUSPENDED_MEMBER_ID = 205;
+export const DEMO_WITHDRAWN_MEMBER_ID = 210;
+export const DEMO_ADMIN_MEMBER_ID = 99;
+
+function createDemoMembers(): MockMember[] {
+  const now = Date.now();
+  const day = 24 * 60 * 60 * 1000;
+  return DEMO_MEMBER_SEEDS.map(([name, gender, positionId, techStackIds], index) => {
+    const memberId = 201 + index;
+    const status =
+      memberId === DEMO_SUSPENDED_MEMBER_ID
+        ? 'SUSPENDED'
+        : memberId === DEMO_WITHDRAWN_MEMBER_ID
+          ? 'WITHDRAWN'
+          : 'ACTIVE';
+    return {
+      memberId,
+      name,
+      email: `member${memberId}@example.com`,
+      birthDate: `${2000 + (index % 5)}-0${(index % 9) + 1}-1${index % 9}`,
+      gender,
+      jobPositionIds: [positionId],
+      techStackIds: [...techStackIds],
+      isParticipating: index % 3 !== 0,
+      introduce: `${name}입니다. 함께 성장할 팀을 찾고 있어요.`,
+      githubUrl: '',
+      blogUrl: '',
+      projectCount: 0,
+      profileImageUrl: null,
+      studentId: `2025${String(1001 + index).padStart(4, '0')}`,
+      role: 'USER',
+      status,
+      suspendedUntil: status === 'SUSPENDED' ? new Date(now + 5 * day).toISOString() : null,
+      suspendReason: status === 'SUSPENDED' ? '프로젝트 Q&A에 반복적인 홍보성 글 작성' : null,
+      createdAt: new Date(now - index * 2 * day - (index % 4) * 3600000).toISOString(),
+      lastLoginAt:
+        status === 'WITHDRAWN' ? null : new Date(now - (index % 6) * day - 1800000).toISOString(),
+    };
+  });
+}
+
 export const INITIAL_MEMBERS: MockMember[] = [
   {
     memberId: 1,
@@ -109,6 +184,11 @@ export const INITIAL_MEMBERS: MockMember[] = [
     blogUrl: '',
     projectCount: 2,
     profileImageUrl: null,
+    studentId: '20260001',
+    role: 'USER',
+    status: 'ACTIVE',
+    createdAt: '2026-03-02T09:00:00.000Z',
+    lastLoginAt: '2026-11-04T10:20:00.000Z',
   },
   {
     memberId: 2,
@@ -124,7 +204,33 @@ export const INITIAL_MEMBERS: MockMember[] = [
     blogUrl: '',
     projectCount: 1,
     profileImageUrl: null,
+    studentId: '20250012',
+    role: 'USER',
+    status: 'ACTIVE',
+    createdAt: '2026-03-05T11:30:00.000Z',
+    lastLoginAt: '2026-11-01T08:10:00.000Z',
   },
+  {
+    memberId: 99,
+    name: '미팀 운영자',
+    email: 'admin@meeteam.kr',
+    birthDate: '1999-01-01',
+    gender: 'MALE',
+    jobPositionIds: [1],
+    techStackIds: [1, 2],
+    isParticipating: false,
+    introduce: '미팀 서비스 운영 계정입니다.',
+    githubUrl: '',
+    blogUrl: '',
+    projectCount: 0,
+    profileImageUrl: null,
+    studentId: '20260000',
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    createdAt: '2026-02-20T09:00:00.000Z',
+    lastLoginAt: null,
+  },
+  ...createDemoMembers(),
 ];
 
 const PROJECT_SEEDS = [

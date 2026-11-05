@@ -1,6 +1,6 @@
 'use client';
 
-import type { AuthSession } from '@/types/auth';
+import type { AuthSession, MemberRole } from '@/types/auth';
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -11,6 +11,7 @@ type AuthState = {
   memberId: number | null;
   name: string | null;
   email: string | null;
+  role: MemberRole | null;
   isAuthenticated: boolean;
   isLoggingOut: boolean;
   isSessionRestoring: boolean;
@@ -27,6 +28,7 @@ const INITIAL_SESSION_STATE = {
   memberId: null,
   name: null,
   email: null,
+  role: null,
   isAuthenticated: false,
 };
 
@@ -45,6 +47,7 @@ export const useAuthStore = create<AuthState>()(
           memberId: session.memberId,
           name: session.name,
           email: session.email,
+          role: session.role ?? 'USER',
           isAuthenticated: true,
           isLoggingOut: false,
           isSessionRestoring: false,
@@ -73,6 +76,7 @@ export const useAuthStore = create<AuthState>()(
         memberId: state.memberId,
         name: state.name,
         email: state.email,
+        role: state.role,
         isAuthenticated: state.isAuthenticated,
       }),
     },

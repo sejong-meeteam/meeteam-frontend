@@ -40,6 +40,7 @@ export default function AuthSessionBootstrap() {
           memberId: profile.memberId,
           name: profile.name,
           email: profile.email,
+          role: profile.role,
         });
       } catch {
         if (active) {

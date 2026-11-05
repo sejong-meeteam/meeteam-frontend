@@ -47,6 +47,7 @@ export default function RequireAuth({ children }: RequireAuthProps) {
           memberId: profile.memberId,
           name: profile.name,
           email: profile.email,
+          role: profile.role,
         });
       } catch {
         if (!active) {

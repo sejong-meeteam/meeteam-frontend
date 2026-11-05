@@ -209,6 +209,7 @@ export default function SejongSignupForm() {
         memberId: profile.memberId,
         name: profile.name,
         email: profile.email,
+        role: profile.role,
       });
 
       router.replace('/');

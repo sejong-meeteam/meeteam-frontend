@@ -110,10 +110,13 @@ export type SejongLoginResponse = {
   code: string | null;
 };
 
+export type MemberRole = 'USER' | 'ADMIN';
+
 export type AuthSession = {
   memberId: number;
   name: string;
   email: string;
+  role?: MemberRole;
 };
 
 export type ApiEnvelope<T> = {

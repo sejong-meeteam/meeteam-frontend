@@ -46,6 +46,7 @@ export function useProtectedNavigation() {
           memberId: profile.memberId,
           name: profile.name,
           email: profile.email,
+          role: profile.role,
         });
 
         return true;

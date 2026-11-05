@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ChevronDown, FileText, LogOut, Settings, UserRound } from 'lucide-react';
+import { ChevronDown, FileText, LogOut, Settings, ShieldCheck, UserRound } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { logoutMember } from '@/components/features/auth/loginApi';
 import { fetchMyProfile } from '@/components/features/profile/profileApi';
@@ -37,6 +37,7 @@ export default function ProfileMenu() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const name = useAuthStore((state) => state.name);
   const email = useAuthStore((state) => state.email);
+  const isAdmin = useAuthStore((state) => state.role === 'ADMIN');
   const closeLoginModal = useLoginModalStore((state) => state.closeLoginModal);
 
   const [open, setOpen] = useState(false);
@@ -175,6 +176,23 @@ export default function ProfileMenu() {
                 <span className="text-sm leading-5 font-medium text-mt-text-nav">{label}</span>
               </Link>
             ))}
+            {isAdmin ? (
+              <Link
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className="flex h-10 items-center gap-2.5 rounded-xl px-3 transition-colors hover:bg-mt-bg-soft"
+                role="menuitem"
+              >
+                <ShieldCheck
+                  className="h-4 w-4 text-action-primary"
+                  aria-hidden
+                  strokeWidth={1.8}
+                />
+                <span className="text-sm leading-5 font-bold text-action-primary">
+                  관리자 페이지
+                </span>
+              </Link>
+            ) : null}
           </div>
 
           <div className="border-t border-mt-bg-soft px-2 py-2">

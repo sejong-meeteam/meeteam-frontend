@@ -10,6 +10,7 @@ type ConfirmModalProps = {
   description: ReactNode;
   closeLabel?: string;
   confirmLabel: string;
+  confirmTone?: 'primary' | 'danger';
   isSubmitting?: boolean;
   isConfirmDisabled?: boolean;
   confirmButtonDataCy?: string;
@@ -24,6 +25,7 @@ export default function ConfirmModal({
   description,
   closeLabel = '닫기',
   confirmLabel,
+  confirmTone = 'primary',
   isSubmitting = false,
   isConfirmDisabled = false,
   confirmButtonDataCy,
@@ -56,6 +58,7 @@ export default function ConfirmModal({
           </BaseButton>
           <BaseButton
             size="M"
+            variant={confirmTone}
             onClick={onConfirm}
             disabled={isSubmitting || isConfirmDisabled}
             data-cy={confirmButtonDataCy}

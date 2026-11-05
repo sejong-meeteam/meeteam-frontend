@@ -2,7 +2,7 @@
 
 ## 구성 원칙
 
-Next.js App Router와 TypeScript를 사용합니다. 라우트와 레이아웃은 `app/`, 도메인 UI·API·전용 상태는 `components/features/`, 공통 UI는 `components/shared/`에 둡니다. 도메인은 인증, 프로필, 프로젝트, 팀원 및 알림으로 나눕니다.
+Next.js App Router와 TypeScript를 사용합니다. 라우트와 레이아웃은 `app/`, 도메인 UI·API·전용 상태는 `components/features/`, 공통 UI는 `components/shared/`에 둡니다. 도메인은 인증, 프로필, 프로젝트, 팀원, 알림 및 관리자로 나눕니다.
 
 Zustand는 인증과 클라이언트 UI 상태를 관리하고 TanStack Query는 이를 사용하는 기능의 서버 데이터 조회에 사용합니다. 입력 검증은 도메인별 Zod 스키마를 사용합니다. 모든 API 요청이 TanStack Query를 거치는 구조는 아닙니다.
 
@@ -21,6 +21,7 @@ Zustand는 인증과 클라이언트 UI 상태를 관리하고 TanStack Query는
 | 프로젝트 목록 탐색            | `components/features/project/find/projectFindApi.ts`  |
 | 팀원 탐색                     | `components/features/team/teamApi.ts`                 |
 | 알림                          | `components/features/notification/notificationApi.ts` |
+| 관리자 화면·API               | `components/features/admin/adminApi.ts`               |
 
 ## API 요청
 
@@ -51,3 +52,7 @@ MSW 검증은 요청 계약과 UI 상태 검증을 위한 것으로, 실제 서�
 ## 공유 메타데이터
 
 `NEXT_PUBLIC_SITE_URL`을 canonical·OG·Twitter URL의 기준으로 사용하며 기본값은 `https://www.meeteam.fignal.me`입니다. 기본 공유 이미지는 `/brand/meeteam_logo_hat.png`이고 프로젝트 상세는 프로젝트 커버 또는 대체 이미지를 사용합니다. Vercel의 배포별 URL을 기본 기준으로 사용하지 않습니다.
+
+## 관리자 화면
+
+`/admin/**`는 `RequireAdmin`이 세션의 `role`을 확인해 `ADMIN`만 표시합니다. 프론트 가드는 UX 용도이며 백엔드가 `/api/v1/admin/*`의 권한을 최종 판단합니다. 화면 구성, API 계약과 연쇄 동작은 [관리자 페이지 기획](admin-plan.md)을 참고합니다.
