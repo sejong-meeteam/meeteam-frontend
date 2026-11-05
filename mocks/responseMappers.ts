@@ -1,5 +1,6 @@
 import { JOB_OPTIONS, type MockMember } from './fixtures';
 import type { ProjectRecord } from './projectContract';
+import { getMockGithubActivitySummary } from './githubHandlers';
 import { getLikes, getMembers, getSessionMember } from './storage';
 
 export function toProjectRecruitments(project: ProjectRecord) {
@@ -40,6 +41,7 @@ export function toProjectCard(project: ProjectRecord) {
     currentCount: project.currentMembers,
     recruitmentCount: 1 + project.recruitments.reduce((total, item) => total + item.count, 0),
     recruitments: toProjectRecruitments(project),
+    githubActivity: getMockGithubActivitySummary(project.id),
   };
 }
 export function toProjectDetail(project: ProjectRecord) {

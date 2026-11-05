@@ -1,4 +1,5 @@
 import type { ApiEnvelope } from '@/types/auth';
+import type { GithubActivityLevel, GithubActivitySummary } from '@/types/github';
 
 import { API_BASE_URL, apiFetch } from '@/components/features/auth/apiClient';
 import { extractApiData } from '@/components/features/auth/signupTransform';
@@ -18,6 +19,7 @@ export type HomeProjectCard = {
     avatar: string;
   };
   tags: string[];
+  githubActivityLevel: GithubActivityLevel | null;
   recruitInfo: Array<{
     id: string | number;
     role: string;
@@ -71,6 +73,7 @@ type BackendProjectCardResponse = {
     isClosed?: boolean;
     closed?: boolean;
   }>;
+  githubActivity?: GithubActivitySummary | null;
 };
 
 type BackendMemberCardResponse = {
@@ -139,6 +142,7 @@ function mapHomeProject(project: BackendProjectCardResponse): HomeProjectCard {
       avatar: project.creatorImageUrl ?? '',
     },
     tags: [project.platformName].filter(Boolean),
+    githubActivityLevel: project.githubActivity?.activityLevel ?? null,
     recruitInfo: project.recruitments.map((recruitment, index) => ({
       id: `${project.projectId}-${index + 1}`,
       role: recruitment.jobFieldName,

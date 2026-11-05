@@ -5,7 +5,9 @@ import CategoryBadge from '@/components/shared/CategoryBadge';
 import { formatJobRole } from '@/components/shared/jobRoleFormat';
 import ProfileAvatar from '@/components/shared/ProfileAvatar';
 import StatusBadge from '@/components/shared/StatusBadge';
+import GithubActivityBadge from './github/GithubActivityBadge';
 import { getProjectImageSrc } from './projectImage';
+import type { GithubActivityLevel } from '@/types/github';
 
 interface ProjectCardProps {
   project: {
@@ -21,6 +23,7 @@ interface ProjectCardProps {
       avatar: string;
     };
     tags?: string[];
+    githubActivityLevel?: GithubActivityLevel | null;
     recruitInfo?: Array<{
       id: string | number;
       role: string;
@@ -67,7 +70,12 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
       <div
         className={`absolute left-0 right-0 top-0 z-10 flex justify-between ${compact ? 'p-4' : 'p-6'}`}
       >
-        <CategoryBadge label={project.category} tone="accent" />
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+          <CategoryBadge label={project.category} tone="accent" />
+          {project.githubActivityLevel ? (
+            <GithubActivityBadge level={project.githubActivityLevel} tone="overlay" />
+          ) : null}
+        </div>
         <StatusBadge
           status="deadline"
           label={deadlineLabel}
