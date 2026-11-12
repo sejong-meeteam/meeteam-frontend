@@ -39,6 +39,10 @@ export interface MemberProfileResponse {
   role?: MemberRole;
 }
 
+export interface MyMemberProfileResponse extends MemberProfileResponse {
+  namePrivate?: boolean;
+}
+
 interface MemberDetailResponse {
   memberId: number;
   profileImageUrl: string | null;
@@ -59,6 +63,7 @@ interface MemberDetailResponse {
 
 export interface UpdateMemberProfilePayload {
   name: string;
+  namePrivate?: boolean;
   age: number;
   gender: ProfileGender;
   jobPositionIds: number[];
@@ -93,7 +98,7 @@ export async function fetchMyProfile() {
     cache: 'no-store',
   });
 
-  return readEnvelope<MemberProfileResponse>(response);
+  return readEnvelope<MyMemberProfileResponse>(response);
 }
 
 export async function fetchMemberProfile(memberId: number) {
@@ -129,6 +134,7 @@ export async function updateMyProfile(payload: UpdateMemberProfilePayload) {
       [
         JSON.stringify({
           name: payload.name.trim(),
+          namePrivate: parsed.data.namePrivate,
           age: payload.age,
           gender: payload.gender,
           jobPositionIds: payload.jobPositionIds,

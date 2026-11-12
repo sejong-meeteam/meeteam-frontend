@@ -788,10 +788,12 @@ export async function fetchProjectApplicationPage(
 
 export async function fetchProjectApplications(
   projectId: string | number,
+  signal?: AbortSignal,
 ): Promise<ProjectApplicant[]> {
   const response = await apiFetch(`${API_BASE_URL}/api/v1/projects/${projectId}/applications`, {
     method: 'GET',
     cache: 'no-store',
+    signal,
   });
 
   const applications = await readEnvelope<BackendProjectApplicationListResponse[]>(
@@ -805,12 +807,14 @@ export async function fetchProjectApplications(
 export async function fetchProjectApplicationDetail(
   projectId: string | number,
   applicationId: string | number,
+  signal?: AbortSignal,
 ): Promise<ProjectApplicant> {
   const response = await apiFetch(
     `${API_BASE_URL}/api/v1/projects/${projectId}/applications/${applicationId}`,
     {
       method: 'GET',
       cache: 'no-store',
+      signal,
     },
   );
 

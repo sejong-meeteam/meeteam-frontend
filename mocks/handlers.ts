@@ -20,6 +20,7 @@ import {
   getMemberStatus,
   getMembers,
   getProjects,
+  getPublicMemberName,
   getSessionMember,
   saveMember,
   saveProject,
@@ -39,6 +40,7 @@ const loginRequestSchema = z.object({
 
 const profileUpdateSchema = z.object({
   name: z.string().trim().min(1).max(50),
+  namePrivate: z.boolean().optional(),
   age: z.number().int().min(1).max(150),
   gender: z.enum(['MALE', 'FEMALE']),
   jobPositionIds: z.array(z.number().int()).min(1),
@@ -123,7 +125,7 @@ function projectsFor(member: MockMember) {
     projectId: project.id,
     projectName: project.title,
     categoryName: project.category,
-    creatorName: member.name,
+    creatorName: getPublicMemberName(member),
     creatorImageUrl: null,
     imageUrl: null,
     currentCount: project.currentMembers,
@@ -135,6 +137,7 @@ function toMyProfile(member: MockMember) {
   return {
     memberId: member.memberId,
     name: member.name,
+    namePrivate: member.namePrivate ?? false,
     birthDate: member.birthDate,
     gender: member.gender,
     email: member.email,
@@ -157,7 +160,7 @@ function toPublicProfile(member: MockMember) {
   return {
     memberId: member.memberId,
     profileImageUrl: member.profileImageUrl,
-    name: member.name,
+    name: getPublicMemberName(member),
     age: getAge(member.birthDate),
     gender: member.gender,
     representativePosition: positionById(member.jobPositionIds[0])?.name ?? null,
@@ -366,6 +369,7 @@ export const handlers = [
     const nextMember: MockMember = {
       ...member,
       name: parsed.data.name,
+      namePrivate: parsed.data.namePrivate ?? member.namePrivate,
       birthDate: birthDateForAge(parsed.data.age),
       gender: parsed.data.gender,
       jobPositionIds: parsed.data.jobPositionIds,
@@ -448,11 +452,16 @@ export const handlers = [
     const page = Math.max(0, Number(params.get('page')) || 0);
     const size = Math.min(20, Math.max(1, Number(params.get('size')) || 8));
     const sort = params.get('sort') ?? 'LATEST';
+    const publicNames = new Map(
+      getMembers().map((member) => [member.memberId, getPublicMemberName(member)]),
+    );
     const filtered = getProjects().filter(
       (project) =>
         isProjectVisible(project) &&
         (!keyword ||
-          `${project.name} ${project.leaderName}`.toLocaleLowerCase().includes(keyword)) &&
+          `${project.name} ${publicNames.get(project.leaderId) ?? project.leaderName}`
+            .toLocaleLowerCase()
+            .includes(keyword)) &&
         (!category || project.category === category) &&
         (!platform || project.platform === platform) &&
         (!recruitingOnly || isProjectOpen(project)) &&

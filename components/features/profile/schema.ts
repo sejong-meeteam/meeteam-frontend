@@ -18,6 +18,7 @@ const OPTIONAL_URL = z.union([
 ]);
 
 export const profileFormSchema = z.object({
+  namePrivate: z.boolean().optional(),
   name: z
     .string()
     .trim()

@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { z } from 'zod';
 import { qnaContentSchema } from '@/components/features/project/detail/qnaSchema';
-import { getProjects, getSessionMember } from './storage';
+import { getMembers, getProjects, getPublicMemberName, getSessionMember } from './storage';
 import { pageResponse } from './responseMappers';
 
 type Answer = {
@@ -61,6 +61,22 @@ const save = (question: Question) =>
 const success = <T>(result: T) => HttpResponse.json({ code: 'COMMON200', result });
 const failure = (status: number, message: string) => HttpResponse.json({ message }, { status });
 
+function toPublicQuestion(question: Question) {
+  const members = getMembers();
+  const getName = (id: number, fallback: string) => {
+    const member = members.find((item) => item.memberId === id);
+    return member ? getPublicMemberName(member) : fallback;
+  };
+  return {
+    ...question,
+    questionerName: getName(question.questionerId, question.questionerName),
+    answers: question.answers.map((answer) => ({
+      ...answer,
+      writerName: getName(answer.writerId, answer.writerName),
+    })),
+  };
+}
+
 export const qnaHandlers = [
   http.get('/api/v1/projects/:projectId/qna', ({ params, request }) => {
     const project = getProjects().find((item) => item.id === Number(params.projectId));
@@ -75,7 +91,7 @@ export const qnaHandlers = [
           member?.memberId === item.questionerId ||
           member?.memberId === project.leaderId;
         return visible
-          ? item
+          ? toPublicQuestion(item)
           : {
               ...item,
               questionerName: '비밀글',
@@ -110,7 +126,7 @@ export const qnaHandlers = [
       answers: [],
     };
     save(question);
-    return success(question);
+    return success(toPublicQuestion(question));
   }),
   http.post('/api/v1/projects/:projectId/qna/:qnaId/answer', async ({ params, request }) => {
     const member = getSessionMember();
@@ -146,6 +162,6 @@ export const qnaHandlers = [
       ],
     };
     save(next);
-    return success(next);
+    return success(toPublicQuestion(next));
   }),
 ];

@@ -1,7 +1,7 @@
 import { JOB_OPTIONS, type MockMember } from './fixtures';
 import type { ProjectRecord } from './projectContract';
 import { getMockGithubActivitySummary } from './githubHandlers';
-import { getLikes, getMembers, getSessionMember } from './storage';
+import { getLikes, getMembers, getPublicMemberName, getSessionMember } from './storage';
 
 export function toProjectRecruitments(project: ProjectRecord) {
   return project.recruitments.map((item) => {
@@ -23,6 +23,7 @@ export function toProjectRecruitments(project: ProjectRecord) {
   });
 }
 export function toProjectCard(project: ProjectRecord) {
+  const leader = getMembers().find((member) => member.memberId === project.leaderId);
   return {
     projectId: project.id,
     projectName: project.name,
@@ -36,7 +37,7 @@ export function toProjectCard(project: ProjectRecord) {
     platformName: { WEB: '웹', IOS: 'iOS', ANDROID: '안드로이드' }[project.platform],
     imageUrl: project.imageUrl,
     endDate: project.deadline,
-    creatorName: project.leaderName,
+    creatorName: leader ? getPublicMemberName(leader) : project.leaderName,
     creatorImageUrl: null,
     currentCount: project.currentMembers,
     recruitmentCount: 1 + project.recruitments.reduce((total, item) => total + item.count, 0),
@@ -46,6 +47,9 @@ export function toProjectCard(project: ProjectRecord) {
 }
 export function toProjectDetail(project: ProjectRecord) {
   const member = getSessionMember();
+  const members = getMembers();
+  const leader = members.find((item) => item.memberId === project.leaderId);
+  const leaderName = leader ? getPublicMemberName(leader) : project.leaderName;
   return {
     id: project.id,
     name: project.name,
@@ -61,20 +65,23 @@ export function toProjectDetail(project: ProjectRecord) {
     communicationChannelUrl: project.communicationUrl,
     leader: {
       id: project.leaderId,
-      name: project.leaderName,
+      name: leaderName,
       profileImageUrl: null,
       jobPositions: [],
       techStacks: [],
     },
     members: [
-      { memberId: project.leaderId, name: project.leaderName, profileImageUrl: null },
+      { memberId: project.leaderId, name: leaderName, profileImageUrl: null },
       ...(project.memberIds ?? [])
         .filter((id) => id !== project.leaderId)
-        .map((memberId) => ({
-          memberId,
-          name: getMembers().find((member) => member.memberId === memberId)?.name ?? '팀원',
-          profileImageUrl: null,
-        })),
+        .map((memberId) => {
+          const teammate = members.find((item) => item.memberId === memberId);
+          return {
+            memberId,
+            name: teammate ? getPublicMemberName(teammate) : '팀원',
+            profileImageUrl: null,
+          };
+        }),
     ],
     recruitments: toProjectRecruitments(project),
     likeCount: getLikes().filter((item) => item.endsWith(`:${project.id}`)).length,
@@ -88,7 +95,7 @@ export function toMemberCard(member: MockMember) {
   );
   return {
     memberId: member.memberId,
-    name: member.name,
+    name: getPublicMemberName(member),
     profileImageUrl: member.profileImageUrl,
     jobFieldName: field?.name ?? null,
     projectCount: member.projectCount,

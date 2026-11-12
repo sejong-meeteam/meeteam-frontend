@@ -40,6 +40,7 @@ export const JOB_OPTIONS = {
 export type MockMember = {
   memberId: number;
   name: string;
+  namePrivate?: boolean;
   email: string;
   birthDate: string;
   gender: 'MALE' | 'FEMALE';

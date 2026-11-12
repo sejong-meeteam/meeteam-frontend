@@ -16,7 +16,7 @@ import type {
 } from '@/types/github';
 import { addMockNotification } from './notificationHandlers';
 import type { ProjectRecord } from './projectContract';
-import { getMembers, getProjects, getSessionMember } from './storage';
+import { getMembers, getProjects, getPublicMemberName, getSessionMember } from './storage';
 
 type MockRepository = GithubRepository & {
   pushedHoursAgo: number;
@@ -281,7 +281,7 @@ function memberByLogin(state: GithubMockState, login: string) {
 
   const member = getMembers().find((item) => item.memberId === Number(entry[0]));
 
-  return member ? { memberId: member.memberId, name: member.name } : null;
+  return member ? { memberId: member.memberId, name: getPublicMemberName(member) } : null;
 }
 
 function findProject(projectId: unknown) {
@@ -327,12 +327,13 @@ function contributionsOf(
   const members = getMembers();
 
   return projectMemberIds(project).map((memberId, index) => {
+    const member = members.find((item) => item.memberId === memberId);
     const login = state.accounts[String(memberId)]?.login ?? null;
     const commits = repository.contributors.find((item) => item.login === login)?.commits ?? 0;
 
     return {
       memberId,
-      name: members.find((item) => item.memberId === memberId)?.name ?? '팀원',
+      name: member ? getPublicMemberName(member) : '팀원',
       githubLogin: login,
       commits: Math.round(commits * scale),
       mergedPullRequests: login ? Math.round((commits / 6) * scale) : 0,
@@ -353,7 +354,7 @@ function collaboratorsOf(state: GithubMockState, project: ProjectRecord): Github
     const inviteKey = `${project.id}:${memberId}`;
     const base = {
       memberId,
-      name: member?.name ?? '팀원',
+      name: member ? getPublicMemberName(member) : '팀원',
       profileImageUrl: member?.profileImageUrl ?? '',
       isLeader,
       githubLogin: account?.login ?? null,

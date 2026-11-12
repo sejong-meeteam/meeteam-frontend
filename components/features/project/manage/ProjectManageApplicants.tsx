@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CalendarDays, CheckCircle2, ExternalLink, Mail, XCircle } from 'lucide-react';
 import { useAuthRequiredModal } from '@/components/features/auth/useAuthRequiredModal';
 import {
@@ -14,6 +14,7 @@ import ProfileAvatar from '@/components/shared/ProfileAvatar';
 import SkeletonBlock from '@/components/shared/SkeletonBlock';
 import ToastMessage from '@/components/shared/ToastMessage';
 import type { ProjectApplicant } from '@/types/project';
+import { useAuthStore } from '@/stores/useAuthStore';
 import ProjectApplicantDetailModal from './ProjectApplicantDetailModal';
 import ProjectManageShell from './ProjectManageShell';
 
@@ -55,6 +56,17 @@ function ProjectManageApplicantsSkeleton() {
 }
 
 export default function ProjectManageApplicants({ projectId }: ProjectManageApplicantsProps) {
+  const memberId = useAuthStore((state) => state.memberId);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoggingOut = useAuthStore((state) => state.isLoggingOut);
+
+  // Applicant data belongs only to the current authenticated viewer and project.
+  if (!isAuthenticated || isLoggingOut || memberId === null) return null;
+
+  return <ProjectApplicantsView key={`${memberId}:${projectId}`} projectId={projectId} />;
+}
+
+function ProjectApplicantsView({ projectId }: ProjectManageApplicantsProps) {
   const handleAuthRequired = useAuthRequiredModal();
   const [applicants, setApplicants] = useState<ProjectApplicant[]>([]);
   const [selectedApplicant, setSelectedApplicant] = useState<ProjectApplicant | null>(null);
@@ -66,97 +78,74 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
   const [detailErrorMessage, setDetailErrorMessage] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const loadApplicants = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setErrorMessage(null);
-
-      const nextApplicants = await fetchProjectApplications(projectId);
-
-      setApplicants(nextApplicants.filter((applicant) => applicant.status === 'pending'));
-    } catch (error) {
-      if (handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage/applicants` })) {
-        setErrorMessage(null);
-        return;
-      }
-
-      setApplicants([]);
-      setErrorMessage(
-        error instanceof Error ? error.message : '지원자 목록을 불러오지 못했습니다.',
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [handleAuthRequired, projectId]);
+  const detailRequestRef = useRef<AbortController | null>(null);
+  const listRequestRef = useRef<AbortController | null>(null);
+  const redirectPath = `/projects/${projectId}/manage/applicants`;
 
   useEffect(() => {
-    let active = true;
+    const request = new AbortController();
+    listRequestRef.current = request;
 
     const load = async () => {
       try {
         setIsLoading(true);
         setErrorMessage(null);
-
-        const nextApplicants = await fetchProjectApplications(projectId);
-
-        if (!active) {
-          return;
+        const nextApplicants = await fetchProjectApplications(projectId, request.signal);
+        if (!request.signal.aborted) {
+          setApplicants(nextApplicants.filter((applicant) => applicant.status === 'pending'));
         }
-
-        setApplicants(nextApplicants.filter((applicant) => applicant.status === 'pending'));
       } catch (error) {
-        if (!active) {
-          return;
-        }
-
-        if (
-          handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage/applicants` })
-        ) {
-          setErrorMessage(null);
-          return;
-        }
-
+        if (request.signal.aborted) return;
         setApplicants([]);
+        if (handleAuthRequired(error, { redirectPath })) return;
         setErrorMessage(
           error instanceof Error ? error.message : '지원자 목록을 불러오지 못했습니다.',
         );
       } finally {
-        if (active) {
-          setIsLoading(false);
-        }
+        if (!request.signal.aborted) setIsLoading(false);
       }
     };
 
     void load();
+    return () => request.abort();
+  }, [handleAuthRequired, projectId, redirectPath, refreshKey]);
 
-    return () => {
-      active = false;
-    };
-  }, [handleAuthRequired, projectId]);
+  const closeDetail = () => {
+    detailRequestRef.current?.abort();
+    detailRequestRef.current = null;
+    setSelectedApplicant(null);
+    setDetailApplicant(null);
+    setDetailErrorMessage(null);
+    setIsDetailLoading(false);
+  };
+
+  useEffect(() => () => detailRequestRef.current?.abort(), []);
 
   const handleOpenDetail = async (applicant: ProjectApplicant) => {
+    detailRequestRef.current?.abort();
+    const request = new AbortController();
+    detailRequestRef.current = request;
     setSelectedApplicant(applicant);
-    setDetailApplicant(applicant);
+    setDetailApplicant(null);
     setDetailErrorMessage(null);
+    setIsDetailLoading(true);
 
     try {
-      setIsDetailLoading(true);
-
-      const nextDetail = await fetchProjectApplicationDetail(projectId, applicant.id);
-
-      setDetailApplicant({ ...applicant, ...nextDetail, appliedAt: applicant.appliedAt });
+      const detail = await fetchProjectApplicationDetail(projectId, applicant.id, request.signal);
+      if (!request.signal.aborted) {
+        setDetailApplicant({ ...applicant, ...detail, appliedAt: applicant.appliedAt });
+      }
     } catch (error) {
-      if (handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage/applicants` })) {
-        setSelectedApplicant(null);
-        setDetailApplicant(null);
+      if (request.signal.aborted) return;
+      if (handleAuthRequired(error, { redirectPath })) {
+        closeDetail();
         return;
       }
-
       setDetailErrorMessage(
         error instanceof Error ? error.message : '지원서 상세 정보를 불러오지 못했습니다.',
       );
     } finally {
-      setIsDetailLoading(false);
+      if (!request.signal.aborted) setIsDetailLoading(false);
     }
   };
 
@@ -168,22 +157,21 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
       return;
     }
 
+    const request = listRequestRef.current;
     try {
       setDecisionLoadingId(applicant.id);
       setErrorMessage(null);
 
       await decideProjectApplication(projectId, applicant.id, decision);
+      if (request?.signal.aborted) return;
       setApplicants((current) => current.filter((item) => item.id !== applicant.id));
 
       if (selectedApplicant?.id === applicant.id) {
-        setSelectedApplicant(null);
-        setDetailApplicant(null);
+        closeDetail();
       }
-
-      await loadApplicants();
       setRefreshKey((current) => current + 1);
     } catch (error) {
-      if (handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage/applicants` })) {
+      if (request?.signal.aborted || handleAuthRequired(error, { redirectPath })) {
         return;
       }
 
@@ -195,9 +183,8 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
     }
   };
 
-  const pendingApplicants = applicants.filter((item) => item.status === 'pending');
   const pendingApplicantsCount =
-    isLoading && pendingApplicants.length === 0 ? undefined : pendingApplicants.length;
+    isLoading && applicants.length === 0 ? undefined : applicants.length;
 
   return (
     <ProjectManageShell
@@ -209,17 +196,17 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
       <div className="space-y-6">
         <ToastMessage message={errorMessage} />
 
-        {isLoading && pendingApplicants.length === 0 ? (
+        {isLoading && applicants.length === 0 ? (
           <ProjectManageApplicantsSkeleton />
         ) : (
           <section className="overflow-hidden rounded-2xl border border-mt-border/40 bg-mt-white shadow-sm">
             <header className="border-b border-mt-border/40 bg-mt-bg-soft/50 px-6 py-4">
               <h2 className="text-base leading-6 font-bold text-mt-text-primary">
-                지원자 목록 <span className="ml-1 text-mt-primary">{pendingApplicants.length}</span>
+                지원자 목록 <span className="ml-1 text-mt-primary">{applicants.length}</span>
               </h2>
             </header>
 
-            {pendingApplicants.length === 0 ? (
+            {applicants.length === 0 ? (
               <div className="px-6 py-12 text-center">
                 <p className="text-base font-bold text-mt-text-primary">
                   대기 중인 지원자가 없습니다.
@@ -230,7 +217,7 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
               </div>
             ) : (
               <ul>
-                {pendingApplicants.map((applicant, index) => {
+                {applicants.map((applicant, index) => {
                   const isRecruitmentFull = applicant.isRecruitmentFull === true;
                   const isDecisionLoading = decisionLoadingId === applicant.id;
 
@@ -348,11 +335,7 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
         isOpen={selectedApplicant !== null}
         isLoading={isDetailLoading}
         errorMessage={detailErrorMessage}
-        onClose={() => {
-          setSelectedApplicant(null);
-          setDetailApplicant(null);
-          setDetailErrorMessage(null);
-        }}
+        onClose={closeDetail}
       />
     </ProjectManageShell>
   );

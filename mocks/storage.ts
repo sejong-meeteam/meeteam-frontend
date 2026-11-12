@@ -69,6 +69,12 @@ export function getMembers(): MockMember[] {
   }
 }
 
+export function getPublicMemberName(member: Pick<MockMember, 'name' | 'namePrivate'>) {
+  if (!member.namePrivate) return member.name;
+  const [initial, ...rest] = Array.from(member.name);
+  return rest.length ? `${initial}${'*'.repeat(rest.length)}` : '*';
+}
+
 // 이전 데모 데이터에도 관리자 계정과 회원 상태 필드가 포함되도록 기본 회원 정보를 보강합니다.
 function withInitialMembers(members: MockMember[]) {
   const initialById = new Map(INITIAL_MEMBERS.map((member) => [member.memberId, member]));

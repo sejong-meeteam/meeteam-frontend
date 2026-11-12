@@ -1,11 +1,13 @@
 'use client';
 
 import { Github, Link2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useAuthRequiredModal } from '@/components/features/auth/useAuthRequiredModal';
 import AuthRequiredFallback from '@/components/features/auth/AuthRequiredFallback';
 import { fetchJobOptions } from '@/components/features/auth/signupApi';
+import { findTechStackByName } from '@/components/features/auth/jobOptionUtils';
 import IntroductionCard from '@/components/features/profile/IntroductionCard';
 import JoinedProjectCard from '@/components/features/profile/JoinedProjectCard';
 import ProfileOverviewSkeleton from '@/components/features/profile/ProfileOverviewSkeleton';
@@ -16,6 +18,7 @@ import {
   fetchMyProfile,
   findPositionByName,
   type MemberProfileResponse,
+  type MyMemberProfileResponse,
   type ProfileGender,
   updateMyProfile,
 } from '@/components/features/profile/profileApi';
@@ -31,6 +34,7 @@ interface ProfileOverviewProps {
 
 interface ProfileFormState {
   name: string;
+  namePrivate?: boolean;
   age: string;
   gender: string;
   fieldCategory: string;
@@ -49,6 +53,7 @@ export default function ProfileOverview({
   editable = true,
   actionLabel = '제안 보내기',
 }: ProfileOverviewProps) {
+  const router = useRouter();
   const handleAuthRequired = useAuthRequiredModal();
   const showToast = useToastStore((state) => state.showToast);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -57,7 +62,7 @@ export default function ProfileOverview({
   const [isSaving, setIsSaving] = useState(false);
   const [isAuthBlocked, setIsAuthBlocked] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [profile, setProfile] = useState<MemberProfileResponse | null>(null);
+  const [profile, setProfile] = useState<MyMemberProfileResponse | null>(null);
   const [jobFields, setJobFields] = useState<JobFieldOption[]>([]);
   const [profileForm, setProfileForm] = useState<ProfileFormState | null>(null);
   const [originalForm, setOriginalForm] = useState<ProfileFormState | null>(null);
@@ -177,7 +182,7 @@ export default function ProfileOverview({
     [editableSkills, profileForm],
   );
 
-  function applyProfile(nextProfile: MemberProfileResponse, nextJobFields: JobFieldOption[]) {
+  function applyProfile(nextProfile: MyMemberProfileResponse, nextJobFields: JobFieldOption[]) {
     const primaryPosition = findPrimaryPosition(nextProfile, nextJobFields);
 
     setProfile(nextProfile);
@@ -194,6 +199,8 @@ export default function ProfileOverview({
     setEditableSkills(nextProfile.skills);
     const nextForm: ProfileFormState = {
       name: nextProfile.name,
+      namePrivate:
+        typeof nextProfile.namePrivate === 'boolean' ? nextProfile.namePrivate : undefined,
       age: ageLabel,
       gender: nextProfile.gender === 'FEMALE' ? '여성' : '남성',
       fieldCategory: primaryPosition?.field.name ?? '',
@@ -233,7 +240,10 @@ export default function ProfileOverview({
     setIsEditing(false);
   };
 
-  const handleFieldChange = (field: keyof ProfileFormState, value: string) => {
+  const handleFieldChange = (
+    field: 'fieldCategory' | 'fieldRole' | 'github' | 'blog' | 'introduction',
+    value: string,
+  ) => {
     if (!profileForm) {
       return;
     }
@@ -270,6 +280,14 @@ export default function ProfileOverview({
     );
   };
 
+  const handleToggleNamePrivacy = () => {
+    setProfileForm((current) =>
+      typeof current?.namePrivate === 'boolean'
+        ? { ...current, namePrivate: !current.namePrivate }
+        : current,
+    );
+  };
+
   const handleImageChange = (file: File | null) => {
     setProfileForm((current) =>
       current
@@ -300,7 +318,9 @@ export default function ProfileOverview({
       }
 
       const techStacks = editableSkills.map((skill, index) => {
-        const techStack = currentField?.techStacks.find((item) => item.name === skill);
+        const techStack =
+          currentField?.techStacks.find((item) => item.name === skill) ??
+          findTechStackByName(jobFields, skill);
 
         if (!techStack) {
           throw new Error(`'${skill}' 기술 스택을 옵션에서 찾을 수 없습니다.`);
@@ -313,7 +333,8 @@ export default function ProfileOverview({
       });
 
       await updateMyProfile({
-        name: profileForm.name,
+        name: profile.name,
+        namePrivate: profileForm.namePrivate,
         age: parseInt(profileForm.age.replace(/\D/g, ''), 10),
         gender: mapGenderLabelToValue(profileForm.gender),
         jobPositionIds: [position.id],
@@ -326,7 +347,25 @@ export default function ProfileOverview({
       });
 
       const [nextProfile, nextJobFields] = await Promise.all([fetchMyProfile(), fetchJobOptions()]);
+      const session = useAuthStore.getState();
+      if (
+        session.isLoggingOut ||
+        !session.isAuthenticated ||
+        session.memberId !== nextProfile.memberId ||
+        profile.memberId !== nextProfile.memberId
+      )
+        return;
+
+      if (
+        profileForm.namePrivate !== originalForm?.namePrivate &&
+        nextProfile.namePrivate !== profileForm.namePrivate
+      ) {
+        throw new Error('이름 비공개 설정이 반영되지 않았습니다. 다시 시도해 주세요.');
+      }
+
       applyProfile(nextProfile, nextJobFields);
+      session.setProfileIdentity({ name: nextProfile.name, email: nextProfile.email });
+      router.refresh();
       setIsEditing(false);
       showToast({ tone: 'success', message: '프로필을 저장했습니다.' });
     } catch (error) {
@@ -416,6 +455,7 @@ export default function ProfileOverview({
           onImageChange={handleImageChange}
           actionDisabled={isSaving}
           onToggleParticipation={handleToggleParticipation}
+          onToggleNamePrivacy={handleToggleNamePrivacy}
           categoryOptions={categoryOptions}
           roleOptions={roleOptions}
           formData={profileForm}
