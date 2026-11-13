@@ -6,6 +6,7 @@ import SkillChip from '@/components/shared/SkillChip';
 export interface UserCardProps {
   userId: string | number;
   name: string;
+  department?: string | null;
   role: string;
   experience: string;
   skills: string[];
@@ -21,6 +22,7 @@ export interface UserCardProps {
 export default function UserCard({
   userId,
   name,
+  department,
   role,
   experience,
   skills,
@@ -62,6 +64,9 @@ export default function UserCard({
         <h3 data-cy={nameDataCy} className="text-base font-bold text-mt-text-primary">
           {name}
         </h3>
+        {department?.trim() && (
+          <p className="break-words text-xs text-mt-text-secondary">{department}</p>
+        )}
 
         <div className="flex items-center gap-1.5 text-xs text-mt-text-secondary">
           <BriefcaseBusiness

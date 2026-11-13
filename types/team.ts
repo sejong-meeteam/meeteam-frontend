@@ -11,6 +11,7 @@ export type TeammateRole =
 export type Teammate = {
   id: number;
   name: string;
+  department?: string | null;
   role: TeammateRole;
   experienceCount: number;
   skills: string[];

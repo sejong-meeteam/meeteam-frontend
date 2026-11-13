@@ -249,7 +249,9 @@ function ProfileSidebarDetails({
             <span className="min-w-0 truncate">{university.nameKo}</span>
           </div>
         ) : null}
-        {department && <p className="text-sm font-medium text-mt-text-secondary">{department}</p>}
+        {department?.trim() && (
+          <p className="break-words text-sm font-medium text-mt-text-secondary">{department}</p>
+        )}
         <SidebarMetaRow icon={StatusIcon}>
           {isParticipating ? '프로젝트 참여 가능' : '프로젝트 참여 불가'}
         </SidebarMetaRow>
@@ -390,7 +392,7 @@ function ProfileSidebarEditor({
           </button>
         </div>
         <dl className="space-y-2">
-          {formData.department && (
+          {formData.department?.trim() && (
             <EditableInfoRow label="학교 확인 학과" value={formData.department} />
           )}
           <EditableInfoRow label="나이" value={formData.age} />

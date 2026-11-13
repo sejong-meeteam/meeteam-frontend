@@ -20,6 +20,7 @@ export interface ProfileProjectCard {
 
 export interface MemberProfileResponse {
   name: string;
+  department?: string | null;
   memberId: number;
   birthDate?: string | null;
   age?: number | null;
@@ -40,7 +41,6 @@ export interface MemberProfileResponse {
 }
 
 export interface MyMemberProfileResponse extends MemberProfileResponse {
-  department?: string | null;
   schoolProfileVerified?: boolean;
   namePrivate?: boolean;
 }
@@ -49,6 +49,7 @@ interface MemberDetailResponse {
   memberId: number;
   profileImageUrl: string | null;
   name: string;
+  department?: string | null;
   age: number | null;
   gender: ProfileGender;
   representativePosition: string | null;
@@ -192,6 +193,7 @@ export function findPositionByName(
 function mapMemberDetailToProfile(detail: MemberDetailResponse): MemberProfileResponse {
   return {
     name: detail.name,
+    department: detail.department ?? null,
     memberId: detail.memberId,
     birthDate: null,
     age: detail.age,

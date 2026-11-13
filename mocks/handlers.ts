@@ -167,6 +167,7 @@ function toPublicProfile(member: MockMember) {
     memberId: member.memberId,
     profileImageUrl: member.profileImageUrl,
     name: getPublicMemberName(member),
+    department: member.department ?? null,
     age: getAge(member.birthDate),
     gender: member.gender,
     representativePosition: positionById(member.jobPositionIds[0])?.name ?? null,

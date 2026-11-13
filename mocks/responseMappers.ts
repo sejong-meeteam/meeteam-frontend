@@ -96,6 +96,7 @@ export function toMemberCard(member: MockMember) {
   return {
     memberId: member.memberId,
     name: getPublicMemberName(member),
+    department: member.department ?? null,
     profileImageUrl: member.profileImageUrl,
     jobFieldName: field?.name ?? null,
     projectCount: member.projectCount,

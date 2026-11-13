@@ -8,6 +8,7 @@ import { extractApiData } from '@/components/features/auth/signupTransform';
 interface MemberCardResponse {
   memberId: number;
   name: string;
+  department?: string | null;
   profileImageUrl: string | null;
   jobFieldName: string | null;
   projectCount: number;
@@ -138,6 +139,7 @@ function mapTeammateCard(member: MemberCardResponse): Teammate {
   return {
     id: member.memberId,
     name: member.name,
+    department: member.department ?? null,
     role: mapJobFieldToRole(member.jobFieldName),
     experienceCount: member.projectCount ?? member.projectExperienceCount ?? 0,
     skills: mapTopTechStackNames(member.techStacks),
