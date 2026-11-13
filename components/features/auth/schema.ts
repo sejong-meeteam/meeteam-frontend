@@ -33,8 +33,19 @@ export const signupFormSchema = z
     }
   });
 
+export const verifiedSchoolProfileSchema = z.object({
+  studentId: z.string().regex(/^\d{8}$/),
+  name: z
+    .string()
+    .max(100)
+    .refine((value) => Boolean(value.trim())),
+  department: z
+    .string()
+    .max(200)
+    .refine((value) => Boolean(value.trim())),
+});
+
 export const onboardingFormSchema = z.object({
-  name: z.string().trim().min(1, '이름을 입력해 주세요.'),
   birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '생년월일을 선택해 주세요.'),
   gender: z.enum(['male', 'female']),
 });
@@ -59,6 +70,4 @@ export type LoginFieldErrors = Partial<
   Record<'studentId' | 'password' | 'agreement' | 'form', string>
 >;
 
-export type OnboardingFieldErrors = Partial<
-  Record<'name' | 'birth' | 'interests' | 'form', string>
->;
+export type OnboardingFieldErrors = Partial<Record<'birth' | 'interests' | 'form', string>>;

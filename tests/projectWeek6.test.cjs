@@ -104,14 +104,24 @@ test('application form contract resolves role names and applicant skills', async
   assert.equal(page.applicant.name, '김민지');
   assert.equal(page.recruitments[0].jobPositionName, 'Java/Spring');
 });
-test('submit, list, own detail, cancel and refreshed list follow API contract', async () => {
+test('applicants can list and cancel their application, and only the leader can view details', async () => {
   const result = await api.submitApplication(102, payload);
   assert.equal(result.status, 'pending');
   assert.equal((await api.getMyApplications()).length, 1);
+  await assert.rejects(
+    api.getApplicationDetail(102, result.applicationId),
+    (error) => error.name === 'PermissionDeniedError',
+  );
+  await assert.rejects(
+    api.getApplicationDetail(101, result.applicationId),
+    /지원서를 찾을 수 없습니다/,
+  );
+  storage.setSession(2);
   assert.equal(
     (await api.getApplicationDetail(102, result.applicationId)).introduction,
     payload.motivation,
   );
+  storage.setSession(1);
   await api.cancelApplication(result.applicationId);
   assert.equal((await api.getMyApplications())[0].status, 'cancelled');
   await assert.rejects(api.cancelApplication(result.applicationId), /대기 중/);

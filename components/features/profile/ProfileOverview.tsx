@@ -34,6 +34,8 @@ interface ProfileOverviewProps {
 
 interface ProfileFormState {
   name: string;
+  department: string | null;
+  schoolProfileVerified: boolean;
   namePrivate?: boolean;
   age: string;
   gender: string;
@@ -57,6 +59,7 @@ export default function ProfileOverview({
   const handleAuthRequired = useAuthRequiredModal();
   const showToast = useToastStore((state) => state.showToast);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const sessionMemberId = useAuthStore((state) => state.memberId);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -119,7 +122,7 @@ export default function ProfileOverview({
           fetchJobOptions(),
         ]);
 
-        if (!active) {
+        if (!active || nextProfile.memberId !== sessionMemberId) {
           return;
         }
 
@@ -152,7 +155,7 @@ export default function ProfileOverview({
     return () => {
       active = false;
     };
-  }, [handleAuthRequired, isAuthenticated, memberId]);
+  }, [handleAuthRequired, isAuthenticated, memberId, sessionMemberId]);
 
   const currentActionLabel = canEdit ? (isEditing ? '저장하기' : '프로필 수정') : actionLabel;
   const categoryOptions = useMemo(() => jobFields.map((field) => field.name), [jobFields]);
@@ -199,6 +202,8 @@ export default function ProfileOverview({
     setEditableSkills(nextProfile.skills);
     const nextForm: ProfileFormState = {
       name: nextProfile.name,
+      department: nextProfile.department ?? null,
+      schoolProfileVerified: nextProfile.schoolProfileVerified === true,
       namePrivate:
         typeof nextProfile.namePrivate === 'boolean' ? nextProfile.namePrivate : undefined,
       age: ageLabel,
@@ -241,10 +246,10 @@ export default function ProfileOverview({
   };
 
   const handleFieldChange = (
-    field: 'fieldCategory' | 'fieldRole' | 'github' | 'blog' | 'introduction',
+    field: 'name' | 'fieldCategory' | 'fieldRole' | 'github' | 'blog' | 'introduction',
     value: string,
   ) => {
-    if (!profileForm) {
+    if (!profileForm || (field === 'name' && profileForm.schoolProfileVerified)) {
       return;
     }
 
@@ -300,7 +305,15 @@ export default function ProfileOverview({
   };
 
   async function handleSave() {
-    if (isSaving || !hasChanges || !canEdit || !isAuthenticated || !profileForm || !profile) {
+    if (
+      isSaving ||
+      !hasChanges ||
+      !canEdit ||
+      !isAuthenticated ||
+      !profileForm ||
+      !profile ||
+      profile.memberId !== sessionMemberId
+    ) {
       return;
     }
 
@@ -333,7 +346,7 @@ export default function ProfileOverview({
       });
 
       await updateMyProfile({
-        name: profile.name,
+        name: profileForm.schoolProfileVerified ? undefined : profileForm.name,
         namePrivate: profileForm.namePrivate,
         age: parseInt(profileForm.age.replace(/\D/g, ''), 10),
         gender: mapGenderLabelToValue(profileForm.gender),
@@ -357,7 +370,7 @@ export default function ProfileOverview({
         return;
 
       if (
-        profileForm.namePrivate !== originalForm?.namePrivate &&
+        typeof profileForm.namePrivate === 'boolean' &&
         nextProfile.namePrivate !== profileForm.namePrivate
       ) {
         throw new Error('이름 비공개 설정이 반영되지 않았습니다. 다시 시도해 주세요.');
@@ -420,7 +433,7 @@ export default function ProfileOverview({
     return <AuthRequiredFallback />;
   }
 
-  if (isLoading) {
+  if (isLoading || (!memberId && profile && profile.memberId !== sessionMemberId)) {
     return <ProfileOverviewSkeleton />;
   }
 
@@ -443,6 +456,7 @@ export default function ProfileOverview({
       <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
         <ProfileSidebar
           name={profileForm.name}
+          department={profileForm.department}
           role={roleLabel}
           email={profileForm.email}
           profileImageUrl={imagePreviewUrl ?? profileForm.profileImageUrl}

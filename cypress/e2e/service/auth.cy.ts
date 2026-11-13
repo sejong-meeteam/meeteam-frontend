@@ -34,7 +34,12 @@ describe('인증 및 보호 화면', () => {
     cy.get('[data-cy=sejong-signup-form]').should('be.visible');
     cy.get('[data-cy=sejong-signup-submit]').click();
     cy.get('[role=alert]').should('exist');
-    cy.get('[data-cy=signup-name]').type('새로운회원');
+    cy.get('[data-cy=signup-name]').should('not.exist');
+    cy.get('[data-cy=signup-verified-name]').should('have.text', '테스트 학생');
+    cy.get('[data-cy=signup-verified-department]').should('have.text', '테스트학과');
+    cy.location('search').should('eq', '');
+    cy.reload();
+    cy.get('[data-cy=signup-verified-name]').should('have.text', '테스트 학생');
     cy.get('[data-cy=signup-birth]').type('2002-01-01');
     cy.get('[data-cy=signup-gender-female]').check({ force: true });
     cy.get('[data-cy=signup-interest-major-0]').click();
@@ -44,5 +49,29 @@ describe('인증 및 보호 화면', () => {
     cy.get('[data-cy=signup-tech-input]').type('React{enter}');
     cy.get('[data-cy=sejong-signup-submit]').click();
     cy.get('[aria-label="프로필 메뉴"]').should('be.visible');
+    cy.visit('/profile');
+    cy.contains('h1', '테스트 학생').should('be.visible');
+    cy.contains('테스트학과').should('be.visible');
+  });
+
+  it('학교 확인 정보가 없거나 가입 코드가 만료되면 다시 로그인을 안내한다', () => {
+    cy.visitMock('/auth/sign-up/sejong');
+    cy.contains('세종대 포털로 다시 로그인').should('be.visible');
+    cy.contains('a', '로그인으로 돌아가기').click();
+    cy.loginDemo('20260002');
+    cy.get('[data-cy=signup-verified-name]').should('be.visible');
+
+    cy.window().then((window) => {
+      const key = 'meeteam-sejong-onboarding';
+      const pending = JSON.parse(window.sessionStorage.getItem(key)!);
+      window.sessionStorage.setItem(key, JSON.stringify({ ...pending, expiresAt: Date.now() - 1 }));
+    });
+    cy.reload();
+    cy.contains('세종대 포털로 다시 로그인').should('be.visible');
+    cy.get('[data-cy=sejong-signup-form]').should('not.exist');
+    cy.window()
+      .its('sessionStorage')
+      .invoke('getItem', 'meeteam-sejong-onboarding')
+      .should('be.null');
   });
 });

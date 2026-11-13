@@ -16,14 +16,18 @@ import ProfileSection from '@/components/features/auth/ProfileSection';
 import SignupTechStackSection from '@/components/features/auth/SignupTechStackSection';
 
 import { onboardingFormSchema, type OnboardingFieldErrors } from './schema';
-import { clearSejongOnboardingCode, readSejongOnboardingCode } from './sejongOnboardingStorage';
-import { fetchJobOptions, registerSejongMember } from './signupApi';
+import {
+  clearSejongOnboarding,
+  readSejongOnboarding,
+  SEJONG_RELOGIN_MESSAGE,
+  type SejongOnboarding,
+} from './sejongOnboardingStorage';
+import { fetchJobOptions, InvalidSejongCodeError, registerSejongMember } from './signupApi';
 import { buildSejongRegisterRequestPayload, getInterestKey } from './signupTransform';
 
 const INITIAL_INTEREST: Interest = { major: '', minor: '' };
 
 const INITIAL_FORM_VALUES: OnboardingFormValues = {
-  name: '',
   birth: '',
   gender: 'male',
   interests: [INITIAL_INTEREST],
@@ -42,18 +46,32 @@ export default function SejongSignupForm() {
   const [fieldErrors, setFieldErrors] = useState<OnboardingFieldErrors>({});
   const [jobOptionsError, setJobOptionsError] = useState('');
   const [isCodeReady, setIsCodeReady] = useState(false);
-  const [onboardingCode, setOnboardingCode] = useState('');
+  const [onboarding, setOnboarding] = useState<SejongOnboarding | null>(null);
   const [isLoadingJobOptions, setIsLoadingJobOptions] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileImagePreviewUrl, setProfileImagePreviewUrl] = useState('');
 
   useEffect(() => {
-    setOnboardingCode(readSejongOnboardingCode());
+    setOnboarding(readSejongOnboarding());
     setIsCodeReady(true);
   }, []);
 
   useEffect(() => {
-    if (!isCodeReady || !onboardingCode) {
+    if (!onboarding) return;
+
+    const timer = window.setTimeout(
+      () => {
+        clearSejongOnboarding();
+        setOnboarding(null);
+      },
+      Math.max(0, onboarding.expiresAt - Date.now()),
+    );
+
+    return () => window.clearTimeout(timer);
+  }, [onboarding]);
+
+  useEffect(() => {
+    if (!onboarding) {
       setIsLoadingJobOptions(false);
       return;
     }
@@ -89,7 +107,7 @@ export default function SejongSignupForm() {
     return () => {
       isMounted = false;
     };
-  }, [isCodeReady, onboardingCode]);
+  }, [onboarding]);
 
   useEffect(() => {
     if (!formValues.profileImage) {
@@ -120,7 +138,6 @@ export default function SejongSignupForm() {
 
     if (!result.success) {
       const flattened = result.error.flatten().fieldErrors;
-      nextErrors.name = flattened.name?.[0];
       nextErrors.birth = flattened.birth?.[0];
     }
 
@@ -164,6 +181,12 @@ export default function SejongSignupForm() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const pending = readSejongOnboarding();
+    if (!pending || pending.code !== onboarding?.code) {
+      setOnboarding(null);
+      return;
+    }
+
     const nextErrors = buildValidationErrors();
 
     if (Object.values(nextErrors).some(Boolean)) {
@@ -175,14 +198,6 @@ export default function SejongSignupForm() {
       setFieldErrors((prev) => ({
         ...prev,
         form: '기술 스택을 1개 이상 선택해 주세요.',
-      }));
-      return;
-    }
-
-    if (!onboardingCode) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        form: '인증 코드가 없습니다. 로그인부터 다시 진행해 주세요.',
       }));
       return;
     }
@@ -199,10 +214,10 @@ export default function SejongSignupForm() {
       setIsSubmitting(true);
       setFieldErrors((prev) => ({ ...prev, form: undefined }));
 
-      const payload = buildSejongRegisterRequestPayload(formValues, jobFields, onboardingCode);
+      const payload = buildSejongRegisterRequestPayload(formValues, jobFields, pending.code);
       await registerSejongMember(payload, formValues.profileImage);
 
-      clearSejongOnboardingCode();
+      clearSejongOnboarding();
 
       const profile = await fetchMyProfile();
       setSession({
@@ -217,9 +232,10 @@ export default function SejongSignupForm() {
       const message =
         error instanceof Error ? error.message : '세종대 회원가입 중 오류가 발생했습니다.';
 
-      if (message.includes('인증 코드')) {
-        clearSejongOnboardingCode();
-        setOnboardingCode('');
+      if (error instanceof InvalidSejongCodeError) {
+        clearSejongOnboarding();
+        setOnboarding(null);
+        return;
       }
 
       setFieldErrors((prev) => ({
@@ -235,10 +251,10 @@ export default function SejongSignupForm() {
     return <p className="text-sm leading-6 font-medium text-mt-text-secondary">불러오는 중...</p>;
   }
 
-  if (!onboardingCode) {
+  if (!onboarding) {
     return (
       <section className="flex flex-col gap-4">
-        <ToastMessage message="세종대 포털 인증 정보가 없습니다. 로그인부터 다시 진행해 주세요." />
+        <ToastMessage message={SEJONG_RELOGIN_MESSAGE} />
         <Link
           href="/auth/login"
           className="inline-flex h-12 items-center justify-center rounded-xl bg-mt-primary px-5 text-sm font-bold text-mt-white"
@@ -263,14 +279,27 @@ export default function SejongSignupForm() {
       onSubmit={handleSubmit}
       data-cy="sejong-signup-form"
     >
+      <dl className="grid gap-4 rounded-xl border border-mt-border bg-mt-bg-soft p-4 sm:grid-cols-2">
+        <div>
+          <dt className="text-sm font-bold text-mt-text-secondary">학교 확인 이름</dt>
+          <dd className="mt-1 break-words text-mt-text-primary" data-cy="signup-verified-name">
+            {onboarding.verifiedProfile.name}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-sm font-bold text-mt-text-secondary">학교 확인 학과</dt>
+          <dd
+            className="mt-1 break-words text-mt-text-primary"
+            data-cy="signup-verified-department"
+          >
+            {onboarding.verifiedProfile.department}
+          </dd>
+        </div>
+      </dl>
+
       <ProfileSection
-        name={formValues.name}
         birth={formValues.birth}
         gender={formValues.gender}
-        onChangeName={(event) => {
-          updateField('name', event.target.value);
-          setFieldErrors((prev) => ({ ...prev, name: undefined }));
-        }}
         onChangeBirth={(value) => {
           updateField('birth', value);
           setFieldErrors((prev) => ({ ...prev, birth: undefined }));
@@ -278,7 +307,6 @@ export default function SejongSignupForm() {
         onChangeGender={(event) =>
           updateField('gender', event.target.value as OnboardingFormValues['gender'])
         }
-        nameError={fieldErrors.name}
         birthError={fieldErrors.birth}
       />
 

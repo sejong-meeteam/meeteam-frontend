@@ -3,7 +3,6 @@ import type {
   Interest,
   JobFieldOption,
   OnboardingFormValues,
-  OnboardingRequestPayload,
   RegisterJobPositionPayload,
   RegisterRequestPayload,
   SejongRegisterRequestPayload,
@@ -100,26 +99,17 @@ export function buildRegisterRequestPayload(
   };
 }
 
-function buildOnboardingRequestPayload(
+export function buildSejongRegisterRequestPayload(
   values: OnboardingFormValues,
   jobFields: JobFieldOption[],
   code: string,
-): OnboardingRequestPayload {
+): SejongRegisterRequestPayload {
   return {
     code,
-    name: values.name.trim(),
     birthDate: values.birth.trim(),
     gender: values.gender === 'female' ? 'FEMALE' : 'MALE',
     jobPositions: buildJobPositionPayload(values, jobFields),
     githubUrl: normalizeUrl(values.githubUrl),
     blogUrl: normalizeUrl(values.blogUrl),
   };
-}
-
-export function buildSejongRegisterRequestPayload(
-  values: OnboardingFormValues,
-  jobFields: JobFieldOption[],
-  code: string,
-): SejongRegisterRequestPayload {
-  return buildOnboardingRequestPayload(values, jobFields, code);
 }

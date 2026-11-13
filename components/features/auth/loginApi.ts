@@ -6,6 +6,7 @@ import type {
 } from '@/types/auth';
 
 import { API_BASE_URL, apiFetch } from './apiClient';
+import { verifiedSchoolProfileSchema } from './schema';
 import { extractApiData } from './signupTransform';
 
 const LOGIN_REQUEST_ERROR_MESSAGE = '로그인 처리 중 오류가 발생했습니다.';
@@ -33,9 +34,13 @@ function normalizeLoginResponse(payload: SejongLoginApiResult): SejongLoginRespo
     throw new Error('로그인 응답 형식을 해석할 수 없습니다.');
   }
 
+  if (!isNewMember) return { isNewMember, code: null };
+
+  const verifiedProfile = verifiedSchoolProfileSchema.safeParse(payload.verifiedProfile);
   return {
     isNewMember,
-    code: payload.code ?? null,
+    code: typeof payload.code === 'string' && payload.code.trim() ? payload.code : null,
+    ...(verifiedProfile.success && { verifiedProfile: verifiedProfile.data }),
   };
 }
 

@@ -16,6 +16,8 @@ import { findUniversityByEmail } from '@/components/shared/universityLogoRegistr
 
 interface SidebarFormData {
   name: string;
+  department: string | null;
+  schoolProfileVerified: boolean;
   namePrivate?: boolean;
   age: string;
   gender: string;
@@ -39,8 +41,11 @@ interface SidebarSkillGroup {
   skills: string[];
 }
 
+type EditableField = 'name' | 'fieldCategory' | 'fieldRole' | 'github' | 'blog';
+
 interface ProfileSidebarProps {
   name: string;
+  department?: string | null;
   role: string;
   email: string;
   profileImageUrl?: string | null;
@@ -57,7 +62,7 @@ interface ProfileSidebarProps {
   categoryOptions?: string[];
   roleOptions?: string[];
   formData?: SidebarFormData;
-  onFieldChange?: (field: 'fieldCategory' | 'fieldRole' | 'github' | 'blog', value: string) => void;
+  onFieldChange?: (field: EditableField, value: string) => void;
   skillGroups?: SidebarSkillGroup[];
   availableSkills?: string[];
   onSkillsChange?: (groupIndex: number, skills: string[]) => void;
@@ -65,6 +70,7 @@ interface ProfileSidebarProps {
 
 export default function ProfileSidebar({
   name,
+  department,
   role,
   email,
   profileImageUrl,
@@ -189,6 +195,7 @@ export default function ProfileSidebar({
         <ProfileSidebarDetails
           isParticipating={isParticipating}
           university={university}
+          department={department}
           socialContacts={visibleSocialContacts}
           skills={visibleSkills}
         />
@@ -215,11 +222,13 @@ export default function ProfileSidebar({
 function ProfileSidebarDetails({
   isParticipating,
   university,
+  department,
   socialContacts,
   skills,
 }: {
   isParticipating: boolean;
   university: ReturnType<typeof findUniversityByEmail>;
+  department?: string | null;
   socialContacts: SidebarContactItem[];
   skills: string[];
 }) {
@@ -240,6 +249,7 @@ function ProfileSidebarDetails({
             <span className="min-w-0 truncate">{university.nameKo}</span>
           </div>
         ) : null}
+        {department && <p className="text-sm font-medium text-mt-text-secondary">{department}</p>}
         <SidebarMetaRow icon={StatusIcon}>
           {isParticipating ? '프로젝트 참여 가능' : '프로젝트 참여 불가'}
         </SidebarMetaRow>
@@ -299,7 +309,7 @@ function ProfileSidebarEditor({
   onToggleParticipation?: () => void;
   onToggleNamePrivacy?: () => void;
   isSaving: boolean;
-  onFieldChange: (field: 'fieldCategory' | 'fieldRole' | 'github' | 'blog', value: string) => void;
+  onFieldChange: (field: EditableField, value: string) => void;
   onCategoryOpenChange: (value: boolean) => void;
   onRoleOpenChange: (value: boolean) => void;
   onSkillsChange?: (groupIndex: number, skills: string[]) => void;
@@ -341,8 +351,16 @@ function ProfileSidebarEditor({
       <section className="space-y-3 border-t border-mt-border pt-4">
         <SectionTitle>기본 정보</SectionTitle>
         <label className="block space-y-2">
-          <span className="text-sm font-bold text-mt-text-secondary">학교 확인 이름</span>
-          <BaseInput inputSize="S" value={formData.name} readOnly data-cy="profile-verified-name" />
+          <span className="text-sm font-bold text-mt-text-secondary">
+            {formData.schoolProfileVerified ? '학교 확인 이름' : '이름'}
+          </span>
+          <BaseInput
+            inputSize="S"
+            value={formData.name}
+            readOnly={formData.schoolProfileVerified}
+            onChange={(event) => onFieldChange('name', event.target.value)}
+            data-cy={formData.schoolProfileVerified ? 'profile-verified-name' : 'profile-name'}
+          />
         </label>
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-1">
@@ -350,7 +368,7 @@ function ProfileSidebarEditor({
             <p id={privacyDescriptionId} className="text-xs leading-5 text-mt-text-secondary">
               {formData.namePrivate === undefined
                 ? '이름 공개 설정을 불러올 수 없어요.'
-                : '공개 화면에서 이름을 가려요. 프로젝트에 지원하면 해당 리더에게는 이름이 표시돼요.'}
+                : '프로젝트에 지원하면 해당 프로젝트 리더는 지원서에서 이름 전체를 확인할 수 있습니다.'}
             </p>
           </div>
           <button
@@ -372,6 +390,9 @@ function ProfileSidebarEditor({
           </button>
         </div>
         <dl className="space-y-2">
+          {formData.department && (
+            <EditableInfoRow label="학교 확인 학과" value={formData.department} />
+          )}
           <EditableInfoRow label="나이" value={formData.age} />
           <EditableInfoRow label="성별" value={formData.gender} />
           <EditableInfoRow label="이메일" value={formData.email} />

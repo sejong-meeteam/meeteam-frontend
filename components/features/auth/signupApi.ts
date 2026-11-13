@@ -9,6 +9,8 @@ import type {
 import { API_BASE_URL, apiFetch } from './apiClient';
 import { extractApiData } from './signupTransform';
 
+export class InvalidSejongCodeError extends Error {}
+
 async function readJson<T>(response: Response) {
   const payload = await response.json();
 
@@ -108,5 +110,11 @@ export async function registerSejongMember(
     skipAuthRefresh: true,
     body: formData,
   });
-  await readJson<{ data?: null; result?: null }>(response);
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    if (data?.code === 'SEJONG404') throw new InvalidSejongCodeError();
+    throw new Error(
+      typeof data?.message === 'string' ? data.message : '세종대 회원가입에 실패했습니다.',
+    );
+  }
 }

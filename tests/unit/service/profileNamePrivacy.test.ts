@@ -13,12 +13,14 @@ const profile = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('프로필 이름 공개 설정 요청', () => {
-  it.each([true, false, undefined])(
+  it.each([true, false, null, undefined])(
     '기존 필수 항목을 유지하고 namePrivate=%s를 선택적으로 전송한다',
     async (namePrivate) => {
       const fetchMock = vi
         .fn<typeof fetch>()
-        .mockResolvedValue(Response.json({ result: { memberId: 1, name: profile.name } }));
+        .mockResolvedValue(
+          Response.json({ result: { memberId: 1, name: profile.name, namePrivate } }),
+        );
       vi.stubGlobal('fetch', fetchMock);
 
       await updateMyProfile({ ...profile, namePrivate });
@@ -34,6 +36,20 @@ describe('프로필 이름 공개 설정 요청', () => {
       expect(json).toMatchObject(profile);
       if (namePrivate === undefined) expect(json).not.toHaveProperty('namePrivate');
       else expect(json.namePrivate).toBe(namePrivate);
+    },
+  );
+
+  it.each([false, undefined])(
+    'rejects an unconfirmed save when PUT returns %s',
+    async (namePrivate) => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue(Response.json({ result: { memberId: 1, namePrivate } })),
+      );
+
+      await expect(updateMyProfile({ ...profile, namePrivate: true })).rejects.toThrow(
+        '이름 비공개 설정이 반영되지 않았습니다.',
+      );
     },
   );
 });

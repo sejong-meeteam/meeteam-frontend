@@ -40,6 +40,8 @@ export interface MemberProfileResponse {
 }
 
 export interface MyMemberProfileResponse extends MemberProfileResponse {
+  department?: string | null;
+  schoolProfileVerified?: boolean;
   namePrivate?: boolean;
 }
 
@@ -62,8 +64,8 @@ interface MemberDetailResponse {
 }
 
 export interface UpdateMemberProfilePayload {
-  name: string;
-  namePrivate?: boolean;
+  name?: string;
+  namePrivate?: boolean | null;
   age: number;
   gender: ProfileGender;
   jobPositionIds: number[];
@@ -133,7 +135,7 @@ export async function updateMyProfile(payload: UpdateMemberProfilePayload) {
     new Blob(
       [
         JSON.stringify({
-          name: payload.name.trim(),
+          name: parsed.data.name,
           namePrivate: parsed.data.namePrivate,
           age: payload.age,
           gender: payload.gender,
@@ -158,12 +160,19 @@ export async function updateMyProfile(payload: UpdateMemberProfilePayload) {
     body: formData,
   });
 
-  return readEnvelope<{
+  const updated = await readEnvelope<{
     memberId: number;
     name: string;
+    namePrivate?: boolean;
     message: string;
     profileImageUrl: string | null;
   }>(response);
+
+  if (typeof payload.namePrivate === 'boolean' && updated.namePrivate !== payload.namePrivate) {
+    throw new Error('이름 비공개 설정이 반영되지 않았습니다. 다시 시도해 주세요.');
+  }
+
+  return updated;
 }
 
 export function findFieldByName(jobFields: JobFieldOption[], fieldName: string) {

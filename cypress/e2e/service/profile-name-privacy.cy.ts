@@ -6,7 +6,13 @@ const save = '[data-cy=profile-save-button]';
 
 describe('프로필 이름 비공개', () => {
   it('학교 확인 이름은 읽기 전용이며, 토글만 바꿔도 저장되고 공개 프로필이 갱신된다', () => {
-    cy.visitMock('/profile', { memberId: 1 });
+    const members = INITIAL_MEMBERS.map((member) =>
+      member.memberId === 1
+        ? { ...member, schoolProfileVerified: true, department: '테스트학과' }
+        : member,
+    );
+    cy.visitMock('/profile', { memberId: 1, members });
+    cy.contains('테스트학과').should('be.visible');
     cy.get(edit).click();
     cy.get('[data-cy=profile-verified-name]').should(($name) => {
       expect($name).to.have.prop('readOnly', true);
@@ -32,6 +38,16 @@ describe('프로필 이름 비공개', () => {
     cy.get(edit).should('be.visible');
     cy.visit('/profile/1');
     cy.contains('h1', '김민지').should('be.visible');
+  });
+
+  it('학교 확인을 하지 않은 기존 회원은 이름을 변경할 수 있다', () => {
+    cy.visitMock('/profile', { memberId: 1 });
+    cy.get(edit).click();
+    cy.get('[data-cy=profile-name]').clear().type('기존회원');
+    cy.get(save).click();
+    cy.contains('[role=status]', '프로필을 저장했습니다.').should('be.visible');
+    cy.visit('/profile/1');
+    cy.contains('h1', '기존회원').should('be.visible');
   });
 
   it('리더 지원자 화면의 실명은 공개 프로필과 분리되고 로그아웃 후 사라진다', () => {

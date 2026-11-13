@@ -12,7 +12,11 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import type { LoginFormValues } from '@/types/auth';
 
 import { loginMember } from './loginApi';
-import { saveSejongOnboardingCode } from './sejongOnboardingStorage';
+import {
+  clearSejongOnboarding,
+  saveSejongOnboarding,
+  SEJONG_RELOGIN_MESSAGE,
+} from './sejongOnboardingStorage';
 import { loginFormSchema, type LoginFieldErrors } from './schema';
 
 const INITIAL_FORM_VALUES: LoginFormValues = {
@@ -77,14 +81,15 @@ export default function LoginForm({
     setIsSubmitting(true);
 
     try {
+      clearSejongOnboarding();
       const result = await loginMember(formValues);
 
       if (result.isNewMember) {
-        if (!result.code) {
-          throw new Error('회원가입용 인증 코드가 없습니다. 다시 시도해 주세요.');
+        if (!result.code || !result.verifiedProfile) {
+          throw new Error(SEJONG_RELOGIN_MESSAGE);
         }
 
-        saveSejongOnboardingCode(result.code);
+        saveSejongOnboarding(result.code, result.verifiedProfile);
         const signupPath = '/auth/sign-up/sejong';
 
         if (onSignupRequired) {

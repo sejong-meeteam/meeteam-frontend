@@ -20,7 +20,6 @@ export type SignupFormValues = {
 };
 
 export type OnboardingFormValues = {
-  name: string;
   birth: string;
   gender: GenderValue;
   interests: Interest[];
@@ -80,9 +79,8 @@ export type RegisterRequestPayload = {
   blogUrl?: string;
 };
 
-export type OnboardingRequestPayload = {
+export type SejongRegisterRequestPayload = {
   code: string;
-  name: string;
   birthDate: string;
   gender: 'MALE' | 'FEMALE';
   jobPositions: RegisterJobPositionPayload[];
@@ -90,7 +88,11 @@ export type OnboardingRequestPayload = {
   blogUrl?: string;
 };
 
-export type SejongRegisterRequestPayload = OnboardingRequestPayload;
+export type VerifiedSchoolProfile = {
+  studentId: string;
+  name: string;
+  department: string;
+};
 
 export type SignupSuccessResponse = {
   memberId: number;
@@ -103,11 +105,13 @@ export type SejongLoginApiResult = {
   isNewMember?: boolean;
   newMember?: boolean;
   code: string | null;
+  verifiedProfile?: unknown;
 };
 
 export type SejongLoginResponse = {
   isNewMember: boolean;
   code: string | null;
+  verifiedProfile?: VerifiedSchoolProfile;
 };
 
 export type MemberRole = 'USER' | 'ADMIN';
