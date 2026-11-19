@@ -36,6 +36,33 @@ describe('프로필·프로젝트·팀원 탐색', () => {
     cy.contains('junho@example.com').should('not.exist');
   });
 
+  it('이름을 가린 회원도 팀원 카드와 공개 프로필에서 학과를 볼 수 있다', () => {
+    const department = '테스트학과';
+    const members = INITIAL_MEMBERS.map((member) => {
+      if (member.memberId === 1) return { ...member, namePrivate: true, department };
+      if (member.memberId === 2) return { ...member, department: '   ' };
+      return member;
+    });
+
+    cy.visitMock('/', { members });
+    cy.contains('a[href="/profile/1"]', department).should('contain.text', '김**');
+    cy.contains('a[href="/profile/2"]', '이준호').find('h3 + p').should('not.exist');
+
+    cy.visit('/teammates');
+    cy.get('[data-cy=teammate-card][data-user-id="1"]')
+      .should('contain.text', '김**')
+      .and('contain.text', department)
+      .click();
+
+    cy.contains('h1', '김**').should('be.visible');
+    cy.contains(department).should('be.visible');
+    cy.contains('김민지').should('not.exist');
+
+    cy.visit('/profile/2');
+    cy.contains('h1', '이준호').should('be.visible');
+    cy.get('aside p.break-words').should('not.exist');
+  });
+
   it('프로젝트 검색의 빈 결과·오류·재시도와 필터 초기화', () => {
     cy.visitMock('/projects');
     cy.get('[data-cy=project-card]').should('have.length.at.least', 1);

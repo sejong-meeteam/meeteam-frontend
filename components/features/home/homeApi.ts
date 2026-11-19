@@ -42,6 +42,7 @@ export type HomeProjectCard = {
 export type HomeMemberCard = {
   userId: number;
   name: string;
+  department?: string | null;
   role: string;
   experience: string;
   skills: string[];
@@ -92,6 +93,7 @@ type BackendMemberCardResponse = {
   profileImageUrl: string | null;
   jobFieldName: string | null;
   name: string;
+  department?: string | null;
   projectCount: number;
   projectExperienceCount?: number;
   techStacks: Array<{
@@ -151,6 +153,7 @@ function mapHomeMember(member: BackendMemberCardResponse): HomeMemberCard {
   return {
     userId: member.memberId,
     name: member.name,
+    department: member.department ?? null,
     role: member.jobFieldName ? getJobFieldLabel(member.jobFieldName) : '기타',
     experience: `참여 프로젝트 ${member.projectCount ?? member.projectExperienceCount ?? 0}개`,
     skills: mapTopTechStackNames(member.techStacks),

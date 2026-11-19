@@ -21,6 +21,7 @@ export interface ProfileProjectCard {
 
 export interface MemberProfileResponse {
   name: string;
+  department?: string | null;
   memberId: number;
   birthDate?: string | null;
   age?: number | null;
@@ -40,10 +41,16 @@ export interface MemberProfileResponse {
   role?: MemberRole;
 }
 
+export interface MyMemberProfileResponse extends MemberProfileResponse {
+  schoolProfileVerified?: boolean;
+  namePrivate?: boolean;
+}
+
 interface MemberDetailResponse {
   memberId: number;
   profileImageUrl: string | null;
   name: string;
+  department?: string | null;
   age: number | null;
   gender: ProfileGender;
   representativePosition: string | null;
@@ -59,7 +66,8 @@ interface MemberDetailResponse {
 }
 
 export interface UpdateMemberProfilePayload {
-  name: string;
+  name?: string;
+  namePrivate?: boolean | null;
   age: number;
   gender: ProfileGender;
   jobPositionIds: number[];
@@ -94,7 +102,7 @@ export async function fetchMyProfile() {
     cache: 'no-store',
   });
 
-  return readEnvelope<MemberProfileResponse>(response);
+  return readEnvelope<MyMemberProfileResponse>(response);
 }
 
 export async function fetchMemberProfile(memberId: number) {
@@ -129,7 +137,8 @@ export async function updateMyProfile(payload: UpdateMemberProfilePayload) {
     new Blob(
       [
         JSON.stringify({
-          name: payload.name.trim(),
+          name: parsed.data.name,
+          namePrivate: parsed.data.namePrivate,
           age: payload.age,
           gender: payload.gender,
           jobPositionIds: payload.jobPositionIds,
@@ -153,12 +162,19 @@ export async function updateMyProfile(payload: UpdateMemberProfilePayload) {
     body: formData,
   });
 
-  return readEnvelope<{
+  const updated = await readEnvelope<{
     memberId: number;
     name: string;
+    namePrivate?: boolean;
     message: string;
     profileImageUrl: string | null;
   }>(response);
+
+  if (typeof payload.namePrivate === 'boolean' && updated.namePrivate !== payload.namePrivate) {
+    throw new Error('이름 비공개 설정이 반영되지 않았습니다. 다시 시도해 주세요.');
+  }
+
+  return updated;
 }
 
 export function findPositionByName(
@@ -174,6 +190,7 @@ export function findPositionByName(
 function mapMemberDetailToProfile(detail: MemberDetailResponse): MemberProfileResponse {
   return {
     name: detail.name,
+    department: detail.department ?? null,
     memberId: detail.memberId,
     birthDate: null,
     age: detail.age,

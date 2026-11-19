@@ -6,6 +6,7 @@ export function TeammateCard({ teammate }: { teammate: Teammate }) {
     <UserCard
       userId={teammate.id}
       name={teammate.name}
+      department={teammate.department}
       role={teammate.role}
       experience={`참여 프로젝트 ${teammate.experienceCount}개`}
       skills={teammate.skills}

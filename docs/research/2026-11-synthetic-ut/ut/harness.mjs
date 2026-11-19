@@ -417,7 +417,9 @@ async function T1(page, rec) {
   }, { settleMs: 200, quick: true });
 
   await rec.step('signup-basic-info', '이름, 생년월일, 성별을 입력한다', '이름·생년월일·성별(여성) 입력', async () => {
-    await (await pick(page, [(p) => p.getByLabel('이름', { exact: true }), (p) => p.getByPlaceholder(/실명/), '[data-cy=signup-name]'], { what: '이름 입력' })).fill('합성참여자');
+    // 학교 확인 가입 이후 이름은 학교에서 받아 표시만 하므로 입력칸이 없을 수 있다.
+    const nameInput = await pick(page, [(p) => p.getByLabel('이름', { exact: true }), (p) => p.getByPlaceholder(/실명/), '[data-cy=signup-name]'], { what: '이름 입력', timeout: 1500 }).catch(() => null);
+    if (nameInput) await nameInput.fill('합성참여자');
     await (await pick(page, [(p) => p.getByLabel('생년월일'), 'input[type=date]', '[data-cy=signup-birth]'], { what: '생년월일 입력' })).fill('2003-04-12');
     const female = await pick(page, [(p) => p.getByText('여성', { exact: true }), 'label[for=female]'], { what: '여성 선택' });
     await female.click();

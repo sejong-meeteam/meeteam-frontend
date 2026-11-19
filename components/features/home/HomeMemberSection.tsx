@@ -222,6 +222,7 @@ export default function HomeMemberSection() {
                   <UserCard
                     userId={teammate.userId}
                     name={teammate.name}
+                    department={teammate.department}
                     role={teammate.role}
                     experience={teammate.experience}
                     skills={teammate.skills}

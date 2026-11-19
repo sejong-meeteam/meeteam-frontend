@@ -142,6 +142,9 @@ export const JOB_OPTIONS = {
 export type MockMember = {
   memberId: number;
   name: string;
+  namePrivate?: boolean;
+  department?: string | null;
+  schoolProfileVerified?: boolean;
   email: string;
   birthDate: string;
   gender: 'MALE' | 'FEMALE';

@@ -18,11 +18,13 @@ const OPTIONAL_URL = z.union([
 ]);
 
 export const profileFormSchema = z.object({
+  namePrivate: z.boolean().nullish(),
   name: z
     .string()
     .trim()
     .min(1, '이름을 입력해 주세요.')
-    .max(50, '이름은 50자 이하로 입력해 주세요.'),
+    .max(50, '이름은 50자 이하로 입력해 주세요.')
+    .optional(),
   age: z
     .string()
     .trim()

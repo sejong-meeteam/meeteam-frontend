@@ -10,6 +10,7 @@ import type {
 import {
   checkEmailDuplicate,
   fetchJobOptions,
+  InvalidSejongCodeError,
   registerMember,
   registerSejongMember,
 } from '@/components/features/auth/signupApi';
@@ -99,10 +100,24 @@ describe('registerMember', () => {
 });
 
 describe('registerSejongMember', () => {
+  it('recognizes expired and invalid Sejong codes from the backend error code', async () => {
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue(Response.json({ code: 'SEJONG404', result: null }, { status: 400 }));
+
+    await expect(
+      registerSejongMember({
+        code: 'expired',
+        birthDate: '2002-01-01',
+        gender: 'MALE',
+        jobPositions: [],
+      }),
+    ).rejects.toBeInstanceOf(InvalidSejongCodeError);
+  });
+
   it('submits multipart form data with onboarding code to the Sejong register endpoint', async () => {
     const payload: SejongRegisterRequestPayload = {
       code: 'temp-code',
-      name: '홍길동',
       birthDate: '1998-03-15',
       gender: 'MALE',
       jobPositions: [

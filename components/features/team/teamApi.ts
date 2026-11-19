@@ -9,6 +9,7 @@ import { getJobFieldLabel } from '@/constants/jobField';
 interface MemberCardResponse {
   memberId: number;
   name: string;
+  department?: string | null;
   profileImageUrl: string | null;
   jobFieldName: string | null;
   projectCount: number;
@@ -139,6 +140,7 @@ function mapTeammateCard(member: MemberCardResponse): Teammate {
   return {
     id: member.memberId,
     name: member.name,
+    department: member.department ?? null,
     role: member.jobFieldName ? getJobFieldLabel(member.jobFieldName) : '기타',
     experienceCount: member.projectCount ?? member.projectExperienceCount ?? 0,
     skills: mapTopTechStackNames(member.techStacks),

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CalendarDays, CheckCircle2, ExternalLink, Mail, XCircle } from 'lucide-react';
 import { useAuthRequiredModal } from '@/components/features/auth/useAuthRequiredModal';
 import {
@@ -17,6 +17,7 @@ import SkeletonBlock from '@/components/shared/SkeletonBlock';
 import Tabs from '@/components/shared/Tabs';
 import ToastMessage from '@/components/shared/ToastMessage';
 import { getJobFieldLabel } from '@/constants/jobField';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useToastStore } from '@/stores/useToastStore';
 import type { ProjectApplicant, ProjectApplicantStatus } from '@/types/project';
 import ProjectApplicantDetailModal from './ProjectApplicantDetailModal';
@@ -123,6 +124,17 @@ function DecisionRecord({
 }
 
 export default function ProjectManageApplicants({ projectId }: ProjectManageApplicantsProps) {
+  const memberId = useAuthStore((state) => state.memberId);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoggingOut = useAuthStore((state) => state.isLoggingOut);
+
+  // Applicant data belongs only to the current authenticated viewer and project.
+  if (!isAuthenticated || isLoggingOut || memberId === null) return null;
+
+  return <ProjectApplicantsView key={`${memberId}:${projectId}`} projectId={projectId} />;
+}
+
+function ProjectApplicantsView({ projectId }: ProjectManageApplicantsProps) {
   const handleAuthRequired = useAuthRequiredModal();
   const showToast = useToastStore((state) => state.showToast);
   const [listStatus, setListStatus] = useState<ProjectApplicationListStatus>('PENDING');
@@ -138,51 +150,42 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
   const [refreshKey, setRefreshKey] = useState(0);
   const listView = APPLICANT_LIST_VIEWS[listStatus];
 
+  const detailRequestRef = useRef<AbortController | null>(null);
+  const listRequestRef = useRef<AbortController | null>(null);
+  const redirectPath = `/projects/${projectId}/manage/applicants`;
+
   useEffect(() => {
-    let active = true;
+    const request = new AbortController();
+    listRequestRef.current = request;
 
     const load = async () => {
       try {
         setIsLoading(true);
         setErrorMessage(null);
-
-        const nextApplicants = await fetchProjectApplications(projectId, listStatus);
-
-        if (!active) {
-          return;
+        const nextApplicants = await fetchProjectApplications(
+          projectId,
+          listStatus,
+          request.signal,
+        );
+        if (!request.signal.aborted) {
+          const { status } = APPLICANT_LIST_VIEWS[listStatus];
+          setApplicants(nextApplicants.filter((applicant) => applicant.status === status));
         }
-
-        const { status } = APPLICANT_LIST_VIEWS[listStatus];
-        setApplicants(nextApplicants.filter((applicant) => applicant.status === status));
       } catch (error) {
-        if (!active) {
-          return;
-        }
-
-        if (
-          handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage/applicants` })
-        ) {
-          setErrorMessage(null);
-          return;
-        }
-
+        if (request.signal.aborted) return;
         setApplicants([]);
+        if (handleAuthRequired(error, { redirectPath })) return;
         setErrorMessage(
           error instanceof Error ? error.message : '지원자 목록을 불러오지 못했습니다.',
         );
       } finally {
-        if (active) {
-          setIsLoading(false);
-        }
+        if (!request.signal.aborted) setIsLoading(false);
       }
     };
 
     void load();
-
-    return () => {
-      active = false;
-    };
-  }, [handleAuthRequired, listStatus, projectId, refreshKey]);
+    return () => request.abort();
+  }, [handleAuthRequired, listStatus, projectId, redirectPath, refreshKey]);
 
   const handleListStatusChange = (nextStatus: ProjectApplicationListStatus) => {
     if (nextStatus === listStatus) {
@@ -194,29 +197,42 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
     setListStatus(nextStatus);
   };
 
-  const handleOpenDetail = async (applicant: ProjectApplicant) => {
-    setSelectedApplicant(applicant);
-    setDetailApplicant(applicant);
+  const closeDetail = () => {
+    detailRequestRef.current?.abort();
+    detailRequestRef.current = null;
+    setSelectedApplicant(null);
+    setDetailApplicant(null);
     setDetailErrorMessage(null);
+    setIsDetailLoading(false);
+  };
+
+  useEffect(() => () => detailRequestRef.current?.abort(), []);
+
+  const handleOpenDetail = async (applicant: ProjectApplicant) => {
+    detailRequestRef.current?.abort();
+    const request = new AbortController();
+    detailRequestRef.current = request;
+    setSelectedApplicant(applicant);
+    setDetailApplicant(null);
+    setDetailErrorMessage(null);
+    setIsDetailLoading(true);
 
     try {
-      setIsDetailLoading(true);
-
-      const nextDetail = await fetchProjectApplicationDetail(projectId, applicant.id);
-
-      setDetailApplicant({ ...applicant, ...nextDetail, appliedAt: applicant.appliedAt });
+      const detail = await fetchProjectApplicationDetail(projectId, applicant.id, request.signal);
+      if (!request.signal.aborted) {
+        setDetailApplicant({ ...applicant, ...detail, appliedAt: applicant.appliedAt });
+      }
     } catch (error) {
-      if (handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage/applicants` })) {
-        setSelectedApplicant(null);
-        setDetailApplicant(null);
+      if (request.signal.aborted) return;
+      if (handleAuthRequired(error, { redirectPath })) {
+        closeDetail();
         return;
       }
-
       setDetailErrorMessage(
         error instanceof Error ? error.message : '지원서 상세 정보를 불러오지 못했습니다.',
       );
     } finally {
-      setIsDetailLoading(false);
+      if (!request.signal.aborted) setIsDetailLoading(false);
     }
   };
 
@@ -228,22 +244,22 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
       return;
     }
 
+    const request = listRequestRef.current;
     try {
       setDecisionLoadingId(applicant.id);
       setErrorMessage(null);
 
       await decideProjectApplication(projectId, applicant.id, decision);
       showToast({ tone: 'success', message: DECISION_SUCCESS_MESSAGE[decision](applicant.name) });
+      if (request?.signal.aborted) return;
       setApplicants((current) => current.filter((item) => item.id !== applicant.id));
 
       if (selectedApplicant?.id === applicant.id) {
-        setSelectedApplicant(null);
-        setDetailApplicant(null);
+        closeDetail();
       }
-
       setRefreshKey((current) => current + 1);
     } catch (error) {
-      if (handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage/applicants` })) {
+      if (request?.signal.aborted || handleAuthRequired(error, { redirectPath })) {
         return;
       }
 
@@ -446,11 +462,7 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
         isOpen={selectedApplicant !== null}
         isLoading={isDetailLoading}
         errorMessage={detailErrorMessage}
-        onClose={() => {
-          setSelectedApplicant(null);
-          setDetailApplicant(null);
-          setDetailErrorMessage(null);
-        }}
+        onClose={closeDetail}
       />
     </ProjectManageShell>
   );

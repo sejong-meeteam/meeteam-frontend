@@ -21,6 +21,7 @@ import {
   getMemberStatus,
   getMembers,
   getProjects,
+  getPublicMemberName,
   getSessionMember,
   saveMember,
   saveProject,
@@ -31,7 +32,12 @@ import {
 const LOGIN_ID = '20260001';
 const NEW_MEMBER_ID = '20260002';
 const DEMO_PASSWORD = 'demo1234';
-const REGISTER_CODE = 'week4-demo-registration';
+const DEMO_VERIFIED_PROFILE = {
+  studentId: NEW_MEMBER_ID,
+  name: '테스트 학생',
+  department: '테스트학과',
+};
+const MOCK_REGISTRATION_KEY = 'meeteam-mock-sejong-registration';
 
 const loginRequestSchema = z.object({
   studentId: z.string().min(1),
@@ -39,7 +45,8 @@ const loginRequestSchema = z.object({
 });
 
 const profileUpdateSchema = z.object({
-  name: z.string().trim().min(1).max(50),
+  name: z.string().max(100).optional(),
+  namePrivate: z.boolean().nullish(),
   age: z.number().int().min(1).max(150),
   gender: z.enum(['MALE', 'FEMALE']),
   jobPositionIds: z.array(z.number().int()).min(1),
@@ -53,8 +60,7 @@ const profileUpdateSchema = z.object({
 });
 
 const registrationSchema = z.object({
-  code: z.literal(REGISTER_CODE),
-  name: z.string().trim().min(1),
+  code: z.string().min(1),
   birthDate: z.iso.date(),
   gender: z.enum(['MALE', 'FEMALE']),
   jobPositions: z
@@ -124,7 +130,7 @@ function projectsFor(member: MockMember) {
     projectId: project.id,
     projectName: project.title,
     categoryName: project.category,
-    creatorName: member.name,
+    creatorName: getPublicMemberName(member),
     creatorImageUrl: null,
     imageUrl: null,
     currentCount: project.currentMembers,
@@ -136,6 +142,9 @@ function toMyProfile(member: MockMember) {
   return {
     memberId: member.memberId,
     name: member.name,
+    namePrivate: member.namePrivate ?? false,
+    department: member.department ?? null,
+    schoolProfileVerified: member.schoolProfileVerified ?? false,
     birthDate: member.birthDate,
     gender: member.gender,
     email: member.email,
@@ -158,7 +167,8 @@ function toPublicProfile(member: MockMember) {
   return {
     memberId: member.memberId,
     profileImageUrl: member.profileImageUrl,
-    name: member.name,
+    name: getPublicMemberName(member),
+    department: member.department ?? null,
     age: getAge(member.birthDate),
     gender: member.gender,
     representativePosition: positionById(member.jobPositionIds[0])?.name ?? null,
@@ -237,14 +247,19 @@ export const handlers = [
     if (parsed.data.password !== DEMO_PASSWORD)
       return failure(401, '데모 계정 정보를 확인해 주세요.');
 
-    if (parsed.data.studentId === NEW_MEMBER_ID) {
-      return success({ isNewMember: true, code: REGISTER_CODE });
-    }
     const member = getMembers().find((item) =>
       parsed.data.studentId === LOGIN_ID
         ? item.memberId === 1
         : item.studentId === parsed.data.studentId,
     );
+    if (!member && parsed.data.studentId === NEW_MEMBER_ID) {
+      const code = crypto.randomUUID();
+      sessionStorage.setItem(
+        MOCK_REGISTRATION_KEY,
+        JSON.stringify({ code, expiresAt: Date.now() + 10 * 60 * 1000 }),
+      );
+      return success({ isNewMember: true, code, verifiedProfile: DEMO_VERIFIED_PROFILE });
+    }
     if (!member) return failure(401, '데모 계정 정보를 확인해 주세요.');
     const status = getMemberStatus(member);
     if (status === 'WITHDRAWN') return failure(401, '데모 계정 정보를 확인해 주세요.');
@@ -272,9 +287,22 @@ export const handlers = [
     if (positionIds.length !== parsed.data.jobPositions.length)
       return failure(400, '관심 직무를 확인해 주세요.');
 
+    const pendingRegistration = JSON.parse(sessionStorage.getItem(MOCK_REGISTRATION_KEY) ?? 'null');
+    if (
+      !pendingRegistration ||
+      pendingRegistration.code !== parsed.data.code ||
+      pendingRegistration.expiresAt <= Date.now()
+    ) {
+      return failure(400, '유효하지 않거나 만료된 세종대 인증 코드입니다.', 'SEJONG404');
+    }
+    sessionStorage.removeItem(MOCK_REGISTRATION_KEY);
+
     const member: MockMember = {
-      memberId: 3,
-      name: parsed.data.name,
+      memberId: Math.max(...getMembers().map((item) => item.memberId)) + 1,
+      name: DEMO_VERIFIED_PROFILE.name,
+      department: DEMO_VERIFIED_PROFILE.department,
+      schoolProfileVerified: true,
+      namePrivate: false,
       email: 'new-member@example.com',
       birthDate: parsed.data.birthDate,
       gender: parsed.data.gender,
@@ -288,7 +316,7 @@ export const handlers = [
       blogUrl: parsed.data.blogUrl,
       projectCount: 0,
       profileImageUrl: await imageDataUrl(file instanceof File ? file : null),
-      studentId: NEW_MEMBER_ID,
+      studentId: DEMO_VERIFIED_PROFILE.studentId,
       role: 'USER',
       status: 'ACTIVE',
       createdAt: new Date().toISOString(),
@@ -356,6 +384,13 @@ export const handlers = [
     const file = data.get('profileImage');
     if (file && !profileImageSchema.safeParse(file).success)
       return failure(400, 'JPG, PNG, WebP 이미지를 1MB 이하로 선택해 주세요.');
+    if (
+      member.schoolProfileVerified
+        ? parsed.data.name !== undefined && parsed.data.name !== member.name
+        : !parsed.data.name?.trim()
+    ) {
+      return failure(400, '이름을 확인해 주세요.');
+    }
     if (parsed.data.name === '저장실패') return failure(500, '저장 중 서버 오류가 발생했습니다.');
     if (parsed.data.name === '네트워크오류') return HttpResponse.error();
     if (
@@ -367,7 +402,8 @@ export const handlers = [
 
     const nextMember: MockMember = {
       ...member,
-      name: parsed.data.name,
+      name: parsed.data.name ?? member.name,
+      namePrivate: parsed.data.namePrivate ?? member.namePrivate,
       birthDate: birthDateForAge(parsed.data.age),
       gender: parsed.data.gender,
       jobPositionIds: parsed.data.jobPositionIds,
@@ -383,7 +419,8 @@ export const handlers = [
     saveMember(nextMember);
     return success({
       memberId: member.memberId,
-      name: parsed.data.name,
+      name: nextMember.name,
+      namePrivate: nextMember.namePrivate ?? false,
       message: '프로필이 성공적으로 수정되었습니다.',
       profileImageUrl: nextMember.profileImageUrl,
     });
@@ -451,11 +488,16 @@ export const handlers = [
     const page = Math.max(0, Number(params.get('page')) || 0);
     const size = Math.min(20, Math.max(1, Number(params.get('size')) || 8));
     const sort = params.get('sort') ?? 'LATEST';
+    const publicNames = new Map(
+      getMembers().map((member) => [member.memberId, getPublicMemberName(member)]),
+    );
     const filtered = getProjects().filter(
       (project) =>
         isProjectVisible(project) &&
         (!keyword ||
-          `${project.name} ${project.leaderName}`.toLocaleLowerCase().includes(keyword)) &&
+          `${project.name} ${publicNames.get(project.leaderId) ?? project.leaderName}`
+            .toLocaleLowerCase()
+            .includes(keyword)) &&
         (!category || project.category === category) &&
         (!platform || project.platform === platform) &&
         matchesMeetingMode(project, meetingMode) &&

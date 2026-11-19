@@ -3,11 +3,12 @@ import { z } from 'zod';
 import { projectApplicationSchema } from '@/components/features/project/apply/schema';
 import { isProjectOpen, isRecruitmentOpen } from './projectContract';
 import { JOB_OPTIONS, TECH_STACKS } from './fixtures';
-import { getMembers } from './storage';
 import { addMockNotification } from './notificationHandlers';
 import { toProjectDetail } from './responseMappers';
 import {
   getApplications,
+  getMembers,
+  getPublicMemberName,
   getProjects,
   getSessionMember,
   saveApplication,
@@ -153,7 +154,7 @@ export const projectWeek6Handlers = [
       project.id,
       project.name,
       member.memberId,
-      member.name,
+      getPublicMemberName(member),
     );
     addMockNotification(member.memberId, 'PROJECT_MY_APPLY', project.id, project.name);
     return success({
@@ -186,15 +187,14 @@ export const projectWeek6Handlers = [
   http.get('/api/v1/projects/:projectId/applications/:applicationId', async ({ params }) => {
     const member = getSessionMember();
     if (!member) return failure(401, '로그인이 필요합니다.');
+    const project = getProjects().find((item) => item.id === Number(params.projectId));
+    if (!project) return failure(404, '프로젝트를 찾을 수 없습니다.');
+    if (member.memberId !== project.leaderId) return failure(403, '지원서 조회 권한이 없습니다.');
     const application = getApplications().find(
       (item) =>
-        item.applicationId === Number(params.applicationId) &&
-        item.projectId === Number(params.projectId),
+        item.applicationId === Number(params.applicationId) && item.projectId === project.id,
     );
     if (!application) return failure(404, '지원서를 찾을 수 없습니다.');
-    const project = getProjects().find((item) => item.id === application.projectId);
-    if (member.memberId !== application.applicantId && member.memberId !== project?.leaderId)
-      return failure(403, '지원서 조회 권한이 없습니다.');
     const applicant = getMembers().find((item) => item.memberId === application.applicantId);
     if (!applicant) return failure(404, '지원자를 찾을 수 없습니다.');
     const field = JOB_OPTIONS.fields.find((field) =>
