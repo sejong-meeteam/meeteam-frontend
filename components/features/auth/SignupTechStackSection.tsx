@@ -74,7 +74,6 @@ export default function SignupTechStackSection({
     <BaseField
       label={label}
       htmlFor="tech"
-      required={false}
       hintText="상위 3개 기술 스택이 프로필에 먼저 보여요. 드래그해서 우선순위를 바꿀 수 있어요."
       errorText={errorText}
     >

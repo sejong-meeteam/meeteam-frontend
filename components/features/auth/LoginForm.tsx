@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Check, Lock, UserRound } from 'lucide-react';
 
@@ -19,6 +19,8 @@ const INITIAL_FORM_VALUES: LoginFormValues = {
   studentId: '',
   password: '',
 };
+
+const CONSENT_REQUIRED_MESSAGE = '로그인하려면 위 내용에 동의해 주세요.';
 
 type LoginFormProps = {
   redirectPath?: string;
@@ -39,22 +41,23 @@ export default function LoginForm({
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConsentChecked, setIsConsentChecked] = useState(false);
+  const consentInputRef = useRef<HTMLInputElement>(null);
 
   const validateForm = () => {
     const result = loginFormSchema.safeParse(formValues);
+    const flattened = result.success ? undefined : result.error.flatten().fieldErrors;
 
-    if (result.success) {
-      setFieldErrors({});
-      return true;
+    setFieldErrors({
+      studentId: flattened?.studentId?.[0],
+      password: flattened?.password?.[0],
+      agreement: isConsentChecked ? undefined : CONSENT_REQUIRED_MESSAGE,
+    });
+
+    if (result.success && !isConsentChecked) {
+      consentInputRef.current?.focus();
     }
 
-    const flattened = result.error.flatten().fieldErrors;
-    setFieldErrors({
-      studentId: flattened.studentId?.[0],
-      password: flattened.password?.[0],
-      agreement: undefined,
-    });
-    return false;
+    return result.success && isConsentChecked;
   };
 
   const updateField = <K extends keyof LoginFormValues>(key: K, value: LoginFormValues[K]) => {
@@ -174,6 +177,7 @@ export default function LoginForm({
         <label className="flex cursor-pointer items-start gap-3" htmlFor="login-consent">
           <span className="relative mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center">
             <input
+              ref={consentInputRef}
               id="login-consent"
               type="checkbox"
               checked={isConsentChecked}
@@ -184,33 +188,32 @@ export default function LoginForm({
                   updateConsent(!isConsentChecked);
                 }
               }}
+              aria-invalid={Boolean(fieldErrors.agreement)}
+              aria-describedby={fieldErrors.agreement ? 'login-consent-error' : undefined}
               className="peer sr-only"
               data-cy="login-consent"
             />
-            <span className="flex h-5 w-5 items-center justify-center rounded-md border border-mt-border bg-mt-white text-mt-white transition-colors peer-checked:border-mt-primary peer-checked:bg-mt-primary peer-focus-visible:ring-2 peer-focus-visible:ring-mt-logo-blue/20">
+            <span className="flex h-5 w-5 items-center justify-center rounded-md border border-mt-border bg-mt-white text-mt-white transition-colors peer-aria-invalid:border-mt-hero-blue peer-checked:border-mt-primary peer-checked:bg-mt-primary peer-focus-visible:ring-2 peer-focus-visible:ring-mt-logo-blue/20">
               <Check className="h-3.5 w-3.5" strokeWidth={2.4} />
             </span>
           </span>
           <span className="flex flex-col gap-1">
             <span className="text-sm leading-5 font-semibold text-mt-text-primary">
+              (필수) 세종대 포털 계정으로 인증하는 데 동의합니다.
+            </span>
+            <span className="text-xs leading-5 text-mt-text-secondary">
               비밀번호는 저장하지 않으며, 로그인 후 학교 포털에서 로그아웃됩니다.
             </span>
           </span>
         </label>
         {fieldErrors.agreement ? (
-          <p className="mt-2 text-sm text-mt-hero-blue" role="alert">
+          <p id="login-consent-error" className="mt-2 text-sm text-mt-hero-blue" role="alert">
             {fieldErrors.agreement}
           </p>
         ) : null}
       </div>
 
-      <BaseButton
-        size="L"
-        full={true}
-        type="submit"
-        disabled={isSubmitting || !isConsentChecked}
-        data-cy="login-submit"
-      >
+      <BaseButton size="L" full={true} type="submit" disabled={isSubmitting} data-cy="login-submit">
         {isSubmitting ? '로그인 중...' : '로그인'}
       </BaseButton>
     </form>

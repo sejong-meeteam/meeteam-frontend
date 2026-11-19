@@ -9,10 +9,15 @@ describe('인증 및 보호 화면', () => {
 
   it('잘못된 로그인 후 입력을 유지하고 정상 로그인·새로고침·로그아웃한다', () => {
     cy.visitMock('/auth/login');
-    cy.get('[data-cy=login-submit]').should('be.disabled');
+    cy.contains('처음이신가요?').should('be.visible');
     cy.get('[data-cy=login-student-id]').type('20260001');
     cy.get('[data-cy=login-password]').type('wrong-password', { log: false });
+    cy.get('[data-cy=login-submit]').should('be.enabled').click();
+    cy.contains('[role=alert]', '동의해 주세요').should('be.visible');
+    cy.focused().should('have.attr', 'data-cy', 'login-consent');
+    cy.location('pathname').should('eq', '/auth/login');
     cy.get('[data-cy=login-consent]').check({ force: true });
+    cy.contains('[role=alert]', '동의해 주세요').should('not.exist');
     cy.get('[data-cy=login-submit]').click();
     cy.contains('[role=status]', '데모 계정 정보를 확인').should('be.visible');
     cy.get('[data-cy=login-student-id]').should('have.value', '20260001');
