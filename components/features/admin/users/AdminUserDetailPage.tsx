@@ -25,7 +25,7 @@ import {
   AdminPageHeader,
   AdminPanel,
 } from '../AdminLayoutParts';
-import AdminTabs from '../AdminTabs';
+import Tabs from '@/components/shared/Tabs';
 import { fetchAdminMember } from '../adminApi';
 import { TargetAuditLogs } from '../audit/AuditLogTable';
 import { PROJECT_CATEGORY_LABEL } from '../constants';
@@ -132,7 +132,7 @@ export default function AdminUserDetailPage({ memberId }: { memberId: number }) 
           </AdminPanel>
 
           <AdminPanel className="lg:col-span-2" bodyClassName="p-5">
-            <AdminTabs
+            <Tabs
               label="회원 활동"
               value={tab}
               onChange={setTab}

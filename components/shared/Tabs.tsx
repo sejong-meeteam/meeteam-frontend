@@ -1,24 +1,19 @@
 'use client';
 
-type AdminTab<T extends string> = {
+type Tab<T extends string> = {
   value: T;
   label: string;
   count?: number;
 };
 
-type AdminTabsProps<T extends string> = {
+type TabsProps<T extends string> = {
   label: string;
   value: T;
-  tabs: AdminTab<T>[];
+  tabs: Tab<T>[];
   onChange: (value: T) => void;
 };
 
-export default function AdminTabs<T extends string>({
-  label,
-  value,
-  tabs,
-  onChange,
-}: AdminTabsProps<T>) {
+export default function Tabs<T extends string>({ label, value, tabs, onChange }: TabsProps<T>) {
   return (
     <div role="tablist" aria-label={label} className="flex gap-1 border-b border-mt-border">
       {tabs.map((tab) => {

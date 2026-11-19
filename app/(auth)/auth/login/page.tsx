@@ -21,10 +21,6 @@ export default function Page() {
         </div>
 
         <LoginForm />
-
-        <p className="mt-6 text-center text-sm leading-6 break-keep text-mt-text-secondary">
-          처음이신가요? 세종대 학번으로 로그인하면 바로 회원가입이 시작돼요.
-        </p>
       </section>
     </RedirectIfAuthenticated>
   );

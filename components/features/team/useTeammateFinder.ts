@@ -24,6 +24,8 @@ const JOB_FIELD_ID_BY_CODE: Record<JobFieldCode, number> = {
   BACKEND: 4,
   AI: 5,
   INFRA_OPERATION: 6,
+  MARKETING: 7,
+  DATA: 8,
 };
 
 async function fetchTeammatePage(filters: FetchTeammatesParams, page: number, signal: AbortSignal) {

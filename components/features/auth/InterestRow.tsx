@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import type { Interest, JobFieldOption } from '@/types/auth';
 import BaseDropdown from '@/components/shared/BaseDropdown';
+import { getJobFieldOptionLabel } from '@/constants/jobField';
 
 type OpenDropdown = 'major' | 'minor' | null;
 
@@ -26,15 +27,15 @@ export default function InterestRow({
 }: InterestRowProps) {
   const [openDropdown, setOpenDropdown] = useState<OpenDropdown>(null);
 
-  const majorNameByCode = useMemo(
-    () => new Map(jobFields.map((item) => [item.code, item.name])),
+  const majorLabelByCode = useMemo(
+    () => new Map(jobFields.map((item) => [item.code, getJobFieldOptionLabel(item)])),
     [jobFields],
   );
-  const fieldByName = useMemo(
-    () => new Map(jobFields.map((item) => [item.name, item])),
+  const fieldByLabel = useMemo(
+    () => new Map(jobFields.map((item) => [getJobFieldOptionLabel(item), item])),
     [jobFields],
   );
-  const majors = jobFields.map((item) => item.name);
+  const majors = Array.from(fieldByLabel.keys());
   const minors = useMemo(() => {
     const selected = jobFields.find((item) => item.code === value.major);
     return selected?.positions.map((position) => position.name) ?? [];
@@ -50,7 +51,7 @@ export default function InterestRow({
   };
 
   const handleSelectMajor = (opt: string) => {
-    const selectedField = fieldByName.get(opt);
+    const selectedField = fieldByLabel.get(opt);
     if (!selectedField) return;
 
     onChange({ major: selectedField.code, minor: '' });
@@ -68,7 +69,7 @@ export default function InterestRow({
   return (
     <div className="flex gap-2">
       <BaseDropdown
-        value={majorNameByCode.get(value.major)}
+        value={majorLabelByCode.get(value.major)}
         placeholder="직군"
         open={openDropdown === 'major'}
         items={majors}

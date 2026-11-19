@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CalendarDays, CheckCircle2, ExternalLink, Mail, XCircle } from 'lucide-react';
 import { useAuthRequiredModal } from '@/components/features/auth/useAuthRequiredModal';
 import {
@@ -8,20 +8,59 @@ import {
   fetchProjectApplicationDetail,
   fetchProjectApplications,
   type ProjectApplicationDecision,
+  type ProjectApplicationListStatus,
 } from '@/components/features/project/projectApi';
 import ConfirmModal from '@/components/shared/ConfirmModal';
 import MarkdownContent from '@/components/shared/MarkdownContent';
 import ProfileAvatar from '@/components/shared/ProfileAvatar';
 import SkeletonBlock from '@/components/shared/SkeletonBlock';
+import Tabs from '@/components/shared/Tabs';
 import ToastMessage from '@/components/shared/ToastMessage';
+import { getJobFieldLabel } from '@/constants/jobField';
 import { useToastStore } from '@/stores/useToastStore';
-import type { ProjectApplicant } from '@/types/project';
+import type { ProjectApplicant, ProjectApplicantStatus } from '@/types/project';
 import ProjectApplicantDetailModal from './ProjectApplicantDetailModal';
 import ProjectManageShell from './ProjectManageShell';
 
 type ProjectManageApplicantsProps = {
   projectId: string;
 };
+
+type ApplicantListView = {
+  status: ProjectApplicantStatus;
+  tabLabel: string;
+  heading: string;
+  emptyTitle: string;
+  emptyDescription: string;
+};
+
+const APPLICANT_LIST_VIEWS: Record<ProjectApplicationListStatus, ApplicantListView> = {
+  PENDING: {
+    status: 'pending',
+    tabLabel: '대기 중',
+    heading: '대기 중인 지원자',
+    emptyTitle: '대기 중인 지원자가 없습니다.',
+    emptyDescription: '새로운 지원이 들어오면 이곳에서 검토할 수 있습니다.',
+  },
+  ACCEPTED: {
+    status: 'approved',
+    tabLabel: '승인됨',
+    heading: '승인한 지원자',
+    emptyTitle: '아직 승인한 지원자가 없습니다.',
+    emptyDescription: '승인한 지원자는 팀원이 되고, 이곳에 처리 내역이 남아요.',
+  },
+  REJECTED: {
+    status: 'rejected',
+    tabLabel: '거절됨',
+    heading: '거절한 지원자',
+    emptyTitle: '거절한 지원자가 없습니다.',
+    emptyDescription: '거절한 지원자도 이곳에 처리 내역이 남아요.',
+  },
+};
+
+const APPLICANT_LIST_TABS = (
+  Object.keys(APPLICANT_LIST_VIEWS) as ProjectApplicationListStatus[]
+).map((value) => ({ value, label: APPLICANT_LIST_VIEWS[value].tabLabel }));
 
 const DECISION_SUCCESS_MESSAGE: Record<ProjectApplicationDecision, (name: string) => string> = {
   ACCEPTED: (name) => `${name}님을 승인했어요.`,
@@ -61,9 +100,32 @@ function ProjectManageApplicantsSkeleton() {
   );
 }
 
+function DecisionRecord({
+  status,
+  decidedAt,
+}: {
+  status: ProjectApplicationDecision;
+  decidedAt?: string | null;
+}) {
+  const isAccepted = status === 'ACCEPTED';
+  const Icon = isAccepted ? CheckCircle2 : XCircle;
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 text-sm leading-5 font-bold ${
+        isAccepted ? 'text-mt-primary' : 'text-mt-hero-blue'
+      }`}
+    >
+      <Icon className="h-4 w-4" aria-hidden strokeWidth={1.8} />
+      {decidedAt ?? '처리일 미확인'} {isAccepted ? '승인함' : '거절함'}
+    </span>
+  );
+}
+
 export default function ProjectManageApplicants({ projectId }: ProjectManageApplicantsProps) {
   const handleAuthRequired = useAuthRequiredModal();
   const showToast = useToastStore((state) => state.showToast);
+  const [listStatus, setListStatus] = useState<ProjectApplicationListStatus>('PENDING');
   const [applicants, setApplicants] = useState<ProjectApplicant[]>([]);
   const [selectedApplicant, setSelectedApplicant] = useState<ProjectApplicant | null>(null);
   const [detailApplicant, setDetailApplicant] = useState<ProjectApplicant | null>(null);
@@ -74,29 +136,7 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [detailErrorMessage, setDetailErrorMessage] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-
-  const loadApplicants = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setErrorMessage(null);
-
-      const nextApplicants = await fetchProjectApplications(projectId);
-
-      setApplicants(nextApplicants.filter((applicant) => applicant.status === 'pending'));
-    } catch (error) {
-      if (handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage/applicants` })) {
-        setErrorMessage(null);
-        return;
-      }
-
-      setApplicants([]);
-      setErrorMessage(
-        error instanceof Error ? error.message : '지원자 목록을 불러오지 못했습니다.',
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [handleAuthRequired, projectId]);
+  const listView = APPLICANT_LIST_VIEWS[listStatus];
 
   useEffect(() => {
     let active = true;
@@ -106,13 +146,14 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
         setIsLoading(true);
         setErrorMessage(null);
 
-        const nextApplicants = await fetchProjectApplications(projectId);
+        const nextApplicants = await fetchProjectApplications(projectId, listStatus);
 
         if (!active) {
           return;
         }
 
-        setApplicants(nextApplicants.filter((applicant) => applicant.status === 'pending'));
+        const { status } = APPLICANT_LIST_VIEWS[listStatus];
+        setApplicants(nextApplicants.filter((applicant) => applicant.status === status));
       } catch (error) {
         if (!active) {
           return;
@@ -141,7 +182,17 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
     return () => {
       active = false;
     };
-  }, [handleAuthRequired, projectId]);
+  }, [handleAuthRequired, listStatus, projectId, refreshKey]);
+
+  const handleListStatusChange = (nextStatus: ProjectApplicationListStatus) => {
+    if (nextStatus === listStatus) {
+      return;
+    }
+
+    setApplicants([]);
+    setIsLoading(true);
+    setListStatus(nextStatus);
+  };
 
   const handleOpenDetail = async (applicant: ProjectApplicant) => {
     setSelectedApplicant(applicant);
@@ -190,7 +241,6 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
         setDetailApplicant(null);
       }
 
-      await loadApplicants();
       setRefreshKey((current) => current + 1);
     } catch (error) {
       if (handleAuthRequired(error, { redirectPath: `/projects/${projectId}/manage/applicants` })) {
@@ -205,9 +255,9 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
     }
   };
 
-  const pendingApplicants = applicants.filter((item) => item.status === 'pending');
-  const pendingApplicantsCount =
-    isLoading && pendingApplicants.length === 0 ? undefined : pendingApplicants.length;
+  const isPendingList = listStatus === 'PENDING';
+  const isInitialLoading = isLoading && applicants.length === 0;
+  const pendingApplicantsCount = isPendingList && !isInitialLoading ? applicants.length : undefined;
 
   return (
     <ProjectManageShell
@@ -219,29 +269,32 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
       <div className="space-y-6">
         <ToastMessage message={errorMessage} />
 
-        {isLoading && pendingApplicants.length === 0 ? (
+        <Tabs
+          label="지원자 처리 상태"
+          value={listStatus}
+          tabs={APPLICANT_LIST_TABS}
+          onChange={handleListStatusChange}
+        />
+
+        {isInitialLoading ? (
           <ProjectManageApplicantsSkeleton />
         ) : (
           <section className="overflow-hidden rounded-2xl border border-mt-border/40 bg-mt-white shadow-sm">
             <header className="border-b border-mt-border/40 bg-mt-bg-soft/50 px-6 py-4">
               <h2 className="text-base leading-6 font-bold text-mt-text-primary">
-                지원자 목록 <span className="ml-1 text-mt-primary">{pendingApplicants.length}</span>
+                {listView.heading} <span className="ml-1 text-mt-primary">{applicants.length}</span>
               </h2>
             </header>
 
-            {pendingApplicants.length === 0 ? (
+            {applicants.length === 0 ? (
               <div className="px-6 py-12 text-center">
-                <p className="text-base font-bold text-mt-text-primary">
-                  대기 중인 지원자가 없습니다.
-                </p>
-                <p className="mt-2 text-sm text-mt-text-secondary">
-                  새로운 지원이 들어오면 이곳에서 검토할 수 있습니다.
-                </p>
+                <p className="text-base font-bold text-mt-text-primary">{listView.emptyTitle}</p>
+                <p className="mt-2 text-sm text-mt-text-secondary">{listView.emptyDescription}</p>
               </div>
             ) : (
               <ul>
-                {pendingApplicants.map((applicant, index) => {
-                  const isRecruitmentFull = applicant.isRecruitmentFull === true;
+                {applicants.map((applicant, index) => {
+                  const isRecruitmentFull = isPendingList && applicant.isRecruitmentFull === true;
                   const isDecisionLoading = decisionLoadingId === applicant.id;
 
                   return (
@@ -265,12 +318,13 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
                               {applicant.name}
                             </p>
                             <p className="text-sm leading-5 font-bold text-mt-primary">
-                              {applicant.position}
+                              {getJobFieldLabel(applicant.position)}
                             </p>
                             <p className="text-xs leading-4 text-mt-text-secondary">
                               {applicant.specialty}
                             </p>
-                            {typeof applicant.currentCount === 'number' &&
+                            {isPendingList &&
+                            typeof applicant.currentCount === 'number' &&
                             typeof applicant.recruitmentCount === 'number' ? (
                               <p className="text-xs leading-4 text-mt-text-secondary">
                                 현재 {applicant.currentCount}/{applicant.recruitmentCount}명
@@ -316,32 +370,40 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
 
                             <div className="h-6 w-px bg-mt-border" aria-hidden />
 
-                            <button
-                              type="button"
-                              onClick={() => void handleDecision(applicant, 'ACCEPTED')}
-                              disabled={decisionLoadingId !== null || isRecruitmentFull}
-                              title={isRecruitmentFull ? '모집 정원이 가득 찼습니다.' : undefined}
-                              data-cy={`project-applicant-approve-${applicant.id}`}
-                              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-mt-primary px-4 text-sm leading-5 font-bold text-mt-white shadow-sm transition-colors hover:bg-mt-logo-blue disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              <CheckCircle2 className="h-4 w-4" aria-hidden strokeWidth={1.8} />
-                              {isRecruitmentFull
-                                ? '정원 마감'
-                                : isDecisionLoading
-                                  ? '처리 중'
-                                  : '승인'}
-                            </button>
+                            {isPendingList ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => void handleDecision(applicant, 'ACCEPTED')}
+                                  disabled={decisionLoadingId !== null || isRecruitmentFull}
+                                  title={
+                                    isRecruitmentFull ? '모집 정원이 가득 찼습니다.' : undefined
+                                  }
+                                  data-cy={`project-applicant-approve-${applicant.id}`}
+                                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-mt-primary px-4 text-sm leading-5 font-bold text-mt-white shadow-sm transition-colors hover:bg-mt-logo-blue disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  <CheckCircle2 className="h-4 w-4" aria-hidden strokeWidth={1.8} />
+                                  {isRecruitmentFull
+                                    ? '정원 마감'
+                                    : isDecisionLoading
+                                      ? '처리 중'
+                                      : '승인'}
+                                </button>
 
-                            <button
-                              type="button"
-                              onClick={() => setRejectTarget(applicant)}
-                              disabled={decisionLoadingId !== null}
-                              data-cy={`project-applicant-reject-${applicant.id}`}
-                              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-mt-border bg-mt-white px-4 text-sm leading-5 font-bold text-mt-hero-blue transition-colors hover:bg-mt-bg-soft disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              <XCircle className="h-4 w-4" aria-hidden strokeWidth={1.8} />
-                              {isDecisionLoading ? '처리 중' : '거절'}
-                            </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setRejectTarget(applicant)}
+                                  disabled={decisionLoadingId !== null}
+                                  data-cy={`project-applicant-reject-${applicant.id}`}
+                                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-mt-border bg-mt-white px-4 text-sm leading-5 font-bold text-mt-hero-blue transition-colors hover:bg-mt-bg-soft disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  <XCircle className="h-4 w-4" aria-hidden strokeWidth={1.8} />
+                                  {isDecisionLoading ? '처리 중' : '거절'}
+                                </button>
+                              </>
+                            ) : (
+                              <DecisionRecord status={listStatus} decidedAt={applicant.decidedAt} />
+                            )}
                           </div>
                         </div>
                       </div>
@@ -360,7 +422,7 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
         description={
           <>
             <span className="font-bold">{rejectTarget?.name}</span>님의 지원을 거절하면 되돌릴 수
-            없고, 대기 중인 지원자 목록에서 사라져요.
+            없어요. 거절한 지원자는 &apos;거절됨&apos; 탭에서 다시 볼 수 있어요.
           </>
         }
         closeLabel="취소"

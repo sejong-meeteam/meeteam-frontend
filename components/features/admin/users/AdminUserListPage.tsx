@@ -13,6 +13,7 @@ import BaseSelect, { type BaseSelectOption } from '@/components/shared/BaseSelec
 import DataTable, { type DataTableColumn } from '@/components/shared/DataTable';
 import Pagination from '@/components/shared/Pagination';
 import ProfileAvatar from '@/components/shared/ProfileAvatar';
+import { getJobFieldOptionLabel } from '@/constants/jobField';
 import { MemberRoleBadge, MemberStatusBadge } from '../AdminBadges';
 import AdminKeywordSearch from '../AdminKeywordSearch';
 import { AdminFilterBar, AdminPageHeader } from '../AdminLayoutParts';
@@ -191,7 +192,7 @@ function useJobFieldOptions() {
         if (!active) return;
         setOptions([
           { value: '', label: '전체 직군' },
-          ...fields.map((field) => ({ value: field.code, label: field.name })),
+          ...fields.map((field) => ({ value: field.code, label: getJobFieldOptionLabel(field) })),
         ]);
       })
       .catch(() => undefined);

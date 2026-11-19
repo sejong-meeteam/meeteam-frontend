@@ -1,10 +1,12 @@
-import type { MouseEvent } from 'react';
+import { useEffect, useRef, type MouseEvent } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { ProjectRecord } from '@/types/project';
 import AuthLink from '@/components/features/auth/AuthLink';
 import BaseButton from '@/components/shared/BaseButton';
 import { formatJobRole } from '@/components/shared/jobRoleFormat';
 import SkillChip from '@/components/shared/SkillChip';
 import StatusBadge from '@/components/shared/StatusBadge';
+import { getJobFieldLabel } from '@/constants/jobField';
 import { useToastStore } from '@/stores/useToastStore';
 
 type RecruitPositionStatus = 'open' | 'closed';
@@ -28,6 +30,23 @@ function buildApplyHref(projectId: string, position: RecruitPosition) {
   return `/projects/${projectId}/apply?${params.toString()}`;
 }
 
+function normalizePositionName(value: string) {
+  return value.replace(/\s+/g, '').toLowerCase();
+}
+
+// Proposal notifications link here with ?jobField=…&jobPosition=… for the offered position.
+function isProposedPosition(
+  position: RecruitPosition,
+  jobField: string | null,
+  jobPosition: string | null,
+) {
+  return (
+    Boolean(jobField && jobPosition) &&
+    getJobFieldLabel(position.role) === getJobFieldLabel(jobField ?? '') &&
+    normalizePositionName(position.specialty) === normalizePositionName(jobPosition ?? '')
+  );
+}
+
 type ProjectRecruitSectionProps = {
   project: ProjectRecord;
   canApply?: boolean;
@@ -38,6 +57,10 @@ export default function ProjectRecruitSection({
   canApply = true,
 }: ProjectRecruitSectionProps) {
   const showToast = useToastStore((state) => state.showToast);
+  const searchParams = useSearchParams();
+  const proposedJobField = searchParams.get('jobField');
+  const proposedJobPosition = searchParams.get('jobPosition');
+  const proposedPositionRef = useRef<HTMLElement>(null);
   const recruitPositions: RecruitPosition[] =
     project.recruitmentDetails?.map((recruitment, index) => ({
       id: index + 1,
@@ -64,6 +87,16 @@ export default function ProjectRecruitSection({
       };
     });
 
+  const proposedPositionId = recruitPositions.find((position) =>
+    isProposedPosition(position, proposedJobField, proposedJobPosition),
+  )?.id;
+
+  useEffect(() => {
+    if (proposedPositionId !== undefined) {
+      proposedPositionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [proposedPositionId]);
+
   return (
     <section
       className="flex w-full flex-col gap-5 rounded-3xl border border-mt-border bg-mt-white p-6 shadow-sm"
@@ -78,6 +111,7 @@ export default function ProjectRecruitSection({
 
       {recruitPositions.map((position) => {
         const isOpen = position.status === 'open';
+        const isProposed = position.id === proposedPositionId;
         const handleApplyClick = (event: MouseEvent<HTMLAnchorElement>) => {
           if (canApply) {
             return;
@@ -90,8 +124,18 @@ export default function ProjectRecruitSection({
         return (
           <article
             key={position.id}
-            className={`w-full border-t border-mt-border pt-5 first:border-t-0 first:pt-0 ${isOpen ? '' : 'opacity-70'}`}
+            ref={isProposed ? proposedPositionRef : undefined}
+            className={`w-full ${
+              isProposed
+                ? 'scroll-mt-24 rounded-2xl bg-mt-badge-bg p-5 ring-2 ring-mt-primary'
+                : 'border-t border-mt-border pt-5 first:border-t-0 first:pt-0'
+            } ${isOpen ? '' : 'opacity-70'}`}
           >
+            {isProposed ? (
+              <p className="mb-3 text-sm leading-5 font-bold text-mt-primary">
+                제안받은 포지션이에요
+              </p>
+            ) : null}
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2">

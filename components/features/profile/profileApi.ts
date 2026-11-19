@@ -3,6 +3,7 @@ import type { ApiEnvelope, JobFieldOption, MemberRole } from '@/types/auth';
 import { API_BASE_URL, apiFetch } from '@/components/features/auth/apiClient';
 import { createApiError } from '@/components/features/auth/authError';
 import { extractApiData, normalizeUrl } from '@/components/features/auth/signupTransform';
+import { findJobFieldOption } from '@/constants/jobField';
 import { profileFormSchema, profileImageSchema } from './schema';
 
 export type ProfileGender = 'MALE' | 'FEMALE';
@@ -160,16 +161,12 @@ export async function updateMyProfile(payload: UpdateMemberProfilePayload) {
   }>(response);
 }
 
-export function findFieldByName(jobFields: JobFieldOption[], fieldName: string) {
-  return jobFields.find((field) => field.name === fieldName);
-}
-
 export function findPositionByName(
   jobFields: JobFieldOption[],
   fieldName: string,
   positionName: string,
 ) {
-  return findFieldByName(jobFields, fieldName)?.positions.find(
+  return findJobFieldOption(jobFields, fieldName)?.positions.find(
     (position) => position.name === positionName,
   );
 }

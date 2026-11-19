@@ -13,6 +13,7 @@ import ProfileOverviewSkeleton from '@/components/features/profile/ProfileOvervi
 import ProfileSidebar from '@/components/features/profile/ProfileSidebar';
 import ProjectProposalDialog from '@/components/features/project/proposal/ProjectProposalDialog';
 import ToastMessage from '@/components/shared/ToastMessage';
+import { findJobFieldOption, getJobFieldOptionLabel } from '@/constants/jobField';
 import {
   fetchMemberProfile,
   fetchMyProfile,
@@ -159,9 +160,9 @@ export default function ProfileOverview({
   }, [handleAuthRequired, isAuthenticated, memberId]);
 
   const currentActionLabel = canEdit ? (isEditing ? '저장하기' : '프로필 수정') : actionLabel;
-  const categoryOptions = useMemo(() => jobFields.map((field) => field.name), [jobFields]);
+  const categoryOptions = useMemo(() => jobFields.map(getJobFieldOptionLabel), [jobFields]);
   const currentField = useMemo(
-    () => jobFields.find((field) => field.name === profileForm?.fieldCategory),
+    () => findJobFieldOption(jobFields, profileForm?.fieldCategory ?? ''),
     [jobFields, profileForm?.fieldCategory],
   );
   const roleOptions = useMemo(
@@ -205,7 +206,7 @@ export default function ProfileOverview({
       name: nextProfile.name,
       age: ageLabel,
       gender: nextProfile.gender === 'FEMALE' ? '여성' : '남성',
-      fieldCategory: primaryPosition?.field.name ?? '',
+      fieldCategory: primaryPosition ? getJobFieldOptionLabel(primaryPosition.field) : '',
       fieldRole: primaryPosition?.position.name ?? nextProfile.representativePosition ?? '',
       email: nextProfile.email,
       github: nextProfile.githubUrl ?? '',
@@ -260,7 +261,7 @@ export default function ProfileOverview({
     }
 
     if (field === 'fieldCategory') {
-      const nextField = jobFields.find((item) => item.name === value);
+      const nextField = findJobFieldOption(jobFields, value);
       setProfileForm((current) =>
         current
           ? {

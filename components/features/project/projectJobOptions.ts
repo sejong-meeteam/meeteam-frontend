@@ -1,4 +1,4 @@
-import { findJobFieldCodeByName, getJobFieldOptionLabel } from '@/constants/jobField';
+import { findJobFieldOption, getJobFieldOptionLabel } from '@/constants/jobField';
 import type { JobFieldOption, JobPositionOption } from '@/types/auth';
 
 const JOB_POSITION_LABELS: Record<string, string> = {
@@ -59,16 +59,7 @@ export function getProjectJobPositionLabel(position: JobPositionOption) {
   return JOB_POSITION_LABELS[position.code] ?? position.name;
 }
 
-export function findProjectJobField(jobFields: JobFieldOption[], label: string) {
-  const normalizedLabel = normalizeOptionLabel(label);
-  const code = findJobFieldCodeByName(label);
-
-  return (
-    jobFields.find(
-      (field) => field.code === code || normalizeOptionLabel(field.name) === normalizedLabel,
-    ) ?? null
-  );
-}
+export const findProjectJobField = findJobFieldOption;
 
 export function findProjectJobPosition(field: JobFieldOption, label: string) {
   const normalizedLabel = normalizeOptionLabel(label);

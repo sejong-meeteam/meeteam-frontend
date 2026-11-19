@@ -5,7 +5,12 @@ import type { ProjectFinderFilters } from '@/components/features/project/find/ty
 import { findProjectJobField } from '@/components/features/project/projectJobOptions';
 import { fetchTeammates } from '@/components/features/team/teamApi';
 import { formatJobRole } from '@/components/shared/jobRoleFormat';
-import { getJobFieldLabel, toJobFieldFilterOptions } from '@/constants/jobField';
+import {
+  findJobFieldOption,
+  getJobFieldLabel,
+  getJobFieldOptionLabel,
+  toJobFieldFilterOptions,
+} from '@/constants/jobField';
 import type { JobFieldOption } from '@/types/auth';
 
 const originalFetch = global.fetch;
@@ -43,13 +48,27 @@ describe('job field labels', () => {
   });
 
   it('keeps an unknown backend name as is', () => {
-    expect(getJobFieldLabel(' 데이터 ')).toBe('데이터');
+    expect(getJobFieldLabel(' 법무 ')).toBe('법무');
+  });
+
+  it('labels the contract C3 fields', () => {
+    expect(getJobFieldOptionLabel(jobField('MARKETING', '마케팅'))).toBe('마케팅');
+    expect(getJobFieldOptionLabel(jobField('DATA', '데이터'))).toBe('데이터');
   });
 
   it('uses the same field name on project cards and detail', () => {
     expect(formatJobRole('프론트', '웹 프론트엔드')).toBe('프론트엔드(웹 프론트엔드)');
     expect(formatJobRole('디자인', 'UI/UX 디자인')).toBe('디자인(UI/UX 디자인)');
     expect(formatJobRole(null, null)).toBe('-');
+  });
+
+  it('resolves the label a dropdown shows back to the backend field', () => {
+    const fields = [...BACKEND_JOB_FIELDS, jobField('PLANNING', '기획')];
+
+    expect(findJobFieldOption(fields, getJobFieldOptionLabel(fields[0]))?.code).toBe('FRONTEND');
+    expect(findJobFieldOption(fields, '프론트')?.code).toBe('FRONTEND');
+    expect(findJobFieldOption(fields, 'PM/기획')?.code).toBe('PLANNING');
+    expect(findJobFieldOption(fields, '마케팅')).toBeNull();
   });
 
   it('resolves a displayed label back to the backend field', () => {
@@ -69,13 +88,23 @@ describe('job field filter options', () => {
     ]);
   });
 
-  it('drops field codes no search endpoint understands', () => {
+  it('offers 마케팅 and 데이터 once the backend returns them', () => {
     const options = toJobFieldFilterOptions([
       ...BACKEND_JOB_FIELDS,
+      jobField('DATA', '데이터'),
       jobField('MARKETING', '마케팅'),
     ]);
 
-    expect(options.map((option) => option.label)).not.toContain('마케팅');
+    expect(options.slice(-2)).toEqual([
+      { value: 'MARKETING', label: '마케팅' },
+      { value: 'DATA', label: '데이터' },
+    ]);
+  });
+
+  it('drops field codes no search endpoint understands', () => {
+    const options = toJobFieldFilterOptions([...BACKEND_JOB_FIELDS, jobField('LEGAL', '법무')]);
+
+    expect(options.map((option) => option.label)).not.toContain('법무');
   });
 });
 
@@ -85,6 +114,7 @@ describe('project search field filter', () => {
     category: '모든 카테고리',
     recruitOnly: 'all',
     platform: '전체',
+    meeting: 'all',
     field: 'DESIGN',
     sort: 'latest',
   };

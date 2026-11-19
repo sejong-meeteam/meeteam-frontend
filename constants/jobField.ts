@@ -9,6 +9,8 @@ const JOB_FIELDS = {
   BACKEND: { label: '백엔드', aliases: [] },
   AI: { label: 'AI', aliases: [] },
   INFRA_OPERATION: { label: '인프라/운영', aliases: [] },
+  MARKETING: { label: '마케팅', aliases: [] },
+  DATA: { label: '데이터', aliases: [] },
 } as const satisfies Record<string, { label: string; aliases: readonly string[] }>;
 
 export type JobFieldCode = keyof typeof JOB_FIELDS;
@@ -37,6 +39,22 @@ export function findJobFieldCodeByName(name: string): JobFieldCode | null {
       const { label, aliases } = JOB_FIELDS[code];
       return [label, ...aliases].some((candidate) => normalizeName(candidate) === normalizedName);
     }) ?? null
+  );
+}
+
+// Accepts a displayed label, an alias, or the backend name, so a dropdown that shows labels
+// still resolves to the backend field.
+export function findJobFieldOption<T extends Pick<JobFieldOption, 'code' | 'name'>>(
+  jobFields: T[],
+  name: string,
+): T | null {
+  const code = findJobFieldCodeByName(name);
+  const normalizedName = normalizeName(name);
+
+  return (
+    jobFields.find(
+      (field) => field.code === code || normalizeName(field.name) === normalizedName,
+    ) ?? null
   );
 }
 

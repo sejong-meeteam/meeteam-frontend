@@ -3,7 +3,8 @@ import { formatJobRole } from '@/components/shared/jobRoleFormat';
 import type { Interest, JobFieldOption } from '@/types/auth';
 import { useEffect, useMemo } from 'react';
 import TechStackPicker from '@/components/shared/TechStackPicker';
-import { collectOrderedTechStackNames, findJobFieldByName } from './jobOptionUtils';
+import { findJobFieldOption } from '@/constants/jobField';
+import { collectOrderedTechStackNames } from './jobOptionUtils';
 
 type TechStackSectionProps = {
   label?: string;
@@ -49,7 +50,7 @@ export default function TechStackSection({
     () =>
       interestItems.map((item) => {
         const [major, minor] = item.split(' - ');
-        const field = findJobFieldByName(jobFields, major?.trim() ?? '') ?? null;
+        const field = findJobFieldOption(jobFields, major?.trim() ?? '');
 
         return {
           key: item,

@@ -216,6 +216,10 @@ export default function LoginForm({
       <BaseButton size="L" full={true} type="submit" disabled={isSubmitting} data-cy="login-submit">
         {isSubmitting ? '로그인 중...' : '로그인'}
       </BaseButton>
+
+      <p className="text-center text-sm leading-6 break-keep text-mt-text-secondary">
+        처음이신가요? 세종대 학번으로 로그인하면 바로 회원가입이 시작돼요.
+      </p>
     </form>
   );
 }
