@@ -246,6 +246,11 @@ function ProposalDialog({ target, onClose }: Omit<ProjectProposalDialogProps, 'i
                   label="포지션"
                   htmlFor={positionFieldId}
                   errorText={fieldErrors.jobPositionId}
+                  hintText={
+                    jobPositionId === null && target.representativePosition
+                      ? `이 프로젝트에는 ${target.name}님의 분야(${target.representativePosition})와 같은 포지션이 없어요. 제안할 포지션을 직접 골라 주세요.`
+                      : ''
+                  }
                 >
                   <BaseSelect
                     id={positionFieldId}
@@ -253,14 +258,19 @@ function ProposalDialog({ target, onClose }: Omit<ProjectProposalDialogProps, 'i
                     full
                     value={jobPositionId === null ? '' : String(jobPositionId)}
                     onChange={(event) => {
-                      setJobPositionId(Number(event.target.value));
+                      setJobPositionId(event.target.value ? Number(event.target.value) : null);
                       setFieldErrors((current) => ({ ...current, jobPositionId: undefined }));
                     }}
                     disabled={isSubmitting || isAlreadyProposed}
-                    options={(selectedProject?.openPositions ?? []).map((position) => ({
-                      value: String(position.jobPositionId),
-                      label: formatJobRole(position.jobFieldName, position.jobPositionName),
-                    }))}
+                    options={[
+                      ...(jobPositionId === null
+                        ? [{ value: '', label: '포지션을 선택해 주세요' }]
+                        : []),
+                      ...(selectedProject?.openPositions ?? []).map((position) => ({
+                        value: String(position.jobPositionId),
+                        label: formatJobRole(position.jobFieldName, position.jobPositionName),
+                      })),
+                    ]}
                   />
                 </BaseField>
 
@@ -315,9 +325,12 @@ function ProposalDialog({ target, onClose }: Omit<ProjectProposalDialogProps, 'i
   );
 }
 
+// Only preselect a position that matches the receiver's role. Falling back to the first open
+// position sent designers proposals for frontend roles when the leader didn't notice the default.
 function pickPosition(project: ProposableProject | undefined, preferredName: string | null) {
   const positions = project?.openPositions ?? [];
-  const preferred = positions.find((position) => position.jobPositionName === preferredName);
 
-  return (preferred ?? positions[0])?.jobPositionId ?? null;
+  return (
+    positions.find((position) => position.jobPositionName === preferredName)?.jobPositionId ?? null
+  );
 }
