@@ -1,7 +1,7 @@
 'use client';
 
 import { type FormEvent, useEffect, useState } from 'react';
-import { MessageCircle, Plus } from 'lucide-react';
+import { Circle, CircleDot, MessageCircle, Plus } from 'lucide-react';
 import GithubLoginIcon from '@/assets/GithubLogin.svg';
 import { OPTIONS } from '@/constants/interest';
 import type { Interest, JobFieldOption } from '@/types/auth';
@@ -155,8 +155,8 @@ export default function ProjectForm({
     hydratedInitialValues.isRecruitUntilComplete,
   );
   const [projectCategoryId, setProjectCategoryId] = useState(hydratedInitialValues.categoryId);
-  const [selectedPlatforms, setSelectedPlatforms] = useState<ReleasePlatform[]>(
-    hydratedInitialValues.releasePlatforms,
+  const [selectedPlatform, setSelectedPlatform] = useState<ReleasePlatform>(
+    hydratedInitialValues.releasePlatforms[0] ?? RELEASE_PLATFORMS[0],
   );
   const [myInterest, setMyInterest] = useState<Interest>(hydratedInitialValues.myInterest);
   const [myOpenDropdown, setMyOpenDropdown] = useState<OpenDropdownKey>(null);
@@ -246,11 +246,6 @@ export default function ProjectForm({
     });
   };
 
-  const handlePlatformToggle = (platform: ReleasePlatform) => {
-    setSelectedPlatforms([platform]);
-    clearError('releasePlatforms');
-  };
-
   const addRecruitInterest = () => {
     setRecruitInterests((prev) => [...prev, { major: '', minor: '', count: 1 }]);
     clearError('recruitInterests');
@@ -302,7 +297,7 @@ export default function ProjectForm({
       projectName,
       categoryId: projectCategoryId,
       description,
-      releasePlatforms: selectedPlatforms,
+      releasePlatforms: [selectedPlatform],
       myInterest,
       recruitInterests,
       recruitDeadline,
@@ -417,7 +412,7 @@ export default function ProjectForm({
           communicationUrl,
           categoryId: projectCategoryId,
           description,
-          releasePlatforms: selectedPlatforms,
+          releasePlatforms: [selectedPlatform],
           myInterest,
           recruitInterests,
           recruitTechStacks,
@@ -590,30 +585,45 @@ export default function ProjectForm({
                   </div>
                 </BaseField>
 
-                <BaseField errorText={fieldErrors.releasePlatforms} hintText="" label="출시 플랫폼">
-                  <div className="flex flex-wrap gap-2">
+                <BaseField
+                  errorText={fieldErrors.releasePlatforms}
+                  hintText="출시 플랫폼은 하나만 선택할 수 있어요."
+                  htmlFor="project-form-platform"
+                  label="출시 플랫폼"
+                >
+                  <div
+                    id="project-form-platform"
+                    role="radiogroup"
+                    aria-label="출시 플랫폼"
+                    aria-describedby="project-form-platform-hint"
+                    className="flex flex-wrap gap-2"
+                  >
                     {RELEASE_PLATFORMS.map((platform) => {
-                      const selected = selectedPlatforms.includes(platform);
+                      const selected = selectedPlatform === platform;
+                      const Indicator = selected ? CircleDot : Circle;
 
                       return (
-                        <BaseTag
-                          key={platform}
-                          selected={selected}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => handlePlatformToggle(platform)}
-                          data-cy={`project-form-platform-${platform}`}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault();
-                              handlePlatformToggle(platform);
-                            }
-                          }}
-                          className="min-h-10"
-                          aria-pressed={selected}
-                        >
-                          {platform === '웹' ? 'Web' : platform}
-                        </BaseTag>
+                        <label key={platform} className="cursor-pointer">
+                          <input
+                            type="radio"
+                            name="project-form-platform"
+                            value={platform}
+                            checked={selected}
+                            onChange={() => {
+                              setSelectedPlatform(platform);
+                              clearError('releasePlatforms');
+                            }}
+                            data-cy={`project-form-platform-${platform}`}
+                            className="peer sr-only"
+                          />
+                          <BaseTag
+                            selected={selected}
+                            leftIcon={<Indicator className="h-4 w-4" aria-hidden strokeWidth={2} />}
+                            className="min-h-10 peer-focus-visible:ring-2 peer-focus-visible:ring-mt-primary peer-focus-visible:ring-offset-2"
+                          >
+                            {platform === '웹' ? 'Web' : platform}
+                          </BaseTag>
+                        </label>
                       );
                     })}
                   </div>

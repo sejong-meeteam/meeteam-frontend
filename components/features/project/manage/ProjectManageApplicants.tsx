@@ -9,16 +9,23 @@ import {
   fetchProjectApplications,
   type ProjectApplicationDecision,
 } from '@/components/features/project/projectApi';
+import ConfirmModal from '@/components/shared/ConfirmModal';
 import MarkdownContent from '@/components/shared/MarkdownContent';
 import ProfileAvatar from '@/components/shared/ProfileAvatar';
 import SkeletonBlock from '@/components/shared/SkeletonBlock';
 import ToastMessage from '@/components/shared/ToastMessage';
+import { useToastStore } from '@/stores/useToastStore';
 import type { ProjectApplicant } from '@/types/project';
 import ProjectApplicantDetailModal from './ProjectApplicantDetailModal';
 import ProjectManageShell from './ProjectManageShell';
 
 type ProjectManageApplicantsProps = {
   projectId: string;
+};
+
+const DECISION_SUCCESS_MESSAGE: Record<ProjectApplicationDecision, (name: string) => string> = {
+  ACCEPTED: (name) => `${name}님을 승인했어요.`,
+  REJECTED: (name) => `${name}님의 지원을 거절했어요.`,
 };
 
 function ProjectManageApplicantsSkeleton() {
@@ -56,12 +63,14 @@ function ProjectManageApplicantsSkeleton() {
 
 export default function ProjectManageApplicants({ projectId }: ProjectManageApplicantsProps) {
   const handleAuthRequired = useAuthRequiredModal();
+  const showToast = useToastStore((state) => state.showToast);
   const [applicants, setApplicants] = useState<ProjectApplicant[]>([]);
   const [selectedApplicant, setSelectedApplicant] = useState<ProjectApplicant | null>(null);
   const [detailApplicant, setDetailApplicant] = useState<ProjectApplicant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [decisionLoadingId, setDecisionLoadingId] = useState<number | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<ProjectApplicant | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [detailErrorMessage, setDetailErrorMessage] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -173,6 +182,7 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
       setErrorMessage(null);
 
       await decideProjectApplication(projectId, applicant.id, decision);
+      showToast({ tone: 'success', message: DECISION_SUCCESS_MESSAGE[decision](applicant.name) });
       setApplicants((current) => current.filter((item) => item.id !== applicant.id));
 
       if (selectedApplicant?.id === applicant.id) {
@@ -324,8 +334,9 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
 
                             <button
                               type="button"
-                              onClick={() => void handleDecision(applicant, 'REJECTED')}
+                              onClick={() => setRejectTarget(applicant)}
                               disabled={decisionLoadingId !== null}
+                              data-cy={`project-applicant-reject-${applicant.id}`}
                               className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-mt-border bg-mt-white px-4 text-sm leading-5 font-bold text-mt-hero-blue transition-colors hover:bg-mt-bg-soft disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               <XCircle className="h-4 w-4" aria-hidden strokeWidth={1.8} />
@@ -342,6 +353,31 @@ export default function ProjectManageApplicants({ projectId }: ProjectManageAppl
           </section>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={rejectTarget !== null}
+        title="지원을 거절할까요?"
+        description={
+          <>
+            <span className="font-bold">{rejectTarget?.name}</span>님의 지원을 거절하면 되돌릴 수
+            없고, 대기 중인 지원자 목록에서 사라져요.
+          </>
+        }
+        closeLabel="취소"
+        confirmLabel={decisionLoadingId !== null ? '거절 중' : '거절하기'}
+        confirmTone="danger"
+        isSubmitting={decisionLoadingId !== null}
+        confirmButtonDataCy="project-applicant-reject-confirm"
+        onClose={() => setRejectTarget(null)}
+        onConfirm={async () => {
+          if (!rejectTarget) {
+            return;
+          }
+
+          await handleDecision(rejectTarget, 'REJECTED');
+          setRejectTarget(null);
+        }}
+      />
 
       <ProjectApplicantDetailModal
         applicant={detailApplicant ?? selectedApplicant}

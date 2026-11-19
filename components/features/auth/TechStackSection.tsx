@@ -64,7 +64,12 @@ export default function TechStackSection({
   );
 
   return (
-    <BaseField label={label} htmlFor="tech" required={false} errorText={errorText}>
+    <BaseField
+      label={label}
+      htmlFor="tech"
+      hintText="모집 분야마다 기술 스택을 1개 이상 선택해 주세요."
+      errorText={errorText}
+    >
       {sections.length > 0 ? (
         <div className="divide-y divide-mt-border">
           {sections.map((section, index) => (
