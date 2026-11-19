@@ -1,0 +1,28 @@
+{"pid":"P20","label":"after","ut_role":"member",
+ "tasks":{
+  "T1":{"outcome":"success","seq":6,
+   "hit":[],
+   "missed_trap":["H-U1","H-U2"],
+   "critical_step":"11-signup-field-options.png",
+   "think_aloud":"학교 포털로 로그인하는 거면 그게 가입이겠거니 했는데, 로그인 화면에 그렇게 써 있어서 확신했어요. 직군에 '데이터'가 있어서 놀랐어요. 기술 스택은 Python, R 넣으면 되니까 어렵지 않았고요.",
+   "evidence":"02-login-page.png 하단 '처음이신가요? 세종대 학번으로 로그인하면 바로 회원가입이 시작돼요.'를 확인함. 포털 비밀번호가 걱정돼 동의 문구('비밀번호는 저장하지 않으며')를 읽고 체크해서 06-click-login-without-consent.png 경로를 밟지 않음. 11-signup-field-options.png 직군 목록에 '데이터'가 있음. 기술 스택은 '기술 스택 검색'에 Python 등을 입력(14-signup-tech.png와 같은 칩 방식)."},
+  "T2":{"outcome":"success","seq":5,
+   "hit":["H-P2"],
+   "missed_trap":["H-U8"],
+   "critical_step":"10-detail-leader.png",
+   "think_aloud":"필터에도 '데이터'가 있어서 가입 때랑 맞아요. 상세에 시간이랑 회의 방식이 나오는 건 좋은데, 팀원이 누군지, 중간에 나간 적 있는 사람인지는 알 수가 없어요.",
+   "evidence":"02-projects-list.png 분야 칩에 '데이터'가 있음(가입 화면 T1/11-signup-field-options.png와 같음). '데이터' 칩을 누른 결과 화면은 캡처되지 않아 결과 수는 판단에서 뺐고, 같은 구조인 04·05(각 1건)를 보고 목록에서 찾을 수 있다고 판단함. 08-open-detail.png '팀원 1/4명'과 팀원 이름 칩만 있고, 10-detail-leader.png 프로필에도 이탈 이력이나 완주 여부가 없음 → H-P2의 ①(팀원 신뢰) 부분이 남음."},
+  "T3":{"outcome":"success","seq":5,
+   "hit":[],
+   "missed_trap":["H-U3","H-U4"],
+   "critical_step":"07-go-edit-profile.png",
+   "think_aloud":"'최소 10자'가 처음부터 보여서 문제없었어요. GitHub 링크 넣으려고 프로필 수정 갔다 왔는데 쓴 게 그대로라 안심했어요. 미리 알려줬으면 덜 불안했을 텐데.",
+   "evidence":"03-open-apply.png '최소 10자 · 0/700자'. 07-go-edit-profile.png 프로필 편집의 GitHub 칸에 링크를 넣음. 돌아가는 버튼이 없어 뒤로 가기를 씀. 08-come-back.png 메시지 유지. 09-retype-and-submit.png '지원서를 제출했습니다.', 10-my-applications.png '대기중'."}
+ },
+ "other_issues":[
+  "T2/08-open-detail.png, T2/10-detail-leader.png: 팀원 칩과 공개 프로필에 중도 이탈 이력이나 완주 여부가 없어 팀원을 믿을 수 있는지 판단할 수 없음",
+  "T3/07-go-edit-profile.png: '프로필 수정'으로 넘어갈 때 쓰던 메시지가 유지된다는 안내가 없어, 돌아오기 전까지 사라졌을까 봐 불안함",
+  "T2/10-detail-leader.png: 지원자로서 리더 프로필을 봤는데 '제안 보내기' 버튼이 크게 보여, 누르면 리더에게 무엇이 가는지 헷갈림"
+ ],
+ "delta_note":"세 과업 모두 struggle(SEQ 3)에서 success(SEQ 5~6)로 바뀌었다. 로그인 화면의 가입 안내와 보이는 동의 오류(T1), 가입과 필터에 같이 생긴 '데이터' 직군(T2), 메시지 유지와 용어 통일(T3) 덕분이다. 다만 '데이터' 필터의 결과 화면은 캡처되지 않아 실제로 자리가 있는지는 확인하지 못했다. 팀원 이탈 이력(H-P2 ①)이 없다는 점은 그대로이고, 수정 이동 전 안내가 없어 느끼는 불안이 작게 남는다.",
+ "overall_quote":"데이터 직군이 생겨서 처음으로 제 자리가 있는 느낌인데, 같이 할 사람이 중간에 나갈지는 여전히 모르겠어요."}

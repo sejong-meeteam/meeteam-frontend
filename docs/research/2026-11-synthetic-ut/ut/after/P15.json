@@ -1,0 +1,47 @@
+{
+  "pid": "P15",
+  "label": "after",
+  "ut_role": "member",
+  "tasks": {
+    "T1": {
+      "outcome": "struggle",
+      "seq": 5,
+      "hit": [],
+      "missed_trap": [
+        "H-U2"
+      ],
+      "critical_step": "06-click-login-without-consent.png",
+      "think_aloud": "학번이랑 비번 넣고 바로 로그인 눌렀는데 동의하라고 떠서 아 네 하고 체크했어요. 가입할 때도 기술 스택 비워 두고 냈다가 하나 넣으라고 해서 넣었고요. 뭐 금방 했어요.",
+      "evidence": "가입 입구는 찾지 않고 바로 로그인을 시도함(02-login-page.png). 동의 박스를 건너뛰고 버튼을 눌러 06-click-login-without-consent.png 박스 안에 '로그인하려면 위 내용에 동의해 주세요.'가 뜨고 체크박스 테두리가 강조됨. 이유가 바로 보여 막히지 않고 07에서 체크(H-U1이 가정한 '이유가 안 보여 막힘'은 겪지 않음). 13-signup-submit-no-tech.png 기술 스택을 비우고 제출해 토스트 '기술 스택을 1개 이상 선택해 주세요.'를 보고 추가. 14-signup-tech.png 추가한 뒤에도 같은 오류 토스트가 남아 있어 잠깐 '왜 또?' 했지만 다시 눌러 15-signup-complete.png로 완료."
+    },
+    "T2": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U8"
+      ],
+      "critical_step": "05-filter-field-marketing.png",
+      "think_aloud": "기획이랑 마케팅 눌러서 제목 재밌어 보이는 거 골랐어요. 시간은 뭐 들어가서 맞추면 되죠.",
+      "evidence": "04-filter-field-planning.png, 05-filter-field-marketing.png 칩이 가입 직군과 같아 바로 누름. 카드 앞면(03-filter-recruiting.png)에는 카테고리·제목·리더만 크게 보이고 모집 포지션은 보이지 않아 제목만 보고 고름. 상세의 시간·회의 정보(08-open-detail.png)는 그의 기준이 아님."
+    },
+    "T3": {
+      "outcome": "struggle",
+      "seq": 5,
+      "hit": [
+        "H-U3"
+      ],
+      "missed_trap": [],
+      "critical_step": "05-submit-short.png",
+      "think_aloud": "'열심히 할게요!' 하고 보냈더니 10자 넘게 쓰래요. 밑에 작게 써 있긴 했네요. 몇 마디 더 붙여서 냈어요.",
+      "evidence": "03-open-apply.png '최소 10자 · 0/700자'는 입력칸 오른쪽 아래 작은 회색 글씨라 읽지 않고 짧게 씀. 05-submit-short.png 칸 아래 '지원 메시지를 10자 이상 입력해 주세요.' 오류를 보고 늘려 씀. 오류 문구가 다른 안내와 비슷한 파란색이라 처음엔 오류인지 바로 와닿지 않았음. 용어는 '지원 메시지'로 같아 헷갈림은 없음. '프로필 수정'은 누르지 않음. 09-retype-and-submit.png '지원서를 제출했습니다.'로 완료."
+    }
+  },
+  "other_issues": [
+    "14-signup-tech.png 기술 스택(Figma)을 넣은 뒤에도 '기술 스택을 1개 이상 선택해 주세요.' 토스트가 남아 있어 아직 오류가 있는 것처럼 보임. 09-signup-submit-empty.png 토스트는 GitHub 입력칸을 덮음.",
+    "오류 문구(06-click-login-without-consent.png '로그인하려면 위 내용에 동의해 주세요.', 05-submit-short.png '지원 메시지를 10자 이상 입력해 주세요.')가 브랜드 파란색이라 일반 안내와 구분이 약함.",
+    "03-filter-recruiting.png 프로젝트 카드 앞면에 모집 포지션이 보이지 않아 분야 칩을 쓰지 않으면 어떤 자리를 뽑는지 알 수 없음."
+  ],
+  "overall_quote": "재밌는 주제만 있으면 쓰기는 쉬워요. 막히는 건 없었어요.",
+  "delta_note": "baseline T1의 비활성 버튼 연타(H-U1)는 동의 안내 문구 덕분에 한 번 누르고 바로 고치는 수준으로 줄었고, 마케팅 칩 0개로 실패했던 T2는 결과가 나와 성공으로 바뀜. 10자 조건(H-U3)은 안내가 생겼지만 작은 회색 글씨라 여전히 제출 오류를 겪음. 카드 앞면에 모집 포지션이 없는 문제는 그대로이고, 기술 스택을 넣은 뒤에도 오류 토스트가 남아 있는 점이 눈에 띔."
+}

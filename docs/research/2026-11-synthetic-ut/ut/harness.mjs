@@ -52,6 +52,12 @@ class Recorder {
     });
   }
 
+  // 단계 사이에 잠깐 떴다 사라지는 화면(확인 창 등)을 따로 찍을 때 쓴다.
+  extraShotPath(slug) {
+    const index = String(this.steps.length + 1).padStart(2, '0');
+    return path.join(this.dir, `${index}a-${slug}.png`);
+  }
+
   async init() {
     await fs.rm(this.dir, { recursive: true, force: true });
     await fs.mkdir(this.dir, { recursive: true });
@@ -187,6 +193,15 @@ async function chipLabels(page, groupLabel) {
     if (!heading) return null;
     let box = heading.parentElement;
     for (let depth = 0; depth < 4 && box; depth += 1) {
+      // after 라운드에서 일부 칩이 라디오로 바뀌었으므로 버튼과 라디오를 모두 본다.
+      const radios = [...box.querySelectorAll('input[type=radio],[role=radio]')];
+      if (radios.length >= 2) {
+        return radios.map((r) => ({
+          text: (r.closest('label')?.innerText ?? r.getAttribute('aria-label') ?? r.innerText ?? '').trim(),
+          pressed: String(r.checked ?? r.getAttribute('aria-checked') === 'true'),
+          kind: 'radio',
+        }));
+      }
       const buttons = [...box.querySelectorAll('button,[role=button]')];
       if (buttons.length >= 2) {
         return buttons.map((b) => ({
@@ -580,10 +595,10 @@ async function T4(page, rec) {
   });
 
   await rec.step('platform-multi', '웹과 앱 둘 다 낼 거라 iOS와 안드로이드를 차례로 누른다', '플랫폼 칩 "iOS" 클릭 후 "안드로이드" 클릭', async () => {
-    await (await pick(page, [(p) => p.getByRole('button', { name: 'iOS', exact: true })], { what: 'iOS 칩' })).click();
+    await (await pick(page, [(p) => p.locator('label').filter({ hasText: /^\s*iOS\s*$/ }), (p) => p.getByRole('button', { name: 'iOS', exact: true })], { what: 'iOS 칩' })).click();
     await page.waitForTimeout(200);
     const afterFirst = await chipLabels(page, '출시 플랫폼');
-    await (await pick(page, [(p) => p.getByRole('button', { name: '안드로이드', exact: true })], { what: '안드로이드 칩' })).click();
+    await (await pick(page, [(p) => p.locator('label').filter({ hasText: /^\s*안드로이드\s*$/ }), (p) => p.getByRole('button', { name: '안드로이드', exact: true })], { what: '안드로이드 칩' })).click();
     await page.waitForTimeout(200);
     const afterSecond = await chipLabels(page, '출시 플랫폼');
     const selected = (afterSecond ?? []).filter((c) => c.pressed === 'true').map((c) => c.text);
@@ -678,9 +693,18 @@ async function T5(page, rec) {
     const item = button.locator('xpath=ancestor::li[1]');
     const target = (await item.innerText().catch(() => '')).split('\n').map((l) => l.trim()).find((l) => l.length > 1) ?? '';
     await button.click();
+    await page.waitForTimeout(600);
+    // after 라운드: 거절은 확인 창을 거친다. 확인 창을 찍어 두고 확인 버튼을 누른다.
+    const dialog = page.getByRole('dialog');
+    let confirmDialog = null;
+    if (await dialog.count()) {
+      confirmDialog = (await dialog.first().innerText()).replace(/\s+/g, ' ').slice(0, 200);
+      await page.screenshot({ path: rec.extraShotPath(`${kind}-confirm-dialog`), fullPage: true });
+      await dialog.first().getByRole('button', { name: /거절/ }).last().click();
+    }
     await page.waitForTimeout(1500);
     const listAfter = await page.getByRole('listitem').allInnerTexts();
-    return { target, itemsBefore: listBefore.length, itemsAfter: listAfter.length };
+    return { target, itemsBefore: listBefore.length, itemsAfter: listAfter.length, confirmDialog };
   };
 
   const decided = {};
@@ -725,11 +749,12 @@ async function T6(page, rec) {
   });
 
   for (const [slug, label, intent] of [
-    ['filter-planner', 'PM/기획', '기획자를 찾으려고 "PM/기획"을 누른다'],
-    ['filter-designer', '디자이너', '디자이너를 찾으려고 "디자이너"를 누른다'],
+    ['filter-planner', /^(PM\/기획|기획)$/, '기획자를 찾으려고 기획 칩을 누른다'],
+    ['filter-designer', /^(디자이너|디자인)$/, '디자이너를 찾으려고 디자인 칩을 누른다'],
   ]) {
-    await rec.step(slug, intent, `역할 칩 "${label}" 클릭`, async () => {
-      await (await pick(page, [(p) => p.getByRole('button', { name: label, exact: true })], { what: `역할 칩 ${label}` })).click();
+    // after 라운드에서 칩 이름이 통일됨(PM/기획→기획, 디자이너→디자인). 둘 다 받는다.
+    await rec.step(slug, intent, `역할 칩 ${label} 클릭`, async () => {
+      await (await pick(page, [(p) => p.getByRole('button', { name: label })], { what: `역할 칩 ${label}` })).click();
       await settle(page, 1200);
       const names = await page.locator('a[href^="/profile/"]').allInnerTexts();
       return { resultCount: names.length, results: names.map((n) => n.replace(/\s+/g, ' ').slice(0, 60)).slice(0, 10) };
@@ -751,6 +776,25 @@ async function T6(page, rec) {
     const emailVisible = /@[\w.-]+\.\w+/.test(await scope.innerText());
     return { buttons, links, contactLike, emailVisible };
   });
+
+  // after 라운드: 제안 버튼이 생겼다면 실제로 제안을 보내 본다.
+  const proposeButton = page.locator('main').first().getByRole('button', { name: /제안/ });
+  if (await proposeButton.count()) {
+    await rec.step('open-proposal', '"제안 보내기"를 눌러 내 프로젝트로 함께하자고 제안한다', '"제안" 버튼 클릭 후 대화상자 확인', async () => {
+      await proposeButton.first().click();
+      await page.getByRole('dialog').first().waitFor({ timeout: 10000 });
+      await page.waitForTimeout(800);
+      return { dialogText: (await page.getByRole('dialog').first().innerText()).replace(/\s+/g, ' ').slice(0, 400) };
+    });
+    await rec.step('send-proposal', '짧은 메시지를 쓰고 제안을 보낸다', '메시지 입력 후 "제안 보내기" 클릭', async () => {
+      const dialog = page.getByRole('dialog').first();
+      const box = dialog.locator('textarea');
+      if (await box.count()) await box.first().fill('포트폴리오 보고 연락드려요. 디자인 파트를 함께 맡아주시면 좋겠어요!');
+      await dialog.getByRole('button', { name: /제안 보내기/ }).last().click();
+      await page.waitForTimeout(1500);
+      return { dialogStillOpen: (await page.getByRole('dialog').count()) > 0 };
+    }, { settleMs: 100, quick: true });
+  }
 
   await rec.step('try-manage-members', '내 프로젝트 관리 화면에 초대 기능이 있는지 찾아본다', `/projects/${MANAGE_PROJECT.id}/manage/members 접속 후 초대 관련 항목 검색`, async () => {
     await go(page, `/projects/${MANAGE_PROJECT.id}/manage/members`);

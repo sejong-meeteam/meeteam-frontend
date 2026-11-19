@@ -1,0 +1,48 @@
+{
+  "pid": "P12",
+  "label": "after",
+  "ut_role": "member",
+  "tasks": {
+    "T1": {
+      "outcome": "success",
+      "seq": 5,
+      "hit": [],
+      "missed_trap": [
+        "H-U1",
+        "H-U2"
+      ],
+      "critical_step": "13-signup-submit-no-tech.png",
+      "think_aloud": "학번 로그인이니까 그냥 로그인 눌렀습니다. 동의 문구는 읽고 체크했고요. 기획인데 기술 스택이 필수인 건 좀 이상하네요.",
+      "evidence": "02-login-page.png 동의 박스의 '비밀번호는 저장하지 않으며…' 문구까지 읽고 먼저 체크함. 버튼 아래 '처음이신가요? … 회원가입이 시작돼요.'가 있어 가입 입구를 따로 찾지 않음. 08-submit-login.png 가입 화면에서 'GitHub (선택)', '블로그 (선택)'과 달리 '기술 스택'에는 (선택)이 없어 필수라고 보고 채움. 다만 행정·기획 직군에 맞는 값이 무엇인지 안내가 없어 불만. 11-signup-field-options.png '기획'은 바로 찾음."
+    },
+    "T2": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U8",
+        "H-P2"
+      ],
+      "critical_step": "08-open-detail.png",
+      "think_aloud": "기획 누르니까 하나 나오네요. 주에 몇 시간인지 써 있는 건 괜찮습니다.",
+      "evidence": "03-filter-recruiting.png 상태를 '모집 중만 보기'로 바꾸고, 04-filter-field-planning.png '기획' 칩으로 1건('AI 아이디어 노트', 기획(서비스 기획)) 확인. 칩 구성이 가입 화면 직군과 같아 망설임 없음. 그의 기준인 시간은 08-open-detail.png '시간 주 10시간 예상'으로 확인 가능. 리더 신뢰는 원래 기대하지 않아 10-detail-leader.png를 따로 보지 않음."
+    },
+    "T3": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U3"
+      ],
+      "critical_step": "03-open-apply.png",
+      "think_aloud": "짧게 쓰려다 '최소 10자' 보고 맞춰서 썼습니다. 프로필은 굳이 안 고쳤어요.",
+      "evidence": "03-open-apply.png 입력칸 아래 '최소 10자 · 0/700자'를 확인하고 필요한 만큼만 써서 05의 오류 분기를 피함. '프로필 수정'은 누르지 않음. 09-retype-and-submit.png '지원서를 제출했습니다.'와 '대기중'으로 완료 확인. 지원 메시지라는 용어가 화면마다 같음."
+    }
+  },
+  "other_issues": [
+    "가입 화면 '기술 스택'이 필수인데 기획·행정 직군에 무엇을 넣어야 하는지 안내가 없음(08-submit-login.png placeholder '기술 스택 검색'뿐). 빈 칸 제출 시에도 09-signup-submit-empty.png에는 기술 스택 오류가 칸 아래에 뜨지 않고 13번 토스트로만 나옴.",
+    "09-retype-and-submit.png 제출 후 '내 지원서' 화면 머리말에 프로젝트 이름(API 챌린지)이 없고 포지션 '백엔드(Node.js/NestJS)'만 보임."
+  ],
+  "overall_quote": "기능은 문제없습니다. 다만 저한테 이걸 쓸 이유가 생길지는 여전히 모르겠네요.",
+  "delta_note": "baseline T2 실패(가입에 기획 없음, 기획 필터 0개, 시간 정보 없음)가 after에서는 기획 칩 1건과 '주 10시간 예상' 표시로 성공으로 바뀜. T1 가입 입구 혼란(H-U2)과 T3의 10자 오류·용어 불일치(H-U3)도 사라짐. 비개발 직군에 기술 스택을 필수로 받는 문제는 '(선택)' 오표기만 없어졌고, 무엇을 넣어야 하는지 안내 없이 남음."
+}

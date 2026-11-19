@@ -1,0 +1,84 @@
+{
+  "pid": "P14",
+  "label": "after",
+  "ut_role": "leader",
+  "tasks": {
+    "T1": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U1",
+        "H-U2"
+      ],
+      "critical_step": "08-submit-login.png",
+      "think_aloud": "로그인하면 가입이 시작된다고 써 있네요. 필수는 다 채우고 기술 스택엔 노션이랑 엑셀 넣었습니다.",
+      "evidence": "02-login-page.png 회원가입 안내 문구와 '(필수)' 동의 박스를 확인하고 먼저 체크. 08-submit-login.png '(선택)' 표시가 없는 칸을 필수로 보고 모두 채워 09·13 오류 분기를 피함. 11-signup-field-options.png '기획'을 바로 고름."
+    },
+    "T2": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U8",
+        "H-P2"
+      ],
+      "critical_step": "08-open-detail.png",
+      "think_aloud": "회의 필터에 '온라인 가능'이 있는 게 제일 반갑네요. 상세에 마감, 회의 방식, 주당 시간이 다 있어서 운영할 줄 아는 리더인지 대충 판단됩니다.",
+      "evidence": "03-filter-recruiting.png 필터 영역 '회의: 전체 / 온라인 가능' 칩과 '분야' 칩(가입 직군과 같음)을 확인. 04-filter-field-planning.png '기획'으로 1건. 08-open-detail.png '마감일 12월 9일 마감', '회의 대면', '시간 주 10시간 예상', '회의 메모 목요일 오후 6시 …'로 그의 기준(마감일·회의 방식·시간)이 모두 보임. 대면 프로젝트라 평택 거주자는 거를 수 있음."
+    },
+    "T3": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U3"
+      ],
+      "critical_step": "03-open-apply.png",
+      "think_aloud": "가능한 시간이랑 해 본 걸 메시지에 직접 적었습니다. 그런 걸 따로 받는 칸이 있으면 더 낫겠죠.",
+      "evidence": "03-open-apply.png '최소 10자 · 0/700자'를 확인하고 가능한 시간·이전 경험을 담아 길게 작성. '프로필 수정'은 누르지 않음. 09-retype-and-submit.png '지원서를 제출했습니다.'와 '대기중', 10-my-applications.png에서 재확인. 09 화면 머리말에 프로젝트 이름이 없다는 점을 지적함."
+    },
+    "T4": {
+      "outcome": "success",
+      "seq": 5,
+      "hit": [],
+      "missed_trap": [
+        "H-U5"
+      ],
+      "critical_step": "10-step4.png",
+      "think_aloud": "단계가 나뉘어 있고 회의 방식, 주당 시간을 받는 칸이 있어서 제가 첫 회의에 정하던 걸 미리 공지할 수 있네요. 경영 분석 프로젝트에 출시 플랫폼을 고르라는 건 맞지 않습니다.",
+      "evidence": "02-open-create.png 단일 선택 라디오와 '출시 플랫폼은 하나만 선택할 수 있어요.'로 오해 없음. '해당 없음'이 없어 Web으로 둠. 06-step2.png 회의 방식 '온라인', 주당 예상 시간, 회의 메모 입력. 09-roles.png 모집 분야 '기획'. 10-step4.png '모집 분야마다 기술 스택을 1개 이상 선택해 주세요.'를 먼저 읽고 채워 12번 오류를 피함. 14-submit.png 상세 화면으로 등록 확인."
+    },
+    "T5": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U6"
+      ],
+      "critical_step": "06-open-applicants.png",
+      "think_aloud": "승인·거절 결과는 확실히 알려줍니다. 문제는 고를 근거죠. 카드에 메시지 한 줄이랑 이메일뿐이라 결국 줌으로 따로 불러야겠네요.",
+      "evidence": "06-open-applicants.png 카드에 지원일·이메일·지원 메시지 한 줄·분야만 있고 가능한 시간이나 이전 경험은 없음. 07-approve.png '박서연님을 승인했어요.', 08a-reject-confirm-dialog.png 확인 창, 08-reject.png '최도윤님의 지원을 거절했어요.' 09-verify-members.png '현재 멤버 2명'으로 반영 확인. 팀원 목록의 역할 칸이 '-'로 비어 있음."
+    },
+    "T6": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U7"
+      ],
+      "critical_step": "07-open-proposal.png",
+      "think_aloud": "찍어 둔 사람한테 바로 제안할 수 있으니 공고는 정말 보험이 되겠네요. 포지션 기본값이 엉뚱해서 바꿨고, 보낸 제안을 관리하는 목록은 없습니다.",
+      "evidence": "03-filter-planner.png '기획' 칩으로 2명 확인 후 프로필 진입(05-open-profile.png와 같은 구조), '제안 보내기'. 07-open-proposal.png 기본 프로젝트·포지션('캠퍼스 메이커스', '프론트엔드(웹 프론트엔드)')이 받는 사람의 분야와 다름을 확인하고 바꿈. 08-send-proposal.png '…에게 제안을 보냈어요.' 09-try-manage-members.png 관리 화면에 보낸 제안 현황 없음."
+    }
+  },
+  "other_issues": [
+    "06-open-applicants.png 지원자 카드와 03-open-apply.png 지원서에 가능한 시간·이전 경험을 받는 칸이 없어, 리더가 메시지 한 줄로 판단해야 함(H-P4).",
+    "02-open-create.png 출시 플랫폼에 '해당 없음'이 없어 경영 분석 같은 비앱 프로젝트도 하나를 골라야 함.",
+    "09-retype-and-submit.png '내 지원서' 화면 머리말에 프로젝트 이름이 없고 포지션만 보임.",
+    "09-verify-members.png 팀원 목록의 역할 칸이 '-'로 비어 있어 누가 어떤 포지션으로 들어왔는지 알 수 없음.",
+    "07-open-proposal.png 제안 기본 포지션이 받는 사람의 분야와 맞지 않게 채워지고, 08-send-proposal.png 이후 보낸 제안 현황을 볼 곳이 없음(09-try-manage-members.png)."
+  ],
+  "overall_quote": "모집글에 운영 정보를 담을 수 있고 먼저 제안까지 되니 쓸 만합니다. 지원자를 판단할 정보만 더 받으면 됩니다.",
+  "delta_note": "baseline의 T6 실패, T3 메시지 유실, T2 회의 방식 부재가 after에서 해소돼 전 과업 성공. 지원자를 판단할 정보(가능한 시간, 이전 경험)가 부족한 문제(H-P4)는 그대로임. baseline에서 지적한 확인 창 부재는 거절에만 생겨 승인 쪽은 여전하고, 새로 제안 기본 포지션 불일치와 보낸 제안 추적 불가를 지적함."
+}

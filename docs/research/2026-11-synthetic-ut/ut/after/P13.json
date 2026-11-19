@@ -1,0 +1,86 @@
+{
+  "pid": "P13",
+  "label": "after",
+  "ut_role": "leader",
+  "tasks": {
+    "T1": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U1",
+        "H-U2"
+      ],
+      "critical_step": "02-login-page.png",
+      "think_aloud": "로그인 화면에 처음이면 학번으로 로그인하면 가입된다고 딱 써 있어서 헷갈릴 게 없었어요! 필수 동의도 박스로 잘 보여서 먼저 체크했고요.",
+      "evidence": "02-login-page.png 버튼 아래 회원가입 안내와 '(필수) 세종대 포털 계정으로 인증하는 데 동의합니다.' 박스를 확인하고 먼저 체크함. 08-submit-login.png 가입 화면에서 '(선택)'이 붙지 않은 칸은 모두 필수로 보고 이름·생년월일·분야·기술 스택을 채움(09, 13 오류 분기 피함). 직군은 11-signup-field-options.png '기획'을 고르고 기술 스택에 카드뉴스 작업 도구를 넣음."
+    },
+    "T2": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [
+        "H-P2"
+      ],
+      "missed_trap": [
+        "H-U8"
+      ],
+      "critical_step": "08-open-detail.png",
+      "think_aloud": "검색창에 '홍보' 치려다가 이름으로만 찾는다고 써 있어서 마케팅 칩 눌렀어요. 회의 메모에 요일이랑 시간이 있어서 오전 회의인지 바로 보이는 건 최고예요! 근데 포지션 이름만 있고 제가 뭘 맡는지는 안 써 있네요.",
+      "evidence": "02-projects-list.png 검색창 안내 '프로젝트 이름 또는 리더 이름으로 검색하세요.'를 보고 키워드 검색은 안 된다고 판단. 05-filter-field-marketing.png '마케팅' 칩으로 '전시회 큐레이션'(마케팅(콘텐츠 마케터)) 1건 확인. 칩이 가입 직군과 같아 망설임 없음. 08-open-detail.png '마감일 12월 9일 마감', '회의 대면', '회의 메모 목요일 오후 6시 공학관 세미나실'로 일정 판단 가능. 모집 포지션은 이름과 기술 칩뿐이고 09-detail-intro-tab.png 소개도 한 줄이라, 그녀가 거르는 기준인 '역할이 무엇인지'는 여전히 채워지지 않음."
+    },
+    "T3": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U3",
+        "H-U4"
+      ],
+      "critical_step": "07-go-edit-profile.png",
+      "think_aloud": "가능한 요일이랑 오전은 어렵다는 것까지 메시지에 다 썼어요. 포트폴리오 링크 넣으려고 프로필 수정 갔다가 뒤로 왔는데 글이 그대로라 좋았어요. 포트폴리오 칸이 따로 없어서 블로그 칸에 넣었어요.",
+      "evidence": "03-open-apply.png '최소 10자 · 0/700자'를 보고 길게 작성. 07-go-edit-profile.png 외부 링크가 'GitHub', '블로그'뿐이라 포트폴리오 링크를 블로그 칸에 넣음. 돌아가는 링크가 없어 브라우저 뒤로 가기를 씀. 08-come-back.png 메시지 유지(messageLost false). 09-retype-and-submit.png '지원서를 제출했습니다.', 10-my-applications.png '대기중'으로 재확인."
+    },
+    "T4": {
+      "outcome": "success",
+      "seq": 5,
+      "hit": [],
+      "missed_trap": [
+        "H-U5"
+      ],
+      "critical_step": "06-step2.png",
+      "think_aloud": "회의 방식이랑 시간 쓰는 칸이 생겨서 제가 에타에 맨날 쓰던 걸 그대로 넣을 수 있었어요. 다만 숏폼 공모전인데 출시 플랫폼을 꼭 골라야 해서 그냥 Web으로 뒀어요.",
+      "evidence": "02-open-create.png 라디오 모양과 '출시 플랫폼은 하나만 선택할 수 있어요.' 안내로 단일 선택을 바로 이해함. 비앱 프로젝트인데 '해당 없음'이 없어 기본값 Web을 둠. 06-step2.png '지원자가 지원 전에 가장 먼저 확인하는 정보예요.' 아래 회의 방식·주당 예상 시간·회의 메모(예: 화요일 저녁 7시)를 채움. 09-roles.png 모집 분야를 디자인/모션 디자이너로 정함. 10-step4.png '모집 분야마다 기술 스택을 1개 이상 선택해 주세요.'를 보고 먼저 넣어 12번 오류를 피함. 14-submit.png 상세 화면과 '관리하기' 버튼으로 등록 확인."
+    },
+    "T5": {
+      "outcome": "success",
+      "seq": 7,
+      "hit": [],
+      "missed_trap": [
+        "H-U6"
+      ],
+      "critical_step": "08a-reject-confirm-dialog.png",
+      "think_aloud": "승인하면 이름 넣어서 승인했다고 뜨고, 거절은 한 번 더 확인해 주고, 거절됨 탭에서 다시 볼 수 있다고까지 알려줘서 깔끔해요.",
+      "evidence": "05-open-manage.png '대기 중인 지원서 3건' → 06-open-applicants.png '대기 중 / 승인됨 / 거절됨' 탭. 07-approve.png 토스트 '박서연님을 승인했어요.'와 목록 감소. 08a-reject-confirm-dialog.png 확인 창, 08-reject.png '최도윤님의 지원을 거절했어요.' 09-verify-members.png '현재 멤버 2명'과 팀원 목록의 박서연으로 반영 확인."
+    },
+    "T6": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U7"
+      ],
+      "critical_step": "07-open-proposal.png",
+      "think_aloud": "이게 제가 원하던 거예요, 먼저 연락하기! 프로젝트랑 포지션이 맞게 골라졌는지 확인하고 '이름 올려줄게요' 조건까지 메시지에 썼어요. 근데 보낸 제안을 모아 보는 데가 없어서 엑셀에 따로 적어야 할 것 같아요.",
+      "evidence": "04-filter-designer.png 디자인 칩으로 후보 확인, 05-open-profile.png '제안 보내기'. 07-open-proposal.png 기본 포지션이 '프론트엔드(웹 프론트엔드)'인 것을 확인하고 드롭다운에서 바꾼 뒤 메시지(선택) 작성. 08-send-proposal.png '정하은님에게 제안을 보냈어요.' 09-try-manage-members.png 관리 화면에서 보낸 제안이나 응답 상태를 찾았지만 없음."
+    }
+  },
+  "other_issues": [
+    "02-projects-list.png 검색이 '프로젝트 이름 또는 리더 이름'만 대상이라 '홍보' 같은 분야·주제 키워드로는 찾을 수 없음. 분야 칩으로 우회함.",
+    "프로젝트 상세(08-open-detail.png)와 등록 3단계(09-roles.png: 직군·상세 분야·인원만 있음)에 포지션별 맡을 일을 적는 칸이 없음. 리더도 역할을 구체적으로 쓸 곳이 없고, 지원자도 '내 역할이 뭔지' 확인할 수 없음.",
+    "02-open-create.png 출시 플랫폼에 '해당 없음'이 없어 숏폼 공모전처럼 앱이 아닌 프로젝트도 Web/iOS/안드로이드 중 하나를 골라야 함.",
+    "07-go-edit-profile.png 외부 링크가 GitHub/블로그뿐이라 포트폴리오(카드뉴스, 릴스) 링크를 넣을 자리가 없음.",
+    "08-send-proposal.png 제안을 보낸 뒤 보낸 제안 목록이나 수락·거절 상태를 볼 곳이 없음(09-try-manage-members.png 관리 화면에도 없음). 07-open-proposal.png 기본 포지션이 받는 사람의 분야와 맞지 않게 채워짐."
+  ],
+  "overall_quote": "모집글에 제가 늘 쓰던 일정 정보를 넣을 칸이 생기고 먼저 제안까지 되니까 에타보다 확실히 낫겠어요. 역할 설명 칸만 있으면 완벽할 것 같아요.",
+  "delta_note": "baseline에서는 T6 실패, T1·T2·T4·T5 struggle이었으나 after에서는 전 과업 성공. 회의 방식·시간·회의 메모 표시, 마케팅 칩, '제안 보내기', 거절 확인 창과 '거절됨' 탭이 결정적이었음. 역할 설명이 없는 문제(H-P2)는 그대로이고, 보낸 제안을 관리할 곳이 없다는 점과 제안 기본 포지션 불일치가 새로 드러남."
+}

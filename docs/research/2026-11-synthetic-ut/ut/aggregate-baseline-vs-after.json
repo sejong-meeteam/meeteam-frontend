@@ -1,0 +1,198 @@
+{
+ "baseline": {
+  "label": "baseline",
+  "participants": 20,
+  "tasks": {
+   "T1": {
+    "n": 20,
+    "success": 2,
+    "struggle": 18,
+    "fail": 0,
+    "seq": 3.95
+   },
+   "T2": {
+    "n": 20,
+    "success": 4,
+    "struggle": 11,
+    "fail": 5,
+    "seq": 3.5
+   },
+   "T3": {
+    "n": 20,
+    "success": 7,
+    "struggle": 13,
+    "fail": 0,
+    "seq": 4.0
+   },
+   "T4": {
+    "n": 12,
+    "success": 2,
+    "struggle": 8,
+    "fail": 2,
+    "seq": 3.92
+   },
+   "T5": {
+    "n": 12,
+    "success": 5,
+    "struggle": 7,
+    "fail": 0,
+    "seq": 4.42
+   },
+   "T6": {
+    "n": 12,
+    "success": 0,
+    "struggle": 0,
+    "fail": 12,
+    "seq": 1.58
+   }
+  },
+  "hypotheses": {
+   "H-U1": {
+    "task": "T1",
+    "n": 20,
+    "hit": 10,
+    "rate": 0.5
+   },
+   "H-U2": {
+    "task": "T1",
+    "n": 20,
+    "hit": 11,
+    "rate": 0.55
+   },
+   "H-U8": {
+    "task": "T2",
+    "n": 20,
+    "hit": 12,
+    "rate": 0.6
+   },
+   "H-U3": {
+    "task": "T3",
+    "n": 20,
+    "hit": 10,
+    "rate": 0.5
+   },
+   "H-U4": {
+    "task": "T3",
+    "n": 20,
+    "hit": 7,
+    "rate": 0.35
+   },
+   "H-U5": {
+    "task": "T4",
+    "n": 12,
+    "hit": 9,
+    "rate": 0.75
+   },
+   "H-U6": {
+    "task": "T5",
+    "n": 12,
+    "hit": 7,
+    "rate": 0.58
+   },
+   "H-U7": {
+    "task": "T6",
+    "n": 12,
+    "hit": 12,
+    "rate": 1.0
+   }
+  }
+ },
+ "after": {
+  "label": "after",
+  "participants": 20,
+  "tasks": {
+   "T1": {
+    "n": 20,
+    "success": 10,
+    "struggle": 10,
+    "fail": 0,
+    "seq": 5.3
+   },
+   "T2": {
+    "n": 20,
+    "success": 17,
+    "struggle": 3,
+    "fail": 0,
+    "seq": 5.45
+   },
+   "T3": {
+    "n": 20,
+    "success": 15,
+    "struggle": 5,
+    "fail": 0,
+    "seq": 5.55
+   },
+   "T4": {
+    "n": 12,
+    "success": 6,
+    "struggle": 6,
+    "fail": 0,
+    "seq": 4.75
+   },
+   "T5": {
+    "n": 12,
+    "success": 12,
+    "struggle": 0,
+    "fail": 0,
+    "seq": 6.0
+   },
+   "T6": {
+    "n": 12,
+    "success": 6,
+    "struggle": 6,
+    "fail": 0,
+    "seq": 5.08
+   }
+  },
+  "hypotheses": {
+   "H-U1": {
+    "task": "T1",
+    "n": 20,
+    "hit": 2,
+    "rate": 0.1
+   },
+   "H-U2": {
+    "task": "T1",
+    "n": 20,
+    "hit": 3,
+    "rate": 0.15
+   },
+   "H-U8": {
+    "task": "T2",
+    "n": 20,
+    "hit": 0,
+    "rate": 0.0
+   },
+   "H-U3": {
+    "task": "T3",
+    "n": 20,
+    "hit": 4,
+    "rate": 0.2
+   },
+   "H-U4": {
+    "task": "T3",
+    "n": 20,
+    "hit": 0,
+    "rate": 0.0
+   },
+   "H-U5": {
+    "task": "T4",
+    "n": 12,
+    "hit": 3,
+    "rate": 0.25
+   },
+   "H-U6": {
+    "task": "T5",
+    "n": 12,
+    "hit": 0,
+    "rate": 0.0
+   },
+   "H-U7": {
+    "task": "T6",
+    "n": 12,
+    "hit": 0,
+    "rate": 0.0
+   }
+  }
+ }
+}

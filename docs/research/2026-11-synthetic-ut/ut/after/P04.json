@@ -1,0 +1,84 @@
+{
+  "pid": "P04",
+  "label": "after",
+  "ut_role": "leader",
+  "tasks": {
+    "T1": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U1",
+        "H-U2"
+      ],
+      "critical_step": "02-login-page.png",
+      "think_aloud": "동의 칸에 (필수)라고 있고 비밀번호 저장 안 한다는 설명도 있어서 안심하고 체크했어요. 처음이면 로그인하면 가입이 시작된다고 써 있어서 헤맬 게 없었어요.",
+      "evidence": "02-login-page.png 동의 박스 '(필수) … 비밀번호는 저장하지 않으며, 로그인 후 학교 포털에서 로그아웃됩니다.'를 읽고 체크, 버튼 아래 '처음이신가요? …회원가입이 시작돼요.' 08-submit-login.png 가입 화면에서 항목을 차례로 채움."
+    },
+    "T2": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [
+        "H-P2"
+      ],
+      "missed_trap": [
+        "H-U8"
+      ],
+      "critical_step": "08-open-detail.png",
+      "think_aloud": "회의 '온라인 가능' 필터가 있는 게 제일 좋았어요. 저한테는 그게 첫 번째라서요. 다만 리더가 계획 있는 사람인지, 주차별로 뭘 하는지는 상세에서도 안 보여요.",
+      "evidence": "02-projects-list.png '회의: 전체 / 온라인 가능' 필터와 카드의 '온라인 · 주 6시간' 칩. 분야 칩이 가입 직군과 같아 망설임 없음. 08-open-detail.png '회의 대면', '회의 메모 목요일 오후 6시 공학관 세미나실'로 대면 여부는 바로 판단 가능. 09-detail-intro-tab.png 소개는 두 줄이고 일정이나 주차별 목표가 없음. 10-detail-leader.png 리더 프로필도 자기소개·기술 스택·참여 프로젝트뿐."
+    },
+    "T3": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U3",
+        "H-U4"
+      ],
+      "critical_step": "08-come-back.png",
+      "think_aloud": "지원 메시지에 온라인 회의를 선호하고 주에 몇 시간 되는지 적었어요. 프로필에 그런 걸 적는 칸이 있나 보러 갔다 왔는데 쓴 글이 그대로라 다행이었어요. 프로필엔 가능한 시간 칸은 없더라고요.",
+      "evidence": "03-open-apply.png '최소 10자 · 0/700자'. 07-go-edit-profile.png 프로필 수정 항목은 참여 설정·기본 정보·직군·외부 링크·기술 스택·자기소개뿐이고 가능 시간이나 회의 선호 칸은 없음. 08-come-back.png 뒤로 가기 후 메시지 유지. 09-retype-and-submit.png '지원서를 제출했습니다.'"
+    },
+    "T4": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U5"
+      ],
+      "critical_step": "07-description.png",
+      "think_aloud": "단계가 네 개로 나뉘어 있고 기술 스택 안내도 미리 있어서 차근차근 했어요. 회의 방식을 온라인으로 고르고 주당 시간도 적을 수 있어서, 지원자일 때 보고 싶던 걸 리더로서 적을 수 있네요.",
+      "evidence": "02-open-create.png 단계 표시 '1. 기본 정보 … 4. 기술 스택과 마감', 플랫폼 라디오와 '하나만 선택할 수 있어요.' 07-description.png '회의 방식(선택)', '주당 예상 시간(선택)', '회의 메모(선택)'. 10-step4.png '모집 분야마다 기술 스택을 1개 이상 선택해 주세요.'를 읽고 등록 전에 채움."
+    },
+    "T5": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U6"
+      ],
+      "critical_step": "08a-reject-confirm-dialog.png",
+      "think_aloud": "거절은 미안해서 망설였는데, 확인 창이 '되돌릴 수 없어요'라고 분명히 말해 줘서 오히려 마음을 정하기 쉬웠어요. 거절됨 탭에 남는 것도 좋고요.",
+      "evidence": "07-approve.png '박서연님을 승인했어요.' 토스트. 08a-reject-confirm-dialog.png '지원을 거절할까요? 최도윤님의 지원을 거절하면 되돌릴 수 없어요. 거절한 지원자는 '거절됨' 탭에서 다시 볼 수 있어요.' 08-reject.png '최도윤님의 지원을 거절했어요.' 09-verify-members.png 팀원 목록에 박서연."
+    },
+    "T6": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U7"
+      ],
+      "critical_step": "07-open-proposal.png",
+      "think_aloud": "프론트엔드로 거르고 프로필 들어가서 제안 보냈어요. '받는 분이 직접 정해요'라고 써 있어서 부담 주는 느낌이 덜해요. 보내고 나서 답이 왔는지 볼 곳이 있으면 좋겠어요.",
+      "evidence": "02-teammates.png 분야 칩. 05-open-profile.png '제안 보내기'와 '프로젝트 참여 가능'. 07-open-proposal.png 프로젝트·포지션을 확인하고 메시지 작성, 안내 문구 '받는 분은 프로젝트와 포지션을 확인하고 지원 여부를 직접 정해요.' 08-send-proposal.png '…제안을 보냈어요.' 09-try-manage-members.png 관리 화면에 보낸 제안 상태가 없음."
+    }
+  },
+  "other_issues": [
+    "T6 08-send-proposal.png, 09-try-manage-members.png: 보낸 제안의 상태(읽음, 수락, 거절)를 확인할 곳이 없음.",
+    "T3 07-go-edit-profile.png: 프로필에 가능한 시간이나 회의 선호를 적을 칸이 없어 지원 메시지에 매번 따로 적어야 함.",
+    "T2 09-detail-intro-tab.png: 상세에 일정이나 주차별 목표를 보여주는 자리가 없어 리더의 계획성을 판단하기 어려움."
+  ],
+  "overall_quote": "온라인 가능 필터 하나만으로도 저 같은 원거리 통학생은 훨씬 편해졌어요.",
+  "delta_note": "기준선에서 가입 입구를 찾다 주소까지 쳐 본 T1(H-U2), 승인·거절 결과를 확신하지 못한 T5(H-U6), 지원 동기 용어 혼란(H-U3), 연락 불가 T6 fail이 모두 해소됐고, '온라인 가능' 필터와 회의 방식 입력 칸이 생겨 가장 큰 관심사가 풀렸습니다. 리더의 계획성을 판단할 정보가 없다는 H-P2는 그대로입니다. 기준선에서 지적한 '리더 본인 프로젝트의 지원하기 버튼'도 이번 화면(T4/14-submit.png)에 여전히 보입니다."
+}

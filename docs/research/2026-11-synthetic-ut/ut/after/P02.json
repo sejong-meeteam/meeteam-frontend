@@ -1,0 +1,84 @@
+{
+  "pid": "P02",
+  "label": "after",
+  "ut_role": "leader",
+  "tasks": {
+    "T1": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U1",
+        "H-U2"
+      ],
+      "critical_step": "02-login-page.png",
+      "think_aloud": "학번 로그인이니까 가입도 로그인으로 시작하겠지 했는데 밑에 딱 그렇게 써 있네요. 기술 스택 칸엔 (선택)이 안 붙어 있어서 필수겠구나 하고 Python부터 넣었어요.",
+      "evidence": "02-login-page.png 버튼 아래 '처음이신가요? 세종대 학번으로 로그인하면 바로 회원가입이 시작돼요.', 동의 박스 '(필수) 세종대 포털 계정으로 인증하는 데 동의합니다.'를 먼저 체크. 08-submit-login.png 가입 화면에서 GitHub·블로그에만 '(선택)'이 붙어 있어 나머지를 필수로 읽고 다 채움. 그래서 13-signup-submit-no-tech.png의 기술 스택 누락 토스트 분기에는 빠지지 않음."
+    },
+    "T2": {
+      "outcome": "success",
+      "seq": 5,
+      "hit": [
+        "H-P2"
+      ],
+      "missed_trap": [
+        "H-U8"
+      ],
+      "critical_step": "08-open-detail.png",
+      "think_aloud": "백엔드 누르고 모집 중만 보니까 4개라 찾기는 쉬웠어요. 주 10시간은 써 있는데 언제 끝나는 프로젝트인지가 없어요. 마감일은 모집 마감이지 프로젝트 끝나는 날이 아니잖아요. 리더가 마감 지키는 사람인지도 알 길이 없고요.",
+      "evidence": "03-filter-recruiting.png '모집 중만 보기', 07-filter-field-backend.png '총 4개의 프로젝트'. 분야 칩이 가입 직군과 같아 망설임 없음. 08-open-detail.png 프로젝트 현황에 '마감일 12월 9일 마감 · 시간 주 10시간 예상'은 있으나 프로젝트 기간·종료 시점 항목은 없음. 10-detail-leader.png 리더 프로필은 자기소개·기술 스택·참여 프로젝트 2개뿐이고 완료 이력이나 함께한 사람의 평가가 없음."
+    },
+    "T3": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U3"
+      ],
+      "critical_step": "09-retype-and-submit.png",
+      "think_aloud": "'최소 10자' 보이니까 요구사항 정의서처럼 맡을 부분이랑 가능한 시간 적어서 냈어요. 제출하니까 '내 지원서'로 넘어가는데 위에 프로젝트 이름이 없어서 어디 낸 건지 목록에서 한 번 더 확인했어요.",
+      "evidence": "03-open-apply.png '지원 메시지' 아래 '최소 10자 · 0/700자'. 처음부터 길게 써서 05-submit-short.png 오류 분기에 빠지지 않음. 프로필 수정은 누르지 않음. 09-retype-and-submit.png 제출 직후 화면 헤더가 '내 지원서 / 백엔드(Node.js/NestJS)'뿐이고 'API 챌린지'라는 이름이 없음. 10-my-applications.png 목록에서 'API 챌린지 · 대기중'으로 확인."
+    },
+    "T4": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U5"
+      ],
+      "critical_step": "10-step4.png",
+      "think_aloud": "플랫폼은 하나만이라고 써 있으니 헷갈릴 게 없었어요. 기술 스택 안내도 미리 떠 있어서 넣고 등록했고요. 근데 프로젝트 기간 적을 칸이 없어서 소개글에 따로 썼어요. 등록하고 나니 완료 안내도 없이 상세로 넘어가고, 제 프로젝트에 '지원하기' 버튼이 떠 있는 건 이상하네요.",
+      "evidence": "02-open-create.png 라디오 모양 플랫폼 + '출시 플랫폼은 하나만 선택할 수 있어요.' 07-description.png 2단계 입력 항목은 소개 글·GitHub·소통 채널·회의 방식·주당 예상 시간·회의 메모로, 프로젝트 기간 항목이 없음. 10-step4.png '모집 분야마다 기술 스택을 1개 이상 선택해 주세요.'를 보고 등록 전에 기술 스택을 넣음. 14-submit.png 등록 직후 완료 토스트 없음(transientMessages 비어 있음), 리더 본인 프로젝트에 회색 '지원하기' 버튼."
+    },
+    "T5": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U6"
+      ],
+      "critical_step": "07-approve.png",
+      "think_aloud": "승인, 거절 둘 다 바로 결과가 뜨고 탭으로 남으니까 확실해요. 다만 판단할 게 메시지 한 줄이랑 이메일뿐이라 '마감 지켜?'는 여전히 모르겠어요.",
+      "evidence": "07-approve.png '박서연님을 승인했어요.' 토스트와 대기 목록 감소. 08a-reject-confirm-dialog.png 거절 확인 창, 08-reject.png '최도윤님의 지원을 거절했어요.' 09-verify-members.png 팀원 목록에 박서연. 06-open-applicants.png 지원자 카드 정보는 이름·직군·지원일·이메일·메시지 한 줄."
+    },
+    "T6": {
+      "outcome": "struggle",
+      "seq": 4,
+      "hit": [],
+      "missed_trap": [
+        "H-U7"
+      ],
+      "critical_step": "05-open-profile.png",
+      "think_aloud": "연락할 버튼은 생겼는데, 이 사람이 일을 하는 사람인지는 여전히 모르겠어요. 참여 프로젝트 0개에 기술 스택 몇 개가 전부라서요. 포지션도 기본값이 엉뚱해서 프로젝트를 바꿔 맞췄고요. 보낸 뒤엔 확인할 데가 없고 버튼도 그대로라 두 번 보낼 뻔했어요.",
+      "evidence": "02-teammates.png 분야 칩으로 거르고, 05-open-profile.png 프로필은 자기소개 한 줄·참여 프로젝트 0·기술 스택만 있음. 07-open-proposal.png 기본값이 '캠퍼스 메이커스 / 프론트엔드(웹 프론트엔드)'라 직접 바꿈. 08-send-proposal.png '정하은님에게 제안을 보냈어요.' 뒤에도 '제안 보내기' 버튼이 같은 모양. 09-try-manage-members.png 관리 화면에 보낸 제안이나 응답 상태가 없음(inviteLike 없음)."
+    }
+  },
+  "other_issues": [
+    "T3 09-retype-and-submit.png: 지원 직후 '내 지원서' 상세 헤더에 프로젝트 이름이 없고 포지션 'Node.js/NestJS'만 보여서 어느 프로젝트에 냈는지 한 번에 알 수 없음.",
+    "T4 14-submit.png: 프로젝트 등록 직후 완료 안내가 없고, 리더 본인 프로젝트 상세에 회색 '지원하기' 버튼이 그대로 보임.",
+    "T4 07-description.png: 프로젝트 기간이나 종료 시점을 적을 칸이 없어 지원자가 가장 궁금한 '언제 끝나는지'를 소개 글에 따로 써야 함.",
+    "T6 08-send-proposal.png, 09-try-manage-members.png: 제안을 보낸 뒤 프로필 버튼이 바뀌지 않고, 보낸 제안을 확인할 곳이 없어 중복 발송 위험이 있음."
+  ],
+  "overall_quote": "필요한 버튼은 이제 다 있어요. 남은 문제는 버튼이 아니라 판단할 정보예요.",
+  "delta_note": "기준선에서 struggle이던 T3(H-U4)과 T4(플랫폼 복수 선택 오해), fail이던 T6은 모두 완료로 바뀌었습니다. 다만 T2에서 프로젝트 기간을 알 수 없는 문제(H-P2)와 T6에서 판단할 정보가 부족한 문제는 그대로이고, T6은 SEQ 2에서 4로 오르는 데 그쳤습니다. 기준선에서 지적한 알림 센터 '0개의 안 읽은 알림', '모집 중만 보기'를 골라도 바뀌지 않는 '총 8+개' 표시는 이번 화면(T5/03, T2/02와 03)에도 그대로 남아 있습니다."
+}
