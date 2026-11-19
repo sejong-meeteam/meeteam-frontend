@@ -9,6 +9,7 @@ export default function TeammatesPage() {
   const {
     searchValue,
     selectedRole,
+    roleOptions,
     selectedSkills,
     sort,
     availableSkills,
@@ -35,6 +36,7 @@ export default function TeammatesPage() {
       <TeammateFinderPanel
         searchValue={searchValue}
         selectedRole={selectedRole}
+        roleOptions={roleOptions}
         selectedSkills={selectedSkills}
         availableSkills={availableSkills}
         onSearchChange={setSearchValue}

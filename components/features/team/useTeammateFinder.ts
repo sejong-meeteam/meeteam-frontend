@@ -5,28 +5,25 @@ import { useDebouncedValue } from '@/components/shared/useDebouncedValue';
 import { usePaginatedSearch } from '@/components/shared/usePaginatedSearch';
 import { fetchJobOptions } from '@/components/features/auth/signupApi';
 import { collectTechStackNames } from '@/components/features/auth/jobOptionUtils';
+import {
+  JOB_FIELD_FILTER_ALL,
+  toJobFieldFilterOptions,
+  type JobFieldCode,
+  type JobFieldFilter,
+} from '@/constants/jobField';
 import { fetchTeammates, type FetchTeammatesParams, type TeammateSort } from './teamApi';
-import { TEAMMATE_LIST_CONFIG, TEAMMATE_ROLE_OPTIONS } from './constants';
+import { TEAMMATE_LIST_CONFIG } from './constants';
 
 const TEAMMATE_LIST_ERROR_MESSAGE = '팀원 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
 const TEAMMATE_LOAD_MORE_ERROR_MESSAGE = '팀원을 더 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
 
-const JOB_FIELD_ID_BY_CODE: Record<string, number> = {
+const JOB_FIELD_ID_BY_CODE: Record<JobFieldCode, number> = {
   PLANNING: 1,
   DESIGN: 2,
   FRONTEND: 3,
   BACKEND: 4,
   AI: 5,
   INFRA_OPERATION: 6,
-};
-
-const JOB_FIELD_CODE_BY_ROLE: Partial<Record<(typeof TEAMMATE_ROLE_OPTIONS)[number], string>> = {
-  프론트엔드: 'FRONTEND',
-  백엔드: 'BACKEND',
-  디자이너: 'DESIGN',
-  'PM/기획': 'PLANNING',
-  AI: 'AI',
-  '인프라/운영': 'INFRA_OPERATION',
 };
 
 async function fetchTeammatePage(filters: FetchTeammatesParams, page: number, signal: AbortSignal) {
@@ -39,10 +36,11 @@ async function fetchTeammatePage(filters: FetchTeammatesParams, page: number, si
 
 export function useTeammateFinder() {
   const [searchValue, setSearchValue] = useState('');
-  const [selectedRole, setSelectedRole] = useState<(typeof TEAMMATE_ROLE_OPTIONS)[number]>('전체');
+  const [selectedRole, setSelectedRole] = useState<JobFieldFilter>(JOB_FIELD_FILTER_ALL);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [sort, setSort] = useState<TeammateSort>('projectCount');
   const [availableSkills, setAvailableSkills] = useState<string[]>([]);
+  const [roleOptions, setRoleOptions] = useState(() => toJobFieldFilterOptions([]));
 
   useEffect(() => {
     let active = true;
@@ -56,6 +54,7 @@ export function useTeammateFinder() {
         }
 
         setAvailableSkills(collectTechStackNames(nextJobFields));
+        setRoleOptions(toJobFieldFilterOptions(nextJobFields));
       } catch {
         if (active) {
           setAvailableSkills([]);
@@ -70,7 +69,8 @@ export function useTeammateFinder() {
     };
   }, []);
 
-  const selectedJobFieldId = useMemo(() => resolveJobFieldId(selectedRole), [selectedRole]);
+  const selectedJobFieldId =
+    selectedRole === JOB_FIELD_FILTER_ALL ? undefined : JOB_FIELD_ID_BY_CODE[selectedRole];
 
   const debouncedSearch = useDebouncedValue(searchValue.trim());
   const filters = useMemo(
@@ -102,6 +102,7 @@ export function useTeammateFinder() {
   return {
     searchValue,
     selectedRole,
+    roleOptions,
     selectedSkills,
     sort,
     availableSkills,
@@ -118,18 +119,4 @@ export function useTeammateFinder() {
     setSelectedSkills,
     setSort,
   };
-}
-
-function resolveJobFieldId(role: (typeof TEAMMATE_ROLE_OPTIONS)[number]) {
-  if (role === '전체') {
-    return undefined;
-  }
-
-  const jobFieldCode = JOB_FIELD_CODE_BY_ROLE[role];
-
-  if (!jobFieldCode) {
-    return undefined;
-  }
-
-  return JOB_FIELD_ID_BY_CODE[jobFieldCode];
 }

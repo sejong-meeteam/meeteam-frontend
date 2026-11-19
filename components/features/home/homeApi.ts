@@ -3,6 +3,7 @@ import type { GithubActivityLevel, GithubActivitySummary } from '@/types/github'
 
 import { API_BASE_URL, apiFetch } from '@/components/features/auth/apiClient';
 import { extractApiData } from '@/components/features/auth/signupTransform';
+import { getJobFieldLabel } from '@/constants/jobField';
 
 export type HomeProjectCategory = '전체' | '캡스톤' | '창의학기제' | '동아리' | '기타';
 
@@ -113,21 +114,6 @@ async function readPublicEnvelope<T>(response: Response, fallbackMessage: string
   return extractApiData(payload);
 }
 
-function mapJobFieldToRole(jobFieldName: string | null) {
-  switch (jobFieldName) {
-    case '프론트':
-      return '프론트엔드';
-    case '백엔드':
-      return '백엔드';
-    case '디자인':
-      return '디자이너';
-    case '기획':
-      return 'PM/기획';
-    default:
-      return '기타';
-  }
-}
-
 function mapHomeProject(project: BackendProjectCardResponse): HomeProjectCard {
   return {
     id: project.projectId,
@@ -158,7 +144,7 @@ function mapHomeMember(member: BackendMemberCardResponse): HomeMemberCard {
   return {
     userId: member.memberId,
     name: member.name,
-    role: mapJobFieldToRole(member.jobFieldName),
+    role: member.jobFieldName ? getJobFieldLabel(member.jobFieldName) : '기타',
     experience: `참여 프로젝트 ${member.projectCount ?? member.projectExperienceCount ?? 0}개`,
     skills: mapTopTechStackNames(member.techStacks),
     imageUrl: member.profileImageUrl ?? '',

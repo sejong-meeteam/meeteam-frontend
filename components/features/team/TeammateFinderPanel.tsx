@@ -1,22 +1,24 @@
 import { Search } from 'lucide-react';
 import TechStackPicker from '@/components/shared/TechStackPicker';
+import type { JobFieldFilter, JobFieldFilterOption } from '@/constants/jobField';
 import { TEAMMATE_PAGE_COPY } from './constants';
-import { TEAMMATE_ROLE_OPTIONS } from './constants';
 import { TeammateFilterChip } from './TeammateFilterChip';
 
 type TeammateFinderPanelProps = {
   searchValue: string;
-  selectedRole: (typeof TEAMMATE_ROLE_OPTIONS)[number];
+  selectedRole: JobFieldFilter;
+  roleOptions: JobFieldFilterOption[];
   selectedSkills: string[];
   availableSkills: string[];
   onSearchChange: (value: string) => void;
-  onRoleChange: (value: (typeof TEAMMATE_ROLE_OPTIONS)[number]) => void;
+  onRoleChange: (value: JobFieldFilter) => void;
   onSelectedSkillsChange: (value: string[]) => void;
 };
 
 export function TeammateFinderPanel({
   searchValue,
   selectedRole,
+  roleOptions,
   selectedSkills,
   availableSkills,
   onSearchChange,
@@ -48,12 +50,12 @@ export function TeammateFinderPanel({
               분야
             </span>
             <div className="flex flex-wrap gap-x-2 gap-y-2">
-              {TEAMMATE_ROLE_OPTIONS.map((role) => (
+              {roleOptions.map((role) => (
                 <TeammateFilterChip
-                  key={role}
-                  label={role}
-                  active={selectedRole === role}
-                  onClick={() => onRoleChange(role)}
+                  key={role.value}
+                  label={role.label}
+                  active={selectedRole === role.value}
+                  onClick={() => onRoleChange(role.value)}
                 />
               ))}
             </div>

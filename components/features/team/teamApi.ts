@@ -4,6 +4,7 @@ import type { Teammate } from '@/types/team';
 import { API_BASE_URL, apiFetch } from '@/components/features/auth/apiClient';
 import { createApiError } from '@/components/features/auth/authError';
 import { extractApiData } from '@/components/features/auth/signupTransform';
+import { getJobFieldLabel } from '@/constants/jobField';
 
 interface MemberCardResponse {
   memberId: number;
@@ -138,7 +139,7 @@ function mapTeammateCard(member: MemberCardResponse): Teammate {
   return {
     id: member.memberId,
     name: member.name,
-    role: mapJobFieldToRole(member.jobFieldName),
+    role: member.jobFieldName ? getJobFieldLabel(member.jobFieldName) : '기타',
     experienceCount: member.projectCount ?? member.projectExperienceCount ?? 0,
     skills: mapTopTechStackNames(member.techStacks),
     imageUrl: member.profileImageUrl ?? '',
@@ -150,23 +151,4 @@ function mapTopTechStackNames(techStacks: MemberTechStackResponse[]) {
     .sort((left, right) => left.displayOrder - right.displayOrder)
     .slice(0, 3)
     .map((techStack) => techStack.name);
-}
-
-function mapJobFieldToRole(jobFieldName: string | null): Teammate['role'] {
-  switch (jobFieldName) {
-    case '프론트':
-      return '프론트엔드';
-    case '백엔드':
-      return '백엔드';
-    case '디자인':
-      return '디자이너';
-    case '기획':
-      return 'PM/기획';
-    case 'AI':
-      return 'AI';
-    case '인프라/운영':
-      return '인프라/운영';
-    default:
-      return '기타';
-  }
 }

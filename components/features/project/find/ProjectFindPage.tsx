@@ -7,6 +7,7 @@ import { useProjectFinder } from './useProjectFinder';
 export default function ProjectFindPage() {
   const {
     filters,
+    fieldOptions,
     projects,
     countLabel,
     hasMore,
@@ -35,6 +36,7 @@ export default function ProjectFindPage() {
         recruitOnly={filters.recruitOnly}
         platform={filters.platform}
         field={filters.field}
+        fieldOptions={fieldOptions}
         onSearchValueChange={setSearchValue}
         onCategoryChange={setCategory}
         onRecruitOnlyChange={setRecruitOnly}

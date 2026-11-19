@@ -1,8 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { fetchJobOptions } from '@/components/features/auth/signupApi';
 import { useDebouncedValue } from '@/components/shared/useDebouncedValue';
 import { usePaginatedSearch } from '@/components/shared/usePaginatedSearch';
+import { toJobFieldFilterOptions } from '@/constants/jobField';
 import { fetchProjectSearchResults } from './projectFindApi';
 import { INITIAL_VISIBLE_COUNT, hasActiveProjectFilters } from './projectFinder';
 import type {
@@ -26,6 +28,24 @@ export function useProjectFinder() {
   const [platform, setPlatform] = useState<PlatformFilter>('전체');
   const [field, setField] = useState<FieldFilter>('전체');
   const [sort, setSort] = useState<SortFilter>('latest');
+  const [fieldOptions, setFieldOptions] = useState(() => toJobFieldFilterOptions([]));
+
+  useEffect(() => {
+    let active = true;
+
+    fetchJobOptions()
+      .then((jobFields) => {
+        if (active) {
+          setFieldOptions(toJobFieldFilterOptions(jobFields));
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const debouncedSearch = useDebouncedValue(searchValue.trim());
   const searchFilters = useMemo(
     () => ({ searchValue: debouncedSearch, category, recruitOnly, platform, field, sort }),
@@ -59,6 +79,7 @@ export function useProjectFinder() {
 
   return {
     filters,
+    fieldOptions,
     projects: items,
     hasMore,
     isInitialLoading,

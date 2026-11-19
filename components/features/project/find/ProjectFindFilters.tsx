@@ -3,9 +3,9 @@
 import { ChevronDown, Search } from 'lucide-react';
 import {
   FINDER_CATEGORY_OPTIONS,
-  FINDER_FIELD_OPTIONS,
   FINDER_PLATFORM_OPTIONS,
 } from '@/components/features/project/constants';
+import type { JobFieldFilterOption } from '@/constants/jobField';
 import { RECRUIT_STATUS_OPTIONS } from './projectFinder';
 import type { CategoryFilter, FieldFilter, PlatformFilter, RecruitFilter } from './types';
 
@@ -80,6 +80,7 @@ type ProjectFindFiltersProps = {
   recruitOnly: RecruitFilter;
   platform: PlatformFilter;
   field: FieldFilter;
+  fieldOptions: JobFieldFilterOption[];
   onSearchValueChange: (value: string) => void;
   onCategoryChange: (value: CategoryFilter) => void;
   onRecruitOnlyChange: (value: RecruitFilter) => void;
@@ -93,6 +94,7 @@ export function ProjectFindFilters({
   recruitOnly,
   platform,
   field,
+  fieldOptions,
   onSearchValueChange,
   onCategoryChange,
   onRecruitOnlyChange,
@@ -164,12 +166,12 @@ export function ProjectFindFilters({
               분야
             </span>
             <div className="flex flex-wrap gap-2">
-              {FINDER_FIELD_OPTIONS.map((option) => (
+              {fieldOptions.map((option) => (
                 <FilterChip
-                  key={option}
-                  label={option}
-                  active={field === option}
-                  onClick={() => onFieldChange(option)}
+                  key={option.value}
+                  label={option.label}
+                  active={field === option.value}
+                  onClick={() => onFieldChange(option.value)}
                   dataCy="project-field-filter"
                 />
               ))}

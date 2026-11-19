@@ -1,13 +1,5 @@
+import { findJobFieldCodeByName, getJobFieldOptionLabel } from '@/constants/jobField';
 import type { JobFieldOption, JobPositionOption } from '@/types/auth';
-
-const JOB_FIELD_LABELS: Record<string, string> = {
-  PLANNING: '기획',
-  DESIGN: '디자인',
-  FRONTEND: '프론트엔드',
-  BACKEND: '백엔드',
-  AI: 'AI',
-  INFRA_OPERATION: '인프라/운영',
-};
 
 const JOB_POSITION_LABELS: Record<string, string> = {
   PRODUCT_MANAGER: 'PM 프로덕트 매니저',
@@ -31,15 +23,6 @@ const JOB_POSITION_LABELS: Record<string, string> = {
   DEVOPS_ARCHITECT: 'DevOps 엔지니어/아키텍처',
   QA: 'QA',
   CLOUD_ENGINEER: 'Cloud 엔지니어',
-};
-
-const JOB_FIELD_NAME_ALIASES: Record<string, string[]> = {
-  PLANNING: ['기획', 'PM/기획'],
-  DESIGN: ['디자인'],
-  FRONTEND: ['프론트엔드', '프론트'],
-  BACKEND: ['백엔드'],
-  AI: ['AI'],
-  INFRA_OPERATION: ['인프라/운영'],
 };
 
 const JOB_POSITION_NAME_ALIASES: Record<string, string[]> = {
@@ -70,9 +53,7 @@ function normalizeOptionLabel(value: string) {
   return value.replace(/\s+/g, '').trim().toLowerCase();
 }
 
-export function getProjectJobFieldLabel(field: JobFieldOption) {
-  return JOB_FIELD_LABELS[field.code] ?? field.name;
-}
+export const getProjectJobFieldLabel = getJobFieldOptionLabel;
 
 export function getProjectJobPositionLabel(position: JobPositionOption) {
   return JOB_POSITION_LABELS[position.code] ?? position.name;
@@ -80,14 +61,12 @@ export function getProjectJobPositionLabel(position: JobPositionOption) {
 
 export function findProjectJobField(jobFields: JobFieldOption[], label: string) {
   const normalizedLabel = normalizeOptionLabel(label);
+  const code = findJobFieldCodeByName(label);
 
   return (
-    jobFields.find((field) => {
-      const aliases = JOB_FIELD_NAME_ALIASES[field.code] ?? [];
-      const candidates = [field.name, getProjectJobFieldLabel(field), ...aliases];
-
-      return candidates.some((candidate) => normalizeOptionLabel(candidate) === normalizedLabel);
-    }) ?? null
+    jobFields.find(
+      (field) => field.code === code || normalizeOptionLabel(field.name) === normalizedLabel,
+    ) ?? null
   );
 }
 

@@ -3,9 +3,9 @@ import type { GithubActivityLevel, GithubActivitySummary } from '@/types/github'
 
 import { API_BASE_URL, apiFetch } from '@/components/features/auth/apiClient';
 import { extractApiData } from '@/components/features/auth/signupTransform';
+import { JOB_FIELD_FILTER_ALL } from '@/constants/jobField';
 import type {
   CategoryFilter,
-  FieldFilter,
   PlatformFilter,
   ProjectFinderFilters,
   RecruitFilter,
@@ -72,14 +72,6 @@ export async function fetchProjectSearchResults(
   size: number,
   signal?: AbortSignal,
 ) {
-  const unsupportedFieldSelected = filters.field === '마케팅' || filters.field === '기타';
-  if (unsupportedFieldSelected) {
-    return {
-      projects: [] as ProjectSearchCard[],
-      hasMore: false,
-    };
-  }
-
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
@@ -105,9 +97,8 @@ export async function fetchProjectSearchResults(
     params.set('platformCategory', platformCategory);
   }
 
-  const jobField = mapFieldFilter(filters.field);
-  if (jobField) {
-    params.set('jobField', jobField);
+  if (filters.field !== JOB_FIELD_FILTER_ALL) {
+    params.set('jobField', filters.field);
   }
 
   params.set('sort', mapSortFilter(filters.sort));
@@ -191,21 +182,6 @@ function mapPlatformFilter(platform: PlatformFilter) {
       return 'IOS';
     case '안드로이드':
       return 'ANDROID';
-    default:
-      return null;
-  }
-}
-
-function mapFieldFilter(field: FieldFilter) {
-  switch (field) {
-    case '기획':
-      return 'PLANNING';
-    case '디자인':
-      return 'DESIGN';
-    case '프론트엔드':
-      return 'FRONTEND';
-    case '백엔드':
-      return 'BACKEND';
     default:
       return null;
   }
