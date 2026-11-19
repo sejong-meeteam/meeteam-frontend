@@ -1,0 +1,23 @@
+{
+  "pid": "P07",
+  "segment": "개발(FE/BE)",
+  "leader_experience": false,
+  "ut_role": "member",
+  "hypotheses": {
+    "H-P1": {"verdict": "support", "spontaneous": true, "evidence": "근데 그런 사람인지 미리 알 방법이 없잖아요. 단톡에서 처음 본 사람인데."},
+    "H-P2": {"verdict": "support", "spontaneous": true, "evidence": "제가 뭘 맡는지요. 서버나 배포 쪽이면 하고, 프론트 시키면 안 해요. 그리고 대면 회의가 얼마나 있는지."},
+    "H-P3": {"verdict": "neutral", "spontaneous": true, "evidence": "그리고 인프라 하는 사람도 찾는지. 보통 웹 개발자만 구하니까."},
+    "H-P4": {"verdict": "neutral", "spontaneous": false, "evidence": "공식적으로는 없어요. 텀프 때도 글 올린 사람이 팀장."},
+    "H-P5": {"verdict": "against", "spontaneous": false, "evidence": "과 단톡이나 에타에 올리고 기다릴 것 같아요. 개인한테 먼저 연락하는 건 부담돼요."}
+  },
+  "top_pain": "제가 용인 살아서 왕복 세 시간 넘게 걸려요. 회의 한 번 하려고 학교 가는 게 좀.",
+  "new_insights": [
+    "경기 남부 거주로 통학 왕복 3시간+ → 대면/비대면 여부와 회의 빈도가 지원 결정의 핵심 변수",
+    "자기소개·프로필은 '다 좋게 쓰니까' 불신. 커밋 기록이나 같이 해본 사람의 말처럼 행동 기반 증거를 신뢰",
+    "잠수의 원인이 알바 → 학업 외 일정이 사전에 드러나지 않는 문제",
+    "H-P2의 ①(리더·팀원 신뢰)은 '어차피 모르는 사람'이라 판단 기준에서 빠짐. 역할과 시간만 봄",
+    "단톡·디스코드에 앱과 알림이 하나 더 느는 것에 대한 거부감",
+    "인프라 직군은 웹 개발 중심 모집에서 자리가 없다고 느낌"
+  ],
+  "channels_used": ["카카오톡 과 단톡방", "에브리타임", "디스코드"]
+}

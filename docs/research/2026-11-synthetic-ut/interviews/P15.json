@@ -1,0 +1,42 @@
+{
+  "pid": "P15",
+  "segment": "기획/PM",
+  "leader_experience": false,
+  "ut_role": "member",
+  "hypotheses": {
+    "H-P1": {
+      "verdict": "against",
+      "spontaneous": true,
+      "evidence": "별로요. 아는 애들이랑 하니까요."
+    },
+    "H-P2": {
+      "verdict": "against",
+      "spontaneous": false,
+      "evidence": "재밌어 보이는지요. 주제요. (…) 시간은 그때그때 맞추면 되죠 뭐."
+    },
+    "H-P3": {
+      "verdict": "neutral",
+      "spontaneous": false,
+      "evidence": "앱 만드는 것만 있으면 안 들어갈 것 같고요."
+    },
+    "H-P4": {
+      "verdict": "neutral",
+      "spontaneous": false,
+      "evidence": "공식적으로는 없어요. 분위기 메이커는 맨날 했죠."
+    },
+    "H-P5": {
+      "verdict": "neutral",
+      "spontaneous": false,
+      "evidence": "친구한테 \"누구 아는 사람 없어?\" 물어봐요."
+    }
+  },
+  "top_pain": "주제가 노잼이면 아무도 관심이 없으니까 다들 미뤄요.",
+  "new_insights": [
+    "본인이 문서 작업을 거의 안 하고 발표로 기여했다고 인정한다. 무임승차는 보는 사람에 따라 달라지는 주관적 판단일 수 있다.",
+    "교수가 정한 주제처럼 흥미 없는 주제는 팀 전체의 동기를 떨어뜨린다. 주제 흥미가 참여의 핵심 동기다.",
+    "인맥이 넓은 학생은 '한 다리 건너' 지인 네트워크로 사람을 구해 플랫폼 수요가 낮다.",
+    "회의가 잡담으로 길어지는 비효율이 있다(카페 회의).",
+    "동아리 단톡의 '손 드는' 방식처럼 가볍게 모이는 프로젝트를 가장 즐거운 경험으로 꼽았다."
+  ],
+  "channels_used": ["지인", "동아리 단톡방", "수업 랜덤 조"]
+}

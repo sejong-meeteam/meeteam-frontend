@@ -1,0 +1,22 @@
+{
+  "pid": "P06",
+  "segment": "개발(FE/BE)",
+  "leader_experience": false,
+  "ut_role": "member",
+  "hypotheses": {
+    "H-P1": {"verdict": "against", "spontaneous": true, "evidence": "근데 제 파트가 원래 제일 많아서 그냥 그 사람 거까지 제가 했어요. 크게 신경은 안 썼어요."},
+    "H-P2": {"verdict": "against", "spontaneous": false, "evidence": "주제가 제일 커요. 데이터 만질 수 있는 건지."},
+    "H-P3": {"verdict": "neutral", "spontaneous": true, "evidence": "데이터 분석 같은 것도 모집해요? 보통 개발자 뽑는 데 같아서."},
+    "H-P4": {"verdict": "neutral", "spontaneous": false, "evidence": "그건 원래 친한 애들이라 따로 모집 같은 건 안 했고요."},
+    "H-P5": {"verdict": "neutral", "spontaneous": false, "evidence": "아마 안 찾을 것 같아요. 먼저 연락하는 걸 잘 못 해서."}
+  },
+  "top_pain": "분석 방향도 제가 이렇게 해보자 하면 \"그냥 교수님이 하라는 대로 하자\" 이런 분위기였고.",
+  "new_insights": [
+    "무임승차를 겪어도 자기 파트가 커서 대신 처리하고 넘어감. 검증보다 주제·분석 방향을 제안할 수 없는 분위기가 더 큰 불만",
+    "데이터 분석 직군이 팀빌딩 서비스에 자리가 있는지 스스로 의문을 가짐(가입 분야에 데이터/AI 없음, H-P3 대상 세그먼트는 아니지만 유사 신호)",
+    "친한 친구끼리 꾸린 팀은 편하지만 같은 역량만 모여 기획·디자인 공백이 생김 → 보완 역량을 가진 사람을 원함",
+    "먼저 연락하지 않는 수동형 지원자는 '무엇을 하고 내가 뭘 맡는지'를 명시한 제안에만 응함 → 제안 기능의 수신자 측 요구",
+    "시작 전 팀 분위기를 알 단서가 '모집 글 말투' 정도밖에 없다고 느낌"
+  ],
+  "channels_used": ["수업 랜덤 배정", "카카오톡 단톡방", "지인(친한 친구)"]
+}

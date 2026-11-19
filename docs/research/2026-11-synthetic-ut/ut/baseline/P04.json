@@ -1,0 +1,87 @@
+{
+  "pid": "P04",
+  "label": "baseline",
+  "ut_role": "leader",
+  "tasks": {
+    "T1": {
+      "outcome": "struggle",
+      "seq": 4,
+      "hit": [
+        "H-U2"
+      ],
+      "missed_trap": [
+        "H-U1"
+      ],
+      "critical_step": "04-guess-signup-url.png",
+      "think_aloud": "처음 왔으니까 회원가입부터 해야 할 것 같은데 버튼이 안 보여요. 로그인 화면 구석구석 봐도 없어서 주소창에 sign-up도 쳐 봤는데 다시 로그인으로 오더라고요. 그래서 일단 로그인해 봤어요.",
+      "evidence": "T1/01-home.png 가입 문구 0건. T1/03-look-for-signup.png 로그인 화면 링크 0개. 주소를 짐작해 /auth/sign-up을 열었지만 /auth/login으로 돌아감(T1/04-guess-signup-url.png, landedOn: '/auth/login'). 동의 체크는 피함: 입력란 바로 아래 테두리 박스의 안내문을 끝까지 읽고 체크 상자를 눌러 버튼이 켜진 것을 확인(T1/07-check-consent.png). 가입 화면(T1/08)은 모든 칸을 채워서 한 번에 완료."
+    },
+    "T2": {
+      "outcome": "struggle",
+      "seq": 4,
+      "hit": [
+        "H-P2"
+      ],
+      "missed_trap": [
+        "H-U8"
+      ],
+      "critical_step": "09-detail-intro-tab.png",
+      "think_aloud": "'모집 중만 보기' 눌렀는데 숫자가 그대로라 적용된 건지 모르겠어요. 그리고 저는 온라인 회의가 되는지가 제일 중요한데, 소개를 봐도 그 얘기가 없네요.",
+      "evidence": "T2/03-filter-recruiting.png 상태를 '모집 중만 보기'로 바꿨지만 '총 8+개의 프로젝트'가 그대로라 필터 적용 여부를 다시 확인하며 멈춤. 분야는 가입 때 고른 '백엔드'(T2/07-filter-field-backend.png)로 바로 거름. 네트워크 인프라 쪽이지만 비슷한 분류가 없어 백엔드를 골랐고 망설임은 짧음. 상세(T2/08)와 소개 탭(T2/09-detail-intro-tab.png)에 회의 방식·온라인 가능 여부·주차별 계획 없음. 리더 프로필(T2/10)은 열어 봤지만 판단할 내용이 적음."
+    },
+    "T3": {
+      "outcome": "success",
+      "seq": 5,
+      "hit": [
+        "H-U3"
+      ],
+      "missed_trap": [
+        "H-U4"
+      ],
+      "critical_step": "09-retype-and-submit.png",
+      "think_aloud": "글 쓰기 전에 프로필부터 확인하고 왔어요. 근데 제출하고 나니까 제목이 '지원 동기'로 나오네요. 메시지라길래 인사처럼 썼는데, 동기를 더 제대로 썼어야 했나 싶어요.",
+      "evidence": "T3/03-open-apply.png의 'From. / 내 기술스택'을 보고 메시지를 쓰기 전에 '프로필 수정'을 먼저 누름 → 보기 화면(T3/07-go-edit-profile.png)에서 버튼을 한 번 더 눌러야 해서 잠시 헤맴 → 뒤로 돌아와(T3/08, 아직 쓴 게 없어 잃은 내용 없음) 메시지를 작성. 순서 덕분에 유실을 피함. 메시지가 길어 10자 오류는 없음. 제출 후 상세에서 같은 글이 '지원 동기' 아래 표시됨(T3/09-retype-and-submit.png) → '지원 메시지'와 용어가 달라 내용이 맞게 들어갔는지 걱정함."
+    },
+    "T4": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U5"
+      ],
+      "critical_step": "10-step4.png",
+      "think_aloud": "단계가 나뉘어 있어서 차근차근 했어요. 기술 스택은 선택이라고 돼 있어도 지원자가 보려면 있는 게 나을 것 같아서 넣었고요. 회의 방식 쓰는 칸이 없어서 소개에 '디스코드 온라인 회의'라고 적었어요.",
+      "evidence": "온라인으로 쓸 웹 서비스라 플랫폼은 'Web' 하나로 충분해 여러 개를 누르지 않음(T4/02-open-create.png). 4단계 '기술 스택 (선택)'(T4/10-step4.png)도 빠짐없이 채우는 성격이라 입력해 마지막 오류(T4/12)를 겪지 않음. 2단계 소개 글(T4/07-description.png)에 회의 방식을 직접 적음. 등록 결과(T4/14-submit.png) 확인."
+    },
+    "T5": {
+      "outcome": "struggle",
+      "seq": 4,
+      "hit": [
+        "H-U6"
+      ],
+      "missed_trap": [],
+      "critical_step": "11-verify-rejected.png",
+      "think_aloud": "승인을 눌렀는데 아무 말이 없어서 된 건지 모르겠더라고요. 팀원 관리에 가 보니 박서연님은 있는데, 거절한 최도윤님은 기록이 어디에도 없어요. 그분한테 안내가 갔는지도 모르겠고 마음이 좀 불편해요.",
+      "evidence": "T5/04-project-detail.png 작은 '관리하기' 버튼으로 진입(T5/05-open-manage.png). 내 프로젝트인데도 '지원하기' 버튼이 보여 의아해함. 승인 후 확인창·토스트 없이 카드만 사라짐(T5/07-approve.png). 거절도 같음(T5/08-reject.png). 불확실해서 '팀원 관리' 탭(T5/09, T5/10-verify-members-list.png)에서 박서연 확인. 지원자 관리 탭으로 돌아가 최도윤을 찾았지만 없음, 처리 내역 탭도 없음(T5/11-verify-rejected.png, rejectedVisible: false)."
+    },
+    "T6": {
+      "outcome": "fail",
+      "seq": 2,
+      "hit": [
+        "H-U7",
+        "H-P5"
+      ],
+      "missed_trap": [],
+      "critical_step": "07-try-manage-members.png",
+      "think_aloud": "수업 때처럼 먼저 말 걸고 싶은데 프로필에는 버튼이 없어요. 혹시 내 프로젝트 관리 화면에 초대 기능이 있나 가 봤는데 거기도 없네요.",
+      "evidence": "T6/04-filter-designer.png → 정하은 프로필(T6/06-look-for-contact.png): 버튼·링크·이메일 없음. 다른 경로로 내 프로젝트 관리(T6/07-try-manage-members.png)를 찾아봤지만 초대·제안 문구 0건(inviteLike: []). 팀원 필터는 '디자이너', 프로젝트 필터는 '디자인'으로 이름이 다른 것도 눈치챘지만 과업에는 영향 없음."
+    }
+  },
+  "other_issues": [
+    "프로젝트 찾기 '모집 중만 보기'를 골라도 결과 수 변화가 없어 적용 여부를 알 수 없음 (T2/03-filter-recruiting.png)",
+    "지원 화면 '프로필 수정'이 보기 화면으로 가서 버튼을 두 번 눌러야 편집됨 (T3/07-go-edit-profile.png)",
+    "리더 본인의 프로젝트 상세에도 '지원하기' 버튼이 보임 (T5/04-project-detail.png)",
+    "프로젝트 등록에 회의 방식이나 온라인 가능 여부를 적는 칸이 없음 (T4/07-description.png)"
+  ],
+  "overall_quote": "하나하나는 할 만한데, 됐는지 알려주는 말이 없어서 계속 다시 확인하게 돼요."
+}

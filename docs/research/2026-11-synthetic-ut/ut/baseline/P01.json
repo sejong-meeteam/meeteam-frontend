@@ -1,0 +1,85 @@
+{
+  "pid": "P01",
+  "label": "baseline",
+  "ut_role": "leader",
+  "tasks": {
+    "T1": {
+      "outcome": "struggle",
+      "seq": 4,
+      "hit": [
+        "H-U2"
+      ],
+      "missed_trap": [
+        "H-U1"
+      ],
+      "critical_step": "03-look-for-signup.png",
+      "think_aloud": "어, 가입하기 버튼이 어디 있지? 홈을 끝까지 내려봐도 없고 로그인 화면에도 없네요. 그냥 학번으로 로그인해 보니까 그제서야 가입 화면이 나와서 '아 이게 가입이구나' 했어요 ㅎㅎ",
+      "evidence": "T1/01-home.png 헤더에 '로그인'만 있고 가입 문구 0건(signupEntryOnHome: 0). T1/03-look-for-signup.png 로그인 카드 안 텍스트는 학번·비밀번호·안내문·로그인뿐, 링크 0개. 홈을 한 바퀴 훑고 로그인 화면에서도 가입 링크를 찾느라 머뭇거림. 동의 체크는 피함: T1/05-fill-credentials.png에서 학번·비밀번호를 넣은 뒤에도 '로그인' 버튼이 연한 회색 그대로인 것을 보고, 바로 위 박스 안의 체크 상자를 먼저 눌러 버튼이 진해진 뒤(T1/07-check-consent.png) 로그인함. 가입 화면 '직군' 목록이 프론트/백엔드/디자인뿐이라(T1/11-signup-field-options.png) 데이터 분석 자리가 없어 백엔드를 골랐음."
+    },
+    "T2": {
+      "outcome": "struggle",
+      "seq": 3,
+      "hit": [
+        "H-U8",
+        "H-P2"
+      ],
+      "missed_trap": [],
+      "critical_step": "04-filter-field-planning.png",
+      "think_aloud": "데이터 분석은 분야에 아예 없어서 '기타'를 눌렀더니 0개래요. 기획도 0개고요. 결국 백엔드로 골라서 API 챌린지를 열었는데, 일주일에 몇 시간 드는지는 소개 탭에도 없네요.",
+      "evidence": "T2/02-projects-list.png 분야 칩: 전체/백엔드/프론트엔드/디자인/기획/마케팅/기타, 데이터 계열 없음. '기타'를 누름 → 기타 칩 화면은 캡처가 없지만 prevalidation상 마케팅과 같은 조건(무조건 빈 결과)이고 T2/05-filter-field-marketing.png처럼 '총 0개의 프로젝트 / 조건에 맞는 프로젝트가 아직 없어요.'가 나옴. 이어서 '기획'도 0개(T2/04-filter-field-planning.png). 가입 때는 '백엔드'를 골랐는데 이 분류와 맞는지 확신 없이 '백엔드'(T2/07, 4개)를 눌러 API 챌린지를 고름. 상세(T2/08, T2/09)에는 팀원 수·모집 수·마감일·플랫폼만 있고 주당 시간·진행 방식 없음."
+    },
+    "T3": {
+      "outcome": "struggle",
+      "seq": 3,
+      "hit": [
+        "H-U4"
+      ],
+      "missed_trap": [
+        "H-U3"
+      ],
+      "critical_step": "08-come-back.png",
+      "think_aloud": "통계랑 R 하는 걸 프로필에 넣어야 뽑힐 것 같아서 '프로필 수정'을 눌렀는데, 돌아오니까 쓴 글이 다 날아갔어요. 경고라도 띄워주지… 두 번째는 대충 썼어요.",
+      "evidence": "T3/03-open-apply.png 필요 기술 Node.js, '내 기술스택'에 해당 기술이 없어 프로필을 보강하고 싶어짐. 긴 메시지를 쓴 뒤 오른쪽 '프로필 수정' 클릭 → 확인창 없이 /profile 보기 화면으로 이동(T3/07-go-edit-profile.png, nativeDialogs: []). 거기서 '프로필 수정'을 한 번 더 눌러야 해서 헷갈림. 뒤로 가니 입력창이 비고 '0/700자'(T3/08-come-back.png, messageLost: true). 다시 짧게 써서 제출, '지원서를 제출했습니다.'(T3/09). 메시지는 처음부터 길게 써서 10자 오류는 겪지 않음."
+    },
+    "T4": {
+      "outcome": "struggle",
+      "seq": 4,
+      "hit": [
+        "H-U5"
+      ],
+      "missed_trap": [],
+      "critical_step": "12-submit-without-tech.png",
+      "think_aloud": "기술 스택에 '(선택)'이라고 써 있길래 넘어갔는데, 마지막 등록 버튼에서 '1개 이상 선택해 주세요'래요. 선택이라면서요? ㅎㅎ 넣고 다시 누르니까 되긴 했어요.",
+      "evidence": "데이터 대시보드 웹 프로젝트라 플랫폼은 기본 'Web' 그대로 둠(T4/02-open-create.png). 여러 개를 누를 이유가 없어 플랫폼 단일 선택 문제는 생기지 않음. 4단계 라벨 '기술 스택 (선택)'(T4/10-step4.png)을 보고 비워 둔 채 '프로젝트 등록하기' → 필드 아래와 토스트에 '각 모집 분야별 기술 스택을 1개 이상 선택해 주세요.'(T4/12-submit-without-tech.png). 하나 추가 후 등록됨(T4/14-submit.png). 소개 글에 '온라인 위주, 주 1회'를 직접 적음."
+    },
+    "T5": {
+      "outcome": "struggle",
+      "seq": 4,
+      "hit": [
+        "H-U6"
+      ],
+      "missed_trap": [],
+      "critical_step": "08-reject.png",
+      "think_aloud": "승인 누르니까 카드가 그냥 쓱 사라져요. 거절도 마찬가지고요. 최도윤님한테 거절됐다는 연락은 가는 건지, 제가 잘못 누른 건 아닌지 좀 찜찜해요.",
+      "evidence": "T5/06-open-applicants.png 지원자 3명. 박서연 '승인' 후 확인창·토스트 없이 카드만 사라지고 '지원자 목록 2'(T5/07-approve.png, transientMessages: []). 최도윤 '거절' 후에도 같은 반응, '지원자 목록 1'(T5/08-reject.png). 결과가 확실하지 않아 '팀원 관리' 탭을 열어 박서연을 확인(T5/10-verify-members-list.png)했지만 최도윤은 어디에도 없음(T5/11-verify-rejected.png, hasHistoryTab: false)."
+    },
+    "T6": {
+      "outcome": "fail",
+      "seq": 2,
+      "hit": [
+        "H-U7",
+        "H-P5"
+      ],
+      "missed_trap": [],
+      "critical_step": "06-look-for-contact.png",
+      "think_aloud": "저 말 거는 건 진짜 자신 있거든요. 근데 프로필에 연락할 버튼이 하나도 없어요. 지원자 카드에는 이메일이 보였는데 여기는 그것도 없고… 결국 못 했어요.",
+      "evidence": "T6/02-teammates.png → T6/04-filter-designer.png '디자이너' 4명 → 정하은 프로필(T6/05-open-profile.png). T6/06-look-for-contact.png 버튼 0, 링크 0, 이메일 미노출(buttons: [], links: [], emailVisible: false). T5에서 지원자 카드에 이메일이 보였던 것을 떠올리고 같은 정보를 찾았지만 없음. 제안이나 초대 수단이 없어 과업 실패."
+    }
+  },
+  "other_issues": [
+    "가입 '직군'이 프론트/백엔드/디자인뿐이라 데이터 분석 지망자는 들어갈 자리가 없음 (T1/11-signup-field-options.png)",
+    "지원 화면의 '프로필 수정'이 편집이 아니라 보기 화면으로 가서 같은 이름의 버튼을 한 번 더 눌러야 함 (T3/07-go-edit-profile.png)",
+    "프로젝트 등록에 진행 방식(온라인/대면, 회의 빈도)을 적는 칸이 따로 없어 소개 글에 직접 적어야 함 (T4/07-description.png)"
+  ],
+  "overall_quote": "분위기는 예쁜데, 저 같은 데이터 하는 사람은 들어갈 칸이 없고 정작 사람한테 말 걸 방법도 없어요."
+}

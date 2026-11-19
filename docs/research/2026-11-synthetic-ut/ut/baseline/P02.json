@@ -1,0 +1,84 @@
+{
+  "pid": "P02",
+  "label": "baseline",
+  "ut_role": "leader",
+  "tasks": {
+    "T1": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U1",
+        "H-U2"
+      ],
+      "critical_step": "02-login-page.png",
+      "think_aloud": "'로그인 후 학교 포털에서 로그아웃됩니다'라고 써 있으니까 포털 계정으로 들어가는 거네요. 버튼이 회색이라 체크부터 했어요.",
+      "evidence": "T1/02-login-page.png 동의 박스 안내문 '로그인 후 학교 포털에서 로그아웃됩니다.'를 읽고 학번 로그인이 곧 가입이라고 추론해 가입 입구를 따로 찾지 않음(H-U2 피함). 같은 화면에서 학번을 넣기 전부터 '로그인' 버튼이 연한 회색인 것을 보고 바로 위 체크 상자를 먼저 누름(H-U1 피함). T1/08-submit-login.png 가입 화면에서는 직군 '백엔드'와 기술 스택(Python, MySQL)을 입력해 한 번에 완료."
+    },
+    "T2": {
+      "outcome": "success",
+      "seq": 5,
+      "hit": [
+        "H-P2"
+      ],
+      "missed_trap": [
+        "H-U8"
+      ],
+      "critical_step": "09-detail-intro-tab.png",
+      "think_aloud": "백엔드로 거르니까 바로 나와요. 근데 주에 몇 시간 드는지, 언제 끝나는지가 없어요. 12월 9일은 모집 마감이지 프로젝트 끝나는 날이 아니잖아요.",
+      "evidence": "T2/07-filter-field-backend.png '백엔드' 칩으로 4개 확인. 가입 때 고른 '백엔드'와 이름이 같아 분류 혼란 없음. API 챌린지 상세(T2/08-open-detail.png)의 '프로젝트 현황'에 '마감일 12월 9일 마감'만 있고, 소개 탭(T2/09-detail-intro-tab.png)도 두 문장뿐이라 주당 시간·종료 시점 정보 없음. 리더 프로필(T2/10-detail-leader.png)에서 GitHub 링크를 보고 조금 안심. '모집 중만 보기'를 골라도 '총 8+개'가 그대로(T2/03-filter-recruiting.png)인 점은 지나침."
+    },
+    "T3": {
+      "outcome": "struggle",
+      "seq": 3,
+      "hit": [
+        "H-U4"
+      ],
+      "missed_trap": [
+        "H-U3"
+      ],
+      "critical_step": "08-come-back.png",
+      "think_aloud": "Node.js가 제 스택에 없길래 프로필에 추가하려고 눌렀더니 쓴 게 다 사라졌어요. 이력서 쓰듯 신경 써서 쓴 건데. 이런 건 저장해 둬야죠.",
+      "evidence": "T3/03-open-apply.png '필요 기술 Node.js' vs '내 기술스택 Java/Spring Boot/MySQL' 불일치를 보고, '주 6시간 가능, 1월 말까지 참여' 같은 메시지를 쓴 뒤 '프로필 수정' 클릭. 경고 없이 /profile 보기 화면으로 이동(T3/07-go-edit-profile.png). 뒤로 오니 '0/700자'(T3/08-come-back.png). 다시 쓰고 제출 성공(T3/09-retype-and-submit.png). 메시지는 10자를 훨씬 넘겨 오류 없음. 상세에서 제목이 '지원 동기'로 바뀐 것은 봤지만 내용이 그대로라 넘어감."
+    },
+    "T4": {
+      "outcome": "struggle",
+      "seq": 4,
+      "hit": [
+        "H-U5"
+      ],
+      "missed_trap": [],
+      "critical_step": "05-platform-multi.png",
+      "think_aloud": "웹이랑 iOS 둘 다 하려고 눌렀는데 웹이 꺼져요. 다시 웹 누르니까 iOS가 꺼지고. 하나만 되는 거면 처음부터 그렇게 써 주든가요. 그냥 웹으로 했어요.",
+      "evidence": "T4/02-open-create.png 'Web' 눌린 상태에서 'iOS'를 추가로 누름 → 'Web' 강조가 사라지고 하나만 눌림(T4/05-platform-multi.png와 같은 동작, multiSelectWorked: false). 다시 Web을 눌러 보고 단일 선택임을 알아챈 뒤 Web만 남김. 칩 근처에 '하나만 선택' 안내 없음. 4단계는 요구사항을 빠짐없이 적는 성격이라 '(선택)'이어도 기술 스택을 넣어서 마지막 단계 오류는 겪지 않음(T4/10-step4.png)."
+    },
+    "T5": {
+      "outcome": "success",
+      "seq": 6,
+      "hit": [],
+      "missed_trap": [
+        "H-U6"
+      ],
+      "critical_step": "07-approve.png",
+      "think_aloud": "승인하니까 목록이 3에서 2로 줄고, 남은 사람 카드가 '현재 1/3명'으로 바뀌었네요. 처리된 거죠. 근데 알림 센터는 3개 와 있는데 왜 안 읽은 알림이 0개예요?",
+      "evidence": "T5/03-notifications.png 새 지원 알림 3건인데 머리글은 '0개의 안 읽은 알림'이라 의아해함. '지원자 관리' 탭(T5/06-open-applicants.png)에서 승인 → '지원자 목록 2', 탭 배지 2, 남은 카드 '현재 0/3명' → '현재 1/3명'(T5/07-approve.png). 숫자 변화를 결과로 받아들여 '됐나?' 하는 망설임 없이 거절까지 진행(T5/08-reject.png)."
+    },
+    "T6": {
+      "outcome": "fail",
+      "seq": 2,
+      "hit": [
+        "H-U7"
+      ],
+      "missed_trap": [],
+      "critical_step": "06-look-for-contact.png",
+      "think_aloud": "Figma 하나, 참여 프로젝트 0개. 이걸로는 연락할지 말지도 못 정하겠는데, 정하고 싶어도 연락할 버튼이 없네요.",
+      "evidence": "T6/04-filter-designer.png 디자이너 4명 모두 '참여 프로젝트 0개', 기술 스택 'Figma'뿐. 정하은 프로필(T6/06-look-for-contact.png)에 버튼·링크·이메일 없음(buttons: [], links: [], emailVisible: false). 연락 수단이 없어 실패. 먼저 연락할 의향은 있지만 판단 정보부터 부족하다는 반응이라 H-P5보다 정보 부족(H-P4 성격) 쪽 발화."
+    }
+  },
+  "other_issues": [
+    "'모집 중만 보기'를 골라도 결과 수가 '총 8+개'로 그대로라 필터가 적용됐는지 알 수 없음 (T2/02 vs T2/03)",
+    "알림 센터에 새 지원 알림 3건이 있는데 '0개의 안 읽은 알림'으로 표시됨 (T5/03-notifications.png)",
+    "프로젝트 상세의 '마감일'이 모집 마감이라 프로젝트 기간이나 종료 시점을 알 수 없음 (T2/08-open-detail.png)"
+  ],
+  "overall_quote": "필요한 건 시간이랑 사람 정보인데, 그 두 개가 제일 안 보여요."
+}

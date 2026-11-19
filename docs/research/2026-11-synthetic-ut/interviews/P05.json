@@ -1,0 +1,42 @@
+{
+  "pid": "P05",
+  "segment": "개발(FE/BE)",
+  "leader_experience": false,
+  "ut_role": "member",
+  "hypotheses": {
+    "H-P1": {
+      "verdict": "against",
+      "spontaneous": false,
+      "evidence": "시간 뺏기는 거요. 과제 자체보다 맞추는 시간이 더 걸려요."
+    },
+    "H-P2": {
+      "verdict": "support",
+      "spontaneous": false,
+      "evidence": "회의를 몇 번 하는지요. 매주 대면이면 싫어요. 그리고 제가 뭘 하는지 정해져 있는지. … 누가 리더인지는 별로 상관없어요."
+    },
+    "H-P3": {
+      "verdict": "neutral",
+      "spontaneous": false,
+      "evidence": ""
+    },
+    "H-P4": {
+      "verdict": "neutral",
+      "spontaneous": false,
+      "evidence": ""
+    },
+    "H-P5": {
+      "verdict": "neutral",
+      "spontaneous": false,
+      "evidence": "부담스러울 것 같아요. 아마 답 안 할 듯요."
+    }
+  },
+  "top_pain": "과제 자체보다 회의 시간 맞추는 데 시간이 더 걸려요. 그것만으로 메시지가 백 개씩 와요.",
+  "new_insights": [
+    "일정 조율 메시지 과부하(회의 시간 잡는 데 메시지 100개)가 팀 활동의 주된 피로 요인이다.",
+    "최소한의 자기 몫만 하고 만족하는 참여자가 있다. 이들은 스스로를 무임승차자로 여기지 않는다.",
+    "모르는 사람의 먼저 제안을 부담스러워하고 무시하겠다고 했다. 먼저 제안 기능에는 받는 쪽의 수신 거부나 관심 표시 장치가 필요할 수 있다.",
+    "프로필을 최소한만 채우고 사진은 올리지 않겠다고 했다. 프로필 기반 판단의 정보량에 한계가 생긴다.",
+    "운영직 지망이라 팀 프로젝트 경험보다 자격증을 더 중시한다."
+  ],
+  "channels_used": ["교수 배정", "조별과제 단톡방", "지인(캡스톤 예정)"]
+}
