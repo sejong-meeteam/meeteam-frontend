@@ -1,5 +1,9 @@
-import { JOB_OPTIONS, type MockMember } from './fixtures';
-import type { ProjectRecord } from './projectContract';
+import { JOB_OPTIONS, TECH_STACKS, type MockMember } from './fixtures';
+import {
+  getProjectCategoryName,
+  toProjectCollaboration,
+  type ProjectRecord,
+} from './projectContract';
 import { getMockGithubActivitySummary } from './githubHandlers';
 import { getLikes, getMembers, getSessionMember } from './storage';
 
@@ -27,12 +31,7 @@ export function toProjectCard(project: ProjectRecord) {
     projectId: project.id,
     projectName: project.name,
     categoryCode: project.category,
-    categoryName: {
-      CAPSTONE: '캡스톤',
-      CREATIVE_SEMESTER: '창의학기제',
-      CLUB: '동아리',
-      ETC: '기타',
-    }[project.category],
+    categoryName: getProjectCategoryName(project.category),
     platformName: { WEB: '웹', IOS: 'iOS', ANDROID: '안드로이드' }[project.platform],
     imageUrl: project.imageUrl,
     endDate: project.deadline,
@@ -42,6 +41,8 @@ export function toProjectCard(project: ProjectRecord) {
     recruitmentCount: 1 + project.recruitments.reduce((total, item) => total + item.count, 0),
     recruitments: toProjectRecruitments(project),
     githubActivity: getMockGithubActivitySummary(project.id),
+    meetingMode: project.meetingMode ?? null,
+    weeklyHours: project.weeklyHours ?? null,
   };
 }
 export function toProjectDetail(project: ProjectRecord) {
@@ -80,6 +81,7 @@ export function toProjectDetail(project: ProjectRecord) {
     likeCount: getLikes().filter((item) => item.endsWith(`:${project.id}`)).length,
     isLiked: member ? getLikes().includes(`${member.memberId}:${project.id}`) : false,
     isLeader: project.leaderId === member?.memberId,
+    ...toProjectCollaboration(project),
   };
 }
 export function toMemberCard(member: MockMember) {
@@ -92,10 +94,9 @@ export function toMemberCard(member: MockMember) {
     profileImageUrl: member.profileImageUrl,
     jobFieldName: field?.name ?? null,
     projectCount: member.projectCount,
-    techStacks: JOB_OPTIONS.fields
-      .flatMap((field) => field.techStacks)
-      .filter((item) => member.techStackIds.includes(item.id))
-      .map((item, index) => ({ ...item, displayOrder: index + 1 })),
+    techStacks: TECH_STACKS.filter((item) => member.techStackIds.includes(item.id)).map(
+      (item, index) => ({ ...item, displayOrder: index + 1 }),
+    ),
   };
 }
 export function pageResponse<T>(items: T[], params: URLSearchParams) {

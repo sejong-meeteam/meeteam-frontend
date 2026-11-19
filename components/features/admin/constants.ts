@@ -38,6 +38,8 @@ export const PROJECT_CATEGORY_LABEL: Record<AdminProjectCategory, string> = {
   CAPSTONE: '캡스톤',
   CREATIVE_SEMESTER: '창의학기제',
   CLUB: '동아리',
+  STUDY: '스터디',
+  CONTEST: '공모전',
   ETC: '기타',
 };
 

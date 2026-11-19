@@ -362,7 +362,7 @@ export function ComponentPlayground({ component }: { component: ComponentDefinit
           <SelectControl
             label="Category"
             value={category}
-            options={['캡스톤', '창의학기제', '동아리', '기타']}
+            options={['캡스톤', '창의학기제', '동아리', '스터디', '공모전', '기타']}
             onChange={setCategory}
           />
           <SelectControl

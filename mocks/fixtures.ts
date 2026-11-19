@@ -1,17 +1,80 @@
+// Mirrors the backend job seed plus contract C3 (MARKETING, DATA). Field order is the backend
+// job_field id order (index + 1), which the member search filter sends as jobFieldId.
+// Ids 1-9 predate the full seed and stay put because stored demo data references them.
+const STACK = {
+  React: { id: 1, name: 'React' },
+  TypeScript: { id: 2, name: 'TypeScript' },
+  NextJs: { id: 3, name: 'Next.js' },
+  Flutter: { id: 4, name: 'Flutter' },
+  Java: { id: 5, name: 'Java' },
+  SpringBoot: { id: 6, name: 'Spring Boot' },
+  MySQL: { id: 7, name: 'MySQL' },
+  NodeJs: { id: 8, name: 'Node.js' },
+  Figma: { id: 9, name: 'Figma' },
+  Notion: { id: 10, name: 'Notion' },
+  Jira: { id: 11, name: 'Jira' },
+  GoogleAnalytics: { id: 12, name: 'Google Analytics' },
+  Python: { id: 13, name: 'Python' },
+  PyTorch: { id: 14, name: 'PyTorch' },
+  LangChain: { id: 15, name: 'LangChain' },
+  Docker: { id: 16, name: 'Docker' },
+  AWS: { id: 17, name: 'AWS' },
+  Kubernetes: { id: 18, name: 'Kubernetes' },
+  GA4: { id: 19, name: 'GA4' },
+  MetaAds: { id: 20, name: 'Meta Ads' },
+  GoogleAds: { id: 21, name: 'Google Ads' },
+  Canva: { id: 22, name: 'Canva' },
+  R: { id: 23, name: 'R' },
+  SQL: { id: 24, name: 'SQL' },
+  Pandas: { id: 25, name: 'Pandas' },
+  Tableau: { id: 26, name: 'Tableau' },
+  Excel: { id: 27, name: 'Excel' },
+  Photoshop: { id: 28, name: 'Photoshop' },
+  Swift: { id: 29, name: 'Swift' },
+  Kotlin: { id: 30, name: 'Kotlin' },
+};
+
+// One entry per stack, like the backend tech_stack table; fields share entries.
+export const TECH_STACKS = Object.values(STACK);
+
 export const JOB_OPTIONS = {
   fields: [
+    {
+      code: 'PLANNING',
+      name: '기획',
+      positions: [
+        { id: 6, code: 'PRODUCT_MANAGER', name: 'PM 프로덕트 매니저' },
+        { id: 7, code: 'PRODUCT_OWNER', name: 'PO 프로덕트 오너' },
+        { id: 8, code: 'SERVICE_PLANNER', name: '서비스 기획' },
+      ],
+      techStacks: [STACK.Notion, STACK.Jira, STACK.Figma, STACK.GoogleAnalytics],
+    },
+    {
+      code: 'DESIGN',
+      name: '디자인',
+      positions: [
+        { id: 5, code: 'UI_UX_DESIGNER', name: 'UI/UX 디자이너' },
+        { id: 9, code: 'MOTION_DESIGNER', name: '모션 디자이너' },
+        { id: 10, code: 'BX_BRAND_DESIGNER', name: 'BX 브랜드 디자이너' },
+      ],
+      techStacks: [STACK.Figma, STACK.Photoshop],
+    },
     {
       code: 'FRONTEND',
       name: '프론트',
       positions: [
         { id: 1, code: 'WEB_FRONTEND', name: '웹 프론트엔드' },
+        { id: 11, code: 'IOS', name: 'iOS' },
+        { id: 12, code: 'ANDROID', name: 'Android' },
         { id: 2, code: 'CROSS_PLATFORM', name: '크로스 플랫폼' },
       ],
       techStacks: [
-        { id: 1, name: 'React' },
-        { id: 2, name: 'TypeScript' },
-        { id: 3, name: 'Next.js' },
-        { id: 4, name: 'Flutter' },
+        STACK.React,
+        STACK.TypeScript,
+        STACK.NextJs,
+        STACK.Flutter,
+        STACK.Swift,
+        STACK.Kotlin,
       ],
     },
     {
@@ -19,20 +82,59 @@ export const JOB_OPTIONS = {
       name: '백엔드',
       positions: [
         { id: 3, code: 'JAVA_SPRING', name: 'Java/Spring' },
-        { id: 4, code: 'NODE_SERVER', name: 'Node.js 서버' },
+        { id: 13, code: 'KOTLIN_SPRING', name: 'Kotlin/Spring' },
+        { id: 4, code: 'NODE_NESTJS', name: 'Node.js/NestJS' },
+        { id: 14, code: 'PYTHON_BACKEND', name: 'Python Backend' },
+      ],
+      techStacks: [STACK.Java, STACK.SpringBoot, STACK.MySQL, STACK.NodeJs, STACK.Python],
+    },
+    {
+      code: 'AI',
+      name: 'AI',
+      positions: [
+        { id: 15, code: 'MACHINE_LEARNING', name: '머신 러닝' },
+        { id: 16, code: 'DEEP_LEARNING', name: '딥러닝' },
+        { id: 17, code: 'LLM', name: 'LLM' },
+        { id: 18, code: 'MLOPS', name: 'MLOps' },
+      ],
+      techStacks: [STACK.Python, STACK.Pandas, STACK.PyTorch, STACK.LangChain],
+    },
+    {
+      code: 'INFRA_OPERATION',
+      name: '인프라/운영',
+      positions: [
+        { id: 19, code: 'DEVOPS_ARCHITECT', name: 'DevOps 엔지니어/아키텍처' },
+        { id: 20, code: 'QA', name: 'QA' },
+        { id: 21, code: 'CLOUD_ENGINEER', name: 'Cloud 엔지니어' },
+      ],
+      techStacks: [STACK.AWS, STACK.Docker, STACK.Kubernetes, STACK.Jira],
+    },
+    {
+      code: 'MARKETING',
+      name: '마케팅',
+      positions: [
+        { id: 22, code: 'PERFORMANCE_MARKETER', name: '퍼포먼스 마케터' },
+        { id: 23, code: 'CONTENT_MARKETER', name: '콘텐츠 마케터' },
+        { id: 24, code: 'BRAND_MARKETER', name: '브랜드 마케터' },
       ],
       techStacks: [
-        { id: 5, name: 'Java' },
-        { id: 6, name: 'Spring Boot' },
-        { id: 7, name: 'MySQL' },
-        { id: 8, name: 'Node.js' },
+        STACK.GA4,
+        STACK.MetaAds,
+        STACK.GoogleAds,
+        STACK.Notion,
+        STACK.Figma,
+        STACK.Canva,
       ],
     },
     {
-      code: 'DESIGN',
-      name: '디자인',
-      positions: [{ id: 5, code: 'UI_UX_DESIGN', name: 'UI/UX 디자인' }],
-      techStacks: [{ id: 9, name: 'Figma' }],
+      code: 'DATA',
+      name: '데이터',
+      positions: [
+        { id: 25, code: 'DATA_ANALYST', name: '데이터 분석가' },
+        { id: 26, code: 'DATA_ENGINEER', name: '데이터 엔지니어' },
+        { id: 27, code: 'DATA_SCIENTIST', name: '데이터 사이언티스트' },
+      ],
+      techStacks: [STACK.Python, STACK.R, STACK.SQL, STACK.Pandas, STACK.Tableau, STACK.Excel],
     },
   ],
 };
@@ -106,18 +208,18 @@ const DEMO_MEMBER_SEEDS = [
   ['정하은', 'FEMALE', 5, [9]],
   ['강지후', 'MALE', 2, [4]],
   ['조유나', 'FEMALE', 4, [8, 7]],
-  ['윤시우', 'MALE', 1, [1, 2]],
+  ['윤시우', 'MALE', 6, [10, 11]],
   ['장서윤', 'FEMALE', 5, [9]],
   ['임준서', 'MALE', 3, [5, 7]],
-  ['한지아', 'FEMALE', 1, [2, 3]],
+  ['한지아', 'FEMALE', 23, [19, 22]],
   ['오현우', 'MALE', 4, [8]],
-  ['서채원', 'FEMALE', 2, [4, 2]],
+  ['서채원', 'FEMALE', 25, [24, 26]],
   ['신우진', 'MALE', 3, [6, 7]],
-  ['권나연', 'FEMALE', 5, [9]],
+  ['권나연', 'FEMALE', 22, [19, 20, 21]],
   ['황건우', 'MALE', 1, [1]],
-  ['안수아', 'FEMALE', 3, [5, 6, 7]],
+  ['안수아', 'FEMALE', 27, [13, 25]],
   ['송민재', 'MALE', 2, [4]],
-  ['류다인', 'FEMALE', 1, [1, 2, 3]],
+  ['류다인', 'FEMALE', 8, [10, 9]],
   ['전태윤', 'MALE', 4, [8]],
   ['홍예린', 'FEMALE', 5, [9]],
   ['고은찬', 'MALE', 3, [5]],
@@ -236,17 +338,41 @@ export const INITIAL_MEMBERS: MockMember[] = [
 const PROJECT_SEEDS = [
   ['캠퍼스 메이커스', 'CAPSTONE', 'WEB', 'FRONTEND', 1, 1],
   ['스터디 매칭 서비스', 'CLUB', 'WEB', 'BACKEND', 3, 5],
-  ['API 챌린지', 'CAPSTONE', 'WEB', 'BACKEND', 4, 8],
+  ['API 챌린지', 'CONTEST', 'WEB', 'BACKEND', 4, 8],
   ['세종 맛집 지도', 'CREATIVE_SEMESTER', 'IOS', 'DESIGN', 5, 9],
   ['학교 일정 한눈에', 'ETC', 'ANDROID', 'FRONTEND', 2, 4],
-  ['학습 기록 대시보드', 'CLUB', 'WEB', 'FRONTEND', 1, 2],
+  ['학습 기록 대시보드', 'CLUB', 'WEB', 'DATA', 25, 24],
   ['캠퍼스 중고 거래', 'CAPSTONE', 'WEB', 'BACKEND', 3, 6],
   ['동아리 행사 캘린더', 'CREATIVE_SEMESTER', 'IOS', 'DESIGN', 5, 9],
-  ['AI 아이디어 노트', 'ETC', 'WEB', 'FRONTEND', 1, 3],
-  ['코딩 테스트 스터디', 'CLUB', 'WEB', 'BACKEND', 4, 8],
+  ['AI 아이디어 노트', 'ETC', 'WEB', 'PLANNING', 8, 10],
+  ['코딩 테스트 스터디', 'STUDY', 'WEB', 'BACKEND', 4, 8],
   ['교내 셔틀 도우미', 'CAPSTONE', 'ANDROID', 'FRONTEND', 2, 4],
-  ['전시회 큐레이션', 'CREATIVE_SEMESTER', 'WEB', 'DESIGN', 5, 9],
+  ['전시회 큐레이션', 'CREATIVE_SEMESTER', 'WEB', 'MARKETING', 23, 22],
 ] as const;
+
+const SEED_COLLABORATION: Record<string, ProjectCollaboration> = {
+  '캠퍼스 메이커스': {
+    meetingMode: 'ONLINE',
+    weeklyHours: 6,
+    meetingNote: '화요일 저녁 9시 디스코드',
+  },
+  '스터디 매칭 서비스': {
+    meetingMode: 'HYBRID',
+    weeklyHours: 4,
+    meetingNote: '격주 토요일 오후 학생회관, 평소엔 온라인',
+  },
+  'API 챌린지': {
+    meetingMode: 'OFFLINE',
+    weeklyHours: 10,
+    meetingNote: '목요일 오후 6시 공학관 세미나실',
+  },
+  '학교 일정 한눈에': { meetingMode: 'OFFLINE', weeklyHours: 3, meetingNote: null },
+  '코딩 테스트 스터디': {
+    meetingMode: 'ONLINE',
+    weeklyHours: 5,
+    meetingNote: '월·목 밤 10시 구글 밋',
+  },
+};
 
 export const INITIAL_PROJECTS: ProjectRecord[] = PROJECT_SEEDS.map(
   ([name, category, platform, field, positionId, skillId], index) => {
@@ -273,7 +399,8 @@ export const INITIAL_PROJECTS: ProjectRecord[] = PROJECT_SEEDS.map(
       imageUrl: null,
       createdAt: createdAt.toISOString(),
       currentMembers: 1,
+      ...SEED_COLLABORATION[name],
     };
   },
 );
-import type { ProjectRecord } from './projectContract';
+import type { ProjectCollaboration, ProjectRecord } from './projectContract';

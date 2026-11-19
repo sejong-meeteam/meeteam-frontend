@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PROJECT_CATEGORY_CODES } from '@/components/features/project/constants';
 
 export const ADMIN_PAGE_SIZE = 10;
 export const ADMIN_REASON_MIN_LENGTH = 5;
@@ -20,7 +21,7 @@ const memberStatusSchema = z.enum(['ACTIVE', 'SUSPENDED', 'WITHDRAWN']);
 const memberRoleSchema = z.enum(['USER', 'ADMIN']);
 const projectVisibilitySchema = z.enum(['VISIBLE', 'HIDDEN', 'DELETED']);
 const recruitmentStatusSchema = z.enum(['RECRUITING', 'CLOSED', 'SUSPENDED']);
-const projectCategorySchema = z.enum(['CAPSTONE', 'CREATIVE_SEMESTER', 'CLUB', 'ETC']);
+const projectCategorySchema = z.enum(PROJECT_CATEGORY_CODES);
 const auditActionSchema = z.enum([
   'MEMBER_SUSPEND',
   'MEMBER_UNSUSPEND',

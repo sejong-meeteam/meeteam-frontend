@@ -91,7 +91,7 @@ export function ComponentPreview({ id }: { id: string }) {
     case 'category-badge':
       return (
         <div className="flex max-w-56 flex-wrap justify-center gap-2">
-          {['캡스톤', '창의학기제', '동아리', '기타'].map((label) => (
+          {['캡스톤', '창의학기제', '동아리', '스터디', '공모전', '기타'].map((label) => (
             <CategoryBadge key={label} label={label} />
           ))}
         </div>

@@ -10,6 +10,7 @@ import { INITIAL_VISIBLE_COUNT, hasActiveProjectFilters } from './projectFinder'
 import type {
   CategoryFilter,
   FieldFilter,
+  MeetingFilter,
   PlatformFilter,
   ProjectFinderFilters,
   RecruitFilter,
@@ -26,6 +27,7 @@ export function useProjectFinder() {
   const [category, setCategory] = useState<CategoryFilter>('모든 카테고리');
   const [recruitOnly, setRecruitOnly] = useState<RecruitFilter>('all');
   const [platform, setPlatform] = useState<PlatformFilter>('전체');
+  const [meeting, setMeeting] = useState<MeetingFilter>('all');
   const [field, setField] = useState<FieldFilter>('전체');
   const [sort, setSort] = useState<SortFilter>('latest');
   const [fieldOptions, setFieldOptions] = useState(() => toJobFieldFilterOptions([]));
@@ -48,8 +50,8 @@ export function useProjectFinder() {
 
   const debouncedSearch = useDebouncedValue(searchValue.trim());
   const searchFilters = useMemo(
-    () => ({ searchValue: debouncedSearch, category, recruitOnly, platform, field, sort }),
-    [category, debouncedSearch, field, platform, recruitOnly, sort],
+    () => ({ searchValue: debouncedSearch, category, recruitOnly, platform, meeting, field, sort }),
+    [category, debouncedSearch, field, meeting, platform, recruitOnly, sort],
   );
   const {
     items,
@@ -73,6 +75,7 @@ export function useProjectFinder() {
     setCategory('모든 카테고리');
     setRecruitOnly('all');
     setPlatform('전체');
+    setMeeting('all');
     setField('전체');
     setSort('latest');
   };
@@ -93,6 +96,7 @@ export function useProjectFinder() {
     setCategory,
     setRecruitOnly,
     setPlatform,
+    setMeeting,
     setField,
     setSort,
     resetFilters,

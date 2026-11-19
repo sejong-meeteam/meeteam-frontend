@@ -12,6 +12,7 @@ import ProjectDetailContent, {
   type ProjectDetailTab,
 } from '@/components/features/project/detail/ProjectDetailContent';
 import ProjectDetailSkeleton from '@/components/features/project/detail/ProjectDetailSkeleton';
+import ProjectCollaborationFacts from '@/components/features/project/detail/ProjectCollaborationFacts';
 import {
   fetchProjectDetail,
   fetchProjectTeamManagement,
@@ -375,6 +376,11 @@ export default function ProjectDetailPage({ projectId }: { projectId: string }) 
                     </dd>
                   </div>
                 ) : null}
+                <ProjectCollaborationFacts
+                  meetingMode={project.meetingMode}
+                  weeklyHours={project.weeklyHours}
+                  meetingNote={project.meetingNote}
+                />
               </dl>
             </div>
 

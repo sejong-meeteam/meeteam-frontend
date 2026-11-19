@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { todayLocalDate } from '@/mocks/projectContract';
+import { MEETING_MODES, PROJECT_CATEGORY_CODES, todayLocalDate } from '@/mocks/projectContract';
 import { JOB_OPTIONS } from './fixtures';
 
 export const backendProjectCreateSchema = z
   .object({
     projectName: z.string(),
-    projectCategory: z.enum(['CAPSTONE', 'CREATIVE_SEMESTER', 'CLUB', 'ETC']),
+    projectCategory: z.enum(PROJECT_CATEGORY_CODES),
     platformCategory: z.enum(['WEB', 'IOS', 'ANDROID']),
     description: z.string(),
     githubRepositoryUrl: z.string().optional(),
@@ -21,6 +21,9 @@ export const backendProjectCreateSchema = z
     ),
     recruitmentDeadlineType: z.enum(['END_DATE', 'RECRUITMENT_COMPLETED']),
     endDate: z.string().optional(),
+    meetingMode: z.string().nullish(),
+    weeklyHours: z.number().nullish(),
+    meetingNote: z.string().nullish(),
   })
   .transform((value) => ({
     name: value.projectName,
@@ -44,6 +47,9 @@ export const backendProjectCreateSchema = z
     })),
     deadline: value.endDate ?? null,
     closeWhenFull: value.recruitmentDeadlineType === 'RECRUITMENT_COMPLETED',
+    meetingMode: value.meetingMode ?? null,
+    weeklyHours: value.weeklyHours ?? null,
+    meetingNote: value.meetingNote?.trim() || null,
   }));
 
 const optionalUrl = z.union([
@@ -54,7 +60,7 @@ const optionalUrl = z.union([
 export const projectCreateSchema = z
   .object({
     name: z.string().trim().min(2, '프로젝트명은 2자 이상 입력해 주세요.').max(60),
-    category: z.enum(['CAPSTONE', 'CREATIVE_SEMESTER', 'CLUB', 'ETC']),
+    category: z.enum(PROJECT_CATEGORY_CODES),
     platform: z.enum(['WEB', 'IOS', 'ANDROID']),
     description: z.string().trim().min(10, '소개는 10자 이상 입력해 주세요.').max(5000),
     githubUrl: optionalUrl.refine(
@@ -83,6 +89,14 @@ export const projectCreateSchema = z
       .min(1, '모집 직무를 하나 이상 추가해 주세요.'),
     deadline: z.string().nullable(),
     closeWhenFull: z.boolean(),
+    meetingMode: z.enum(MEETING_MODES, '회의 방식을 다시 선택해 주세요.').nullable(),
+    weeklyHours: z
+      .number()
+      .int('주당 예상 시간은 정수로 입력해 주세요.')
+      .min(1, '주당 예상 시간은 1~40시간 사이로 입력해 주세요.')
+      .max(40, '주당 예상 시간은 1~40시간 사이로 입력해 주세요.')
+      .nullable(),
+    meetingNote: z.string().max(100, '회의 메모는 100자 이하로 입력해 주세요.').nullable(),
   })
   .superRefine((value, context) => {
     if (!value.closeWhenFull) {

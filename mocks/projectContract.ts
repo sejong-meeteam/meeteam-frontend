@@ -2,8 +2,14 @@ export const PROJECT_CATEGORIES = [
   { code: 'CAPSTONE', label: '캡스톤' },
   { code: 'CREATIVE_SEMESTER', label: '창의학기제' },
   { code: 'CLUB', label: '동아리' },
+  { code: 'STUDY', label: '스터디' },
+  { code: 'CONTEST', label: '공모전' },
   { code: 'ETC', label: '기타' },
 ] as const;
+
+export const MEETING_MODES = ['ONLINE', 'OFFLINE', 'HYBRID'] as const;
+
+export const PROJECT_CATEGORY_CODES = PROJECT_CATEGORIES.map((category) => category.code);
 
 export const PROJECT_PLATFORMS = [
   { code: 'WEB', label: '웹' },
@@ -13,6 +19,13 @@ export const PROJECT_PLATFORMS = [
 
 export type ProjectCategory = (typeof PROJECT_CATEGORIES)[number]['code'];
 export type ProjectPlatform = (typeof PROJECT_PLATFORMS)[number]['code'];
+export type MeetingMode = (typeof MEETING_MODES)[number];
+
+export type ProjectCollaboration = {
+  meetingMode?: MeetingMode | null;
+  weeklyHours?: number | null;
+  meetingNote?: string | null;
+};
 
 export type ProjectRecruitment = {
   jobFieldCode: string;
@@ -37,7 +50,7 @@ export type ProjectCreateRequest = {
   recruitments: ProjectRecruitment[];
   deadline: string | null;
   closeWhenFull: boolean;
-};
+} & ProjectCollaboration;
 
 export type ProjectRecord = ProjectCreateRequest & {
   id: number;
@@ -53,6 +66,25 @@ export type ProjectRecord = ProjectCreateRequest & {
   recruitmentStatus?: 'RECRUITING' | 'CLOSED' | 'SUSPENDED';
   visibility?: 'VISIBLE' | 'HIDDEN' | 'DELETED';
 };
+
+export function getProjectCategoryName(category: ProjectCategory) {
+  return PROJECT_CATEGORIES.find((item) => item.code === category)?.label ?? '기타';
+}
+
+export function toProjectCollaboration(project: ProjectCollaboration) {
+  return {
+    meetingMode: project.meetingMode ?? null,
+    weeklyHours: project.weeklyHours ?? null,
+    meetingNote: project.meetingNote ?? null,
+  };
+}
+
+export function matchesMeetingMode(project: ProjectCollaboration, requested: string) {
+  if (!requested) return true;
+  if (requested === 'ONLINE')
+    return project.meetingMode === 'ONLINE' || project.meetingMode === 'HYBRID';
+  return project.meetingMode === requested;
+}
 
 export function isProjectVisible(project: ProjectRecord) {
   return (project.visibility ?? 'VISIBLE') === 'VISIBLE';

@@ -20,6 +20,7 @@ export default function ProjectFindPage() {
     setCategory,
     setRecruitOnly,
     setPlatform,
+    setMeeting,
     setField,
     setSort,
     resetFilters,
@@ -35,12 +36,14 @@ export default function ProjectFindPage() {
         category={filters.category}
         recruitOnly={filters.recruitOnly}
         platform={filters.platform}
+        meeting={filters.meeting}
         field={filters.field}
         fieldOptions={fieldOptions}
         onSearchValueChange={setSearchValue}
         onCategoryChange={setCategory}
         onRecruitOnlyChange={setRecruitOnly}
         onPlatformChange={setPlatform}
+        onMeetingChange={setMeeting}
         onFieldChange={setField}
       />
 

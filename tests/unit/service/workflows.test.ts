@@ -51,6 +51,9 @@ const createPayload: Parameters<typeof projectApi.createProject>[0] = {
   communicationChannelUrl: '',
   creatorJobPositionCode: JOB_OPTIONS.fields[0].positions[0].code,
   recruitmentDeadlineType: 'RECRUITMENT_COMPLETED',
+  meetingMode: null,
+  weeklyHours: null,
+  meetingNote: null,
   recruitments: [
     {
       jobFieldCode: backendField.code,
@@ -136,6 +139,7 @@ describe('MSW service integration (not live-server E2E)', () => {
             category: '모든 카테고리',
             recruitOnly: 'all',
             platform: '전체',
+            meeting: 'all',
             field: '전체',
             sort: 'latest',
           },

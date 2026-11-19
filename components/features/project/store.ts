@@ -68,6 +68,9 @@ function buildProjectFromForm(id: string, values: ProjectFormValues): ProjectRec
     recruitTechStacks: values.recruitTechStacks,
     recruitDeadline: values.recruitDeadline,
     isRecruitUntilComplete: values.isRecruitUntilComplete,
+    meetingMode: values.meetingMode,
+    weeklyHours: values.weeklyHours,
+    meetingNote: values.meetingNote,
     targetMemberCount: values.recruitInterests.reduce((sum, item) => sum + item.count, 1) + 1,
     members: [
       {

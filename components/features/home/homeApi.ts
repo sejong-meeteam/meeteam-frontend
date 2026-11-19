@@ -1,11 +1,17 @@
 import type { ApiEnvelope } from '@/types/auth';
 import type { GithubActivityLevel, GithubActivitySummary } from '@/types/github';
+import type { MeetingMode, ProjectCollaboration } from '@/types/project';
 
 import { API_BASE_URL, apiFetch } from '@/components/features/auth/apiClient';
 import { extractApiData } from '@/components/features/auth/signupTransform';
+import { parseProjectCollaboration } from '@/components/features/project/collaboration';
+import {
+  findProjectCategoryByLabel,
+  type ProjectCategoryLabel,
+} from '@/components/features/project/constants';
 import { getJobFieldLabel } from '@/constants/jobField';
 
-export type HomeProjectCategory = '전체' | '캡스톤' | '창의학기제' | '동아리' | '기타';
+export type HomeProjectCategory = '전체' | ProjectCategoryLabel;
 
 export type HomeProjectCard = {
   id: number;
@@ -21,6 +27,8 @@ export type HomeProjectCard = {
   };
   tags: string[];
   githubActivityLevel: GithubActivityLevel | null;
+  meetingMode: MeetingMode | null;
+  weeklyHours: number | null;
   recruitInfo: Array<{
     id: string | number;
     role: string;
@@ -75,6 +83,8 @@ type BackendProjectCardResponse = {
     closed?: boolean;
   }>;
   githubActivity?: GithubActivitySummary | null;
+  meetingMode?: ProjectCollaboration['meetingMode'];
+  weeklyHours?: ProjectCollaboration['weeklyHours'];
 };
 
 type BackendMemberCardResponse = {
@@ -93,13 +103,6 @@ type BackendMemberCardResponse = {
 
 type BackendMemberTechStack = BackendMemberCardResponse['techStacks'][number];
 
-const CATEGORY_API_VALUES: Partial<Record<HomeProjectCategory, string>> = {
-  캡스톤: 'CAPSTONE',
-  창의학기제: 'CREATIVE_SEMESTER',
-  동아리: 'CLUB',
-  기타: 'ETC',
-};
-
 async function readPublicEnvelope<T>(response: Response, fallbackMessage: string) {
   const payload = (await response.json().catch(() => null)) as ApiEnvelope<T> | null;
 
@@ -115,6 +118,8 @@ async function readPublicEnvelope<T>(response: Response, fallbackMessage: string
 }
 
 function mapHomeProject(project: BackendProjectCardResponse): HomeProjectCard {
+  const { meetingMode, weeklyHours } = parseProjectCollaboration(project);
+
   return {
     id: project.projectId,
     title: project.projectName,
@@ -129,6 +134,8 @@ function mapHomeProject(project: BackendProjectCardResponse): HomeProjectCard {
     },
     tags: [project.platformName].filter(Boolean),
     githubActivityLevel: project.githubActivity?.activityLevel ?? null,
+    meetingMode,
+    weeklyHours,
     recruitInfo: project.recruitments.map((recruitment, index) => ({
       id: `${project.projectId}-${index + 1}`,
       role: recruitment.jobFieldName,
@@ -168,7 +175,7 @@ export async function fetchHomeProjectsPage(
     size: String(size),
     sort: 'createdAt,desc',
   });
-  const projectCategory = CATEGORY_API_VALUES[category];
+  const projectCategory = findProjectCategoryByLabel(category)?.code;
 
   if (projectCategory) {
     params.set('projectCategory', projectCategory);

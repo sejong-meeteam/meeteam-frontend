@@ -1,7 +1,8 @@
 import { delay, http, HttpResponse } from 'msw';
+import { z } from 'zod';
 import { projectApplicationSchema } from '@/components/features/project/apply/schema';
 import { isProjectOpen, isRecruitmentOpen } from './projectContract';
-import { JOB_OPTIONS } from './fixtures';
+import { JOB_OPTIONS, TECH_STACKS } from './fixtures';
 import { getMembers } from './storage';
 import { addMockNotification } from './notificationHandlers';
 import { toProjectDetail } from './responseMappers';
@@ -21,6 +22,7 @@ function failure(status: number, message: string, code = 'PROJECT_APPLICATION400
   return HttpResponse.json({ code, message, result: null }, { status });
 }
 const positions = JOB_OPTIONS.fields.flatMap((field) => field.positions);
+const applicationListStatusSchema = z.enum(['PENDING', 'ACCEPTED', 'REJECTED']).catch('PENDING');
 
 export const projectWeek6Handlers = [
   http.get('/api/v1/projects/:projectId/team', ({ params }) => {
@@ -43,7 +45,10 @@ export const projectWeek6Handlers = [
       })),
     });
   }),
-  http.get('/api/v1/projects/:projectId/applications', ({ params }) => {
+  http.get('/api/v1/projects/:projectId/applications', ({ params, request }) => {
+    const status = applicationListStatusSchema.parse(
+      new URL(request.url).searchParams.get('status'),
+    );
     const member = getSessionMember();
     if (!member) return failure(401, '로그인이 필요합니다.');
     const project = getProjects().find((item) => item.id === Number(params.projectId));
@@ -51,7 +56,7 @@ export const projectWeek6Handlers = [
     if (project.leaderId !== member.memberId) return failure(403, '프로젝트 관리 권한이 없습니다.');
     return success(
       getApplications()
-        .filter((item) => item.projectId === project.id && item.status === 'PENDING')
+        .filter((item) => item.projectId === project.id && item.status === status)
         .map((item) => {
           const applicant = getMembers().find((member) => member.memberId === item.applicantId);
           const recruitment = project.recruitments.find(
@@ -59,6 +64,7 @@ export const projectWeek6Handlers = [
           );
           return {
             ...item,
+            decidedAt: item.decidedAt ?? null,
             applicantName: applicant?.name ?? '',
             applicantEmail: applicant?.email ?? '',
             profileImageUrl: applicant?.profileImageUrl ?? null,
@@ -86,19 +92,17 @@ export const projectWeek6Handlers = [
       applicant: {
         name: member.name,
         email: member.email,
-        techStacks: JOB_OPTIONS.fields
-          .flatMap((field) => field.techStacks)
-          .filter((item) => member.techStackIds.includes(item.id))
-          .map((item, index) => ({ ...item, displayOrder: index + 1 })),
+        techStacks: TECH_STACKS.filter((item) => member.techStackIds.includes(item.id)).map(
+          (item, index) => ({ ...item, displayOrder: index + 1 }),
+        ),
       },
       recruitments: project.recruitments.filter(isRecruitmentOpen).map((item, index) => ({
         id: index + 1,
         jobFieldName: JOB_OPTIONS.fields.find((field) => field.code === item.jobFieldCode)?.name,
         jobPositionName: positions.find((position) => position.id === item.jobPositionId)?.name,
-        techStacks: JOB_OPTIONS.fields
-          .flatMap((field) => field.techStacks)
-          .filter((skill) => item.techStackIds.includes(skill.id))
-          .map((skill) => skill.name),
+        techStacks: TECH_STACKS.filter((skill) => item.techStackIds.includes(skill.id)).map(
+          (skill) => skill.name,
+        ),
         isClosed: false,
       })),
     });
@@ -204,10 +208,9 @@ export const projectWeek6Handlers = [
       profileImageUrl: applicant.profileImageUrl,
       age: new Date().getFullYear() - Number(applicant.birthDate.slice(0, 4)),
       gender: applicant.gender,
-      techStacks: JOB_OPTIONS.fields
-        .flatMap((field) => field.techStacks)
-        .filter((skill) => applicant.techStackIds.includes(skill.id))
-        .map((skill, index) => ({ ...skill, displayOrder: index + 1 })),
+      techStacks: TECH_STACKS.filter((skill) => applicant.techStackIds.includes(skill.id)).map(
+        (skill, index) => ({ ...skill, displayOrder: index + 1 }),
+      ),
       motivation: application.motivation,
       status: application.status,
       jobPosition: {

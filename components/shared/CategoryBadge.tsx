@@ -18,6 +18,8 @@ const CATEGORY_CLASS: Record<string, string> = {
   캡스톤: 'category-badge-capstone',
   창의학기제: 'category-badge-creative',
   동아리: 'category-badge-club',
+  스터디: 'category-badge-study',
+  공모전: 'category-badge-contest',
   기타: 'category-badge-other',
 };
 

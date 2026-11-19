@@ -1,7 +1,11 @@
 import { INITIAL_MEMBERS, INITIAL_PROJECTS, type MockMember } from '@/mocks/fixtures';
 import type { ProjectRecord, AppliedProject } from './projectContract';
 
-export type MockApplication = AppliedProject & { applicantId: number; motivation: string };
+export type MockApplication = AppliedProject & {
+  applicantId: number;
+  motivation: string;
+  decidedAt?: string | null;
+};
 const APPLICATIONS_KEY = 'meeteam-week6-applications';
 const LIKES_KEY = 'meeteam-week6-likes';
 

@@ -1,11 +1,15 @@
 import type { ApiEnvelope } from '@/types/auth';
 import type { GithubActivityLevel, GithubActivitySummary } from '@/types/github';
+import type { MeetingMode, ProjectCollaboration } from '@/types/project';
 
 import { API_BASE_URL, apiFetch } from '@/components/features/auth/apiClient';
 import { extractApiData } from '@/components/features/auth/signupTransform';
+import { parseProjectCollaboration } from '@/components/features/project/collaboration';
+import { findProjectCategoryByLabel } from '@/components/features/project/constants';
 import { JOB_FIELD_FILTER_ALL } from '@/constants/jobField';
 import type {
   CategoryFilter,
+  MeetingFilter,
   PlatformFilter,
   ProjectFinderFilters,
   RecruitFilter,
@@ -25,6 +29,8 @@ export type ProjectSearchCard = {
     avatar: string;
   };
   githubActivityLevel: GithubActivityLevel | null;
+  meetingMode: MeetingMode | null;
+  weeklyHours: number | null;
   recruitInfo: Array<{
     id: string | number;
     role: string;
@@ -54,6 +60,8 @@ interface BackendProjectCardResponse {
     closed?: boolean;
   }>;
   githubActivity?: GithubActivitySummary | null;
+  meetingMode?: ProjectCollaboration['meetingMode'];
+  weeklyHours?: ProjectCollaboration['weeklyHours'];
 }
 
 interface ProjectSearchSlice {
@@ -97,6 +105,11 @@ export async function fetchProjectSearchResults(
     params.set('platformCategory', platformCategory);
   }
 
+  const meetingMode = mapMeetingFilter(filters.meeting);
+  if (meetingMode) {
+    params.set('meetingMode', meetingMode);
+  }
+
   if (filters.field !== JOB_FIELD_FILTER_ALL) {
     params.set('jobField', filters.field);
   }
@@ -130,6 +143,8 @@ export async function fetchProjectSearchResults(
 }
 
 function mapProjectCard(project: BackendProjectCardResponse): ProjectSearchCard {
+  const { meetingMode, weeklyHours } = parseProjectCollaboration(project);
+
   return {
     id: project.projectId,
     title: project.projectName,
@@ -143,6 +158,8 @@ function mapProjectCard(project: BackendProjectCardResponse): ProjectSearchCard 
       avatar: project.creatorImageUrl ?? '',
     },
     githubActivityLevel: project.githubActivity?.activityLevel ?? null,
+    meetingMode,
+    weeklyHours,
     recruitInfo:
       project.recruitments?.map((recruitment, index) => ({
         id: `${project.projectId}-${index + 1}`,
@@ -156,18 +173,11 @@ function mapProjectCard(project: BackendProjectCardResponse): ProjectSearchCard 
 }
 
 function mapCategoryFilter(category: CategoryFilter) {
-  switch (category) {
-    case '캡스톤':
-      return 'CAPSTONE';
-    case '창의학기제':
-      return 'CREATIVE_SEMESTER';
-    case '동아리':
-      return 'CLUB';
-    case '기타':
-      return 'ETC';
-    default:
-      return null;
-  }
+  return findProjectCategoryByLabel(category)?.code ?? null;
+}
+
+function mapMeetingFilter(meeting: MeetingFilter): MeetingMode | null {
+  return meeting === 'online' ? 'ONLINE' : null;
 }
 
 function mapRecruitFilter(recruitOnly: RecruitFilter) {

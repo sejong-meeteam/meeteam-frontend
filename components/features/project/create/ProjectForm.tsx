@@ -9,13 +9,18 @@ import type { ProjectFormValues, RecruitInterest, ReleasePlatform } from '@/type
 import TechStackSection from '@/components/features/auth/TechStackSection';
 import { fetchJobOptions } from '@/components/features/auth/signupApi';
 import CategoryBox from '@/components/features/project/create/CategoryBox';
+import CollaborationFields, {
+  type CollaborationFieldsValue,
+} from '@/components/features/project/create/CollaborationFields';
 import CoverImageUploader from '@/components/features/project/create/CoverImageUploader';
 import ProjectFormSectionNav from '@/components/features/project/create/ProjectFormSectionNav';
 import {
+  collaborationInputSchema,
   projectFormSchema,
   type ProjectFormFieldErrors,
 } from '@/components/features/project/create/schema';
 import RecruitDeadlineField from '@/components/features/project/create/RecruitDeadlineField';
+import { EMPTY_PROJECT_COLLABORATION } from '@/components/features/project/collaboration';
 import { PROJECT_CATEGORIES, RELEASE_PLATFORMS } from '@/components/features/project/constants';
 import {
   findProjectJobField,
@@ -59,25 +64,26 @@ const DEFAULT_FORM_VALUES: ProjectFormValues = {
   recruitDeadline: '',
   isRecruitUntilComplete: false,
   coverImage: null,
+  ...EMPTY_PROJECT_COLLABORATION,
 };
 
 const CREATE_STEPS = [
   { title: '기본 정보', description: '프로젝트의 첫인상을 정해요.' },
-  { title: '프로젝트 소개', description: '소개와 연결 링크를 입력해요.' },
+  { title: '프로젝트 소개', description: '소개, 연결 링크, 회의 방식을 입력해요.' },
   { title: '모집 역할', description: '리더와 모집 포지션을 정해요.' },
   { title: '기술 스택과 마감', description: '필요 기술과 마감 방식을 정해요.' },
 ] as const;
 
 const CREATE_STEP_FIELDS: ProjectFormStepField[][] = [
   ['projectName', 'categoryId', 'releasePlatforms'],
-  ['description', 'githubUrl', 'communicationUrl'],
+  ['description', 'githubUrl', 'communicationUrl', 'weeklyHours', 'meetingNote'],
   ['myInterest', 'recruitInterests'],
   ['recruitTechStacks', 'recruitDeadline', 'form'],
 ];
 
 const EDIT_SECTIONS = [
   { title: '프로젝트 정보', description: '이름, 카테고리, 플랫폼, 커버 이미지' },
-  { title: '소개와 링크', description: '소개글, 외부 연결 정보' },
+  { title: '소개와 링크', description: '소개글, 외부 연결 정보, 회의 방식' },
   { title: '역할과 모집', description: '리더 분야, 모집 포지션' },
   { title: '기술 스택과 마감', description: '분야별 기술 스택, 마감 방식' },
 ] as const;
@@ -170,6 +176,11 @@ export default function ProjectForm({
     hydratedInitialValues.coverImage ?? null,
   );
   const [removeImage, setRemoveImage] = useState(hydratedInitialValues.removeImage ?? false);
+  const [collaboration, setCollaboration] = useState<CollaborationFieldsValue>({
+    meetingMode: hydratedInitialValues.meetingMode,
+    weeklyHours: hydratedInitialValues.weeklyHours?.toString() ?? '',
+    meetingNote: hydratedInitialValues.meetingNote ?? '',
+  });
   const [openRecruitDropdown, setOpenRecruitDropdown] = useState<{
     index: number;
     key: Exclude<OpenDropdownKey, null>;
@@ -302,6 +313,7 @@ export default function ProjectForm({
       recruitInterests,
       recruitDeadline,
       isRecruitUntilComplete,
+      ...collaboration,
     });
 
     const nextErrors: ProjectFormFieldErrors = {};
@@ -316,6 +328,8 @@ export default function ProjectForm({
       nextErrors.myInterest = flattened.myInterest?.[0];
       nextErrors.recruitInterests = flattened.recruitInterests?.[0];
       nextErrors.recruitDeadline = flattened.recruitDeadline?.[0];
+      nextErrors.weeklyHours = flattened.weeklyHours?.[0];
+      nextErrors.meetingNote = flattened.meetingNote?.[0];
     }
 
     if (!isValidGithubRepositoryUrl(githubUrl)) {
@@ -420,6 +434,7 @@ export default function ProjectForm({
           isRecruitUntilComplete,
           coverImage,
           removeImage,
+          ...collaborationInputSchema.parse(collaboration),
         },
         { jobFields },
       );
@@ -697,6 +712,18 @@ export default function ProjectForm({
                     aria-invalid={Boolean(fieldErrors.communicationUrl)}
                   />
                 </BaseField>
+
+                <CollaborationFields
+                  value={collaboration}
+                  errors={{
+                    weeklyHours: fieldErrors.weeklyHours,
+                    meetingNote: fieldErrors.meetingNote,
+                  }}
+                  onChange={(patch) => {
+                    setCollaboration((prev) => ({ ...prev, ...patch }));
+                    clearError('weeklyHours', 'meetingNote');
+                  }}
+                />
               </>
             ) : null}
 

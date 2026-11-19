@@ -16,7 +16,7 @@ export const Categories: Story = {
   name: '프로젝트 카테고리',
   render: () => (
     <div className="flex flex-wrap gap-3">
-      {['캡스톤', '창의학기제', '동아리', '기타'].map((label) => (
+      {['캡스톤', '창의학기제', '동아리', '스터디', '공모전', '기타'].map((label) => (
         <CategoryBadge key={label} label={label} />
       ))}
     </div>

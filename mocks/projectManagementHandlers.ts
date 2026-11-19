@@ -10,7 +10,7 @@ import {
 } from './storage';
 import { backendProjectCreateSchema, projectCreateSchema } from './projectSchema';
 import { addMockNotification } from './notificationHandlers';
-import type { ProjectRecord } from './projectContract';
+import { toProjectCollaboration, type ProjectRecord } from './projectContract';
 
 const success = <T>(result: T) => HttpResponse.json({ code: 'COMMON200', result });
 const failure = (status: number, message: string) => HttpResponse.json({ message }, { status });
@@ -101,6 +101,7 @@ export const projectManagementHandlers = [
       editable: project.recruitmentStatus !== 'SUSPENDED',
       notEditableReason:
         project.recruitmentStatus === 'SUSPENDED' ? '모집을 재개한 후 수정해주세요.' : null,
+      ...toProjectCollaboration(project),
       recruitments: project.recruitments.map((item, index) => {
         const field = JOB_OPTIONS.fields.find((field) => field.code === item.jobFieldCode);
         return {
@@ -232,6 +233,7 @@ export const projectManagementHandlers = [
         ...application,
         status: parsed.data.decision,
         statusDisplayName: parsed.data.decision === 'ACCEPTED' ? '승인됨' : '거절됨',
+        decidedAt: new Date().toISOString(),
       });
       addMockNotification(
         application.applicantId,

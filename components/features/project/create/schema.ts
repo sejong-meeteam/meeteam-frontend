@@ -1,4 +1,32 @@
 import { z } from 'zod';
+import {
+  MEETING_MODES,
+  MEETING_NOTE_MAX_LENGTH,
+  WEEKLY_HOURS_MAX,
+  WEEKLY_HOURS_MIN,
+} from '@/components/features/project/collaboration';
+
+const WEEKLY_HOURS_MESSAGE = `주당 예상 시간은 ${WEEKLY_HOURS_MIN}~${WEEKLY_HOURS_MAX}시간 사이로 입력해 주세요.`;
+
+export const collaborationInputSchema = z.object({
+  meetingMode: z.enum(MEETING_MODES).nullable().default(null),
+  weeklyHours: z
+    .string()
+    .trim()
+    .refine((value) => value === '' || /^\d+$/.test(value), WEEKLY_HOURS_MESSAGE)
+    .transform((value) => (value === '' ? null : Number(value)))
+    .refine(
+      (value) => value === null || (value >= WEEKLY_HOURS_MIN && value <= WEEKLY_HOURS_MAX),
+      WEEKLY_HOURS_MESSAGE,
+    )
+    .default(null),
+  meetingNote: z
+    .string()
+    .trim()
+    .max(MEETING_NOTE_MAX_LENGTH, `회의 메모는 ${MEETING_NOTE_MAX_LENGTH}자 이하로 입력해 주세요.`)
+    .transform((value) => value || null)
+    .default(null),
+});
 
 const recruitInterestSchema = z
   .object({
@@ -37,6 +65,7 @@ export const projectFormSchema = z
       .min(1, '최소 1개의 모집 분야를 추가해 주세요.'),
     recruitDeadline: z.string(),
     isRecruitUntilComplete: z.boolean(),
+    ...collaborationInputSchema.shape,
   })
   .superRefine((value, ctx) => {
     if (!value.isRecruitUntilComplete && !value.recruitDeadline) {
@@ -87,6 +116,8 @@ export type ProjectFormFieldErrors = Partial<
     | 'recruitInterests'
     | 'recruitTechStacks'
     | 'recruitDeadline'
+    | 'weeklyHours'
+    | 'meetingNote'
     | 'form',
     string
   >

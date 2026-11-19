@@ -1,11 +1,12 @@
 import type { MemberRole } from './auth';
+import type { ProjectCategoryCode } from './project';
 
 export type { MemberRole };
 
 export type MemberStatus = 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWN';
 export type ProjectVisibility = 'VISIBLE' | 'HIDDEN' | 'DELETED';
 export type AdminRecruitmentStatus = 'RECRUITING' | 'CLOSED' | 'SUSPENDED';
-export type AdminProjectCategory = 'CAPSTONE' | 'CREATIVE_SEMESTER' | 'CLUB' | 'ETC';
+export type AdminProjectCategory = ProjectCategoryCode;
 export type AdminProjectPlatform = 'WEB' | 'IOS' | 'ANDROID';
 export type AdminApplicationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED';
 

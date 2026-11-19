@@ -1,13 +1,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Users } from 'lucide-react';
+import { CalendarClock, Users } from 'lucide-react';
 import CategoryBadge from '@/components/shared/CategoryBadge';
 import { formatJobRole } from '@/components/shared/jobRoleFormat';
 import ProfileAvatar from '@/components/shared/ProfileAvatar';
 import StatusBadge from '@/components/shared/StatusBadge';
+import { formatCollaborationSummary } from './collaboration';
 import GithubActivityBadge from './github/GithubActivityBadge';
 import { getProjectImageSrc } from './projectImage';
 import type { GithubActivityLevel } from '@/types/github';
+import type { MeetingMode } from '@/types/project';
 
 interface ProjectCardProps {
   project: {
@@ -24,6 +26,8 @@ interface ProjectCardProps {
     };
     tags?: string[];
     githubActivityLevel?: GithubActivityLevel | null;
+    meetingMode?: MeetingMode | null;
+    weeklyHours?: number | null;
     recruitInfo?: Array<{
       id: string | number;
       role: string;
@@ -43,6 +47,10 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
   const recruitInfo = project.recruitInfo ?? [];
   const deadlineLabel = project.deadline?.trim() ? `${project.deadline} 마감` : '상시 모집';
   const imageSrc = getProjectImageSrc(project.imageUrl);
+  const collaborationSummary = formatCollaborationSummary({
+    meetingMode: project.meetingMode ?? null,
+    weeklyHours: project.weeklyHours ?? null,
+  });
 
   const heightClass = compact ? 'h-50' : 'h-[380px]';
   const titleClass = compact ? 'mb-3 text-2xl' : 'mb-3 text-2xl';
@@ -68,18 +76,27 @@ export function ProjectCard({ project, compact = false }: ProjectCardProps) {
       </div>
 
       <div
-        className={`absolute left-0 right-0 top-0 z-10 flex justify-between ${compact ? 'p-4' : 'p-6'}`}
+        className={`absolute left-0 right-0 top-0 z-10 flex items-start justify-between gap-2 ${compact ? 'p-4' : 'p-6'}`}
       >
         <div className="flex min-w-0 flex-wrap items-center gap-1.5">
           <CategoryBadge label={project.category} tone="accent" />
           {project.githubActivityLevel ? (
             <GithubActivityBadge level={project.githubActivityLevel} tone="overlay" />
           ) : null}
+          {collaborationSummary ? (
+            <span
+              data-cy="project-card-collaboration"
+              className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-mt-white/20 bg-mt-text-primary/40 px-2 py-0.5 text-xs leading-4 font-bold text-mt-white backdrop-blur-md"
+            >
+              <CalendarClock className="h-3 w-3" aria-hidden strokeWidth={2} />
+              {collaborationSummary}
+            </span>
+          ) : null}
         </div>
         <StatusBadge
           status="deadline"
           label={deadlineLabel}
-          className="border-mt-logo-blue/30 bg-mt-logo-blue/30"
+          className="shrink-0 border-mt-logo-blue/30 bg-mt-logo-blue/30"
         />
       </div>
 

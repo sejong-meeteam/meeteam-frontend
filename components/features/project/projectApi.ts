@@ -1,5 +1,7 @@
 import type { ApiEnvelope, JobFieldOption } from '@/types/auth';
 import type {
+  ProjectCategoryCode,
+  ProjectCollaboration,
   ProjectFormValues,
   ProjectApplicant,
   ProjectMember,
@@ -11,6 +13,14 @@ import { API_BASE_URL, apiFetch } from '@/components/features/auth/apiClient';
 import { createApiError } from '@/components/features/auth/authError';
 import { findTechStackByName } from '@/components/features/auth/jobOptionUtils';
 import { extractApiData, normalizeUrl } from '@/components/features/auth/signupTransform';
+import {
+  parseProjectCollaboration,
+  toCollaborationRequest,
+} from '@/components/features/project/collaboration';
+import {
+  PROJECT_CATEGORIES,
+  findProjectCategoryByCode,
+} from '@/components/features/project/constants';
 import {
   findProjectJobField,
   findProjectJobPosition,
@@ -27,7 +37,7 @@ type BackendProjectDetailResponse = {
   id: number;
   name: string;
   description: string;
-  projectCategory: 'CAPSTONE' | 'CREATIVE_SEMESTER' | 'CLUB' | 'ETC';
+  projectCategory: ProjectCategoryCode;
   platformCategory: 'IOS' | 'ANDROID' | 'WEB';
   imageUrl: string | null;
   recruitmentStatus: 'RECRUITING' | 'CLOSED' | 'SUSPENDED';
@@ -69,7 +79,7 @@ type BackendProjectDetailResponse = {
   likeCount: number;
   isLiked: boolean;
   isLeader: boolean;
-};
+} & Partial<ProjectCollaboration>;
 
 type BackendTeamManagementResponse = {
   currentMemberCount: number;
@@ -117,7 +127,7 @@ type BackendProjectEditPrefillResponse = {
   }>;
   editable: boolean;
   notEditableReason: string | null;
-};
+} & Partial<ProjectCollaboration>;
 
 type BackendApplicationStatus =
   | 'PENDING'
@@ -147,6 +157,7 @@ type BackendProjectApplicationListResponse = {
   motivation: string;
   status: BackendApplicationStatus;
   appliedAt: string;
+  decidedAt?: string | null;
   currentCount: number;
   recruitmentCount: number;
   isRecruitmentFull: boolean;
@@ -261,7 +272,7 @@ type ProjectCreateRequestPayload = {
   }>;
   recruitmentDeadlineType: 'END_DATE' | 'RECRUITMENT_COMPLETED';
   endDate?: string;
-};
+} & ProjectCollaboration;
 
 type ProjectEditRequestPayload = {
   name: string;
@@ -282,7 +293,7 @@ type ProjectEditRequestPayload = {
   }>;
   confirmDeletePositionsWithPendingApplicants: boolean;
   removeImage?: boolean;
-};
+} & ProjectCollaboration;
 
 export type ProjectApplicationRequestPayload = {
   jobPositionCode: string;
@@ -290,6 +301,8 @@ export type ProjectApplicationRequestPayload = {
 };
 
 export type ProjectApplicationDecision = 'ACCEPTED' | 'REJECTED';
+
+export type ProjectApplicationListStatus = 'PENDING' | ProjectApplicationDecision;
 
 export type ProjectApplicationResult = {
   applicationId: number;
@@ -407,14 +420,13 @@ function mapApplicationStatus(status: BackendApplicationStatus): ProjectApplican
   }
 }
 
+function formatDotDate(value: string | null | undefined) {
+  const [datePart] = value?.split('T') ?? [];
+  return datePart ? datePart.replaceAll('-', '.') : null;
+}
+
 function formatAppliedAt(appliedAt: string | null | undefined) {
-  if (!appliedAt) {
-    return '지원일 미확인';
-  }
-
-  const [datePart] = appliedAt.split('T');
-  const formattedDate = datePart?.replaceAll('-', '.');
-
+  const formattedDate = formatDotDate(appliedAt);
   return formattedDate ? `${formattedDate} 지원` : '지원일 미확인';
 }
 
@@ -428,6 +440,7 @@ function mapApplicationListItem(
     position: application.jobFieldName,
     specialty: application.jobPositionName,
     appliedAt: formatAppliedAt(application.appliedAt),
+    decidedAt: formatDotDate(application.decidedAt),
     email: application.applicantEmail,
     introduction: application.motivation,
     avatarUrl: application.profileImageUrl ?? '',
@@ -461,31 +474,17 @@ function mapApplicantTechStacks(techStacks: BackendApplicantTechStackResponse[] 
 }
 
 function mapCategoryIdToApiValue(categoryId: ProjectFormValues['categoryId']) {
-  switch (categoryId) {
-    case 'capstone':
-      return 'CAPSTONE';
-    case 'creative-semester':
-      return 'CREATIVE_SEMESTER';
-    case 'club':
-      return 'CLUB';
-    case 'other':
-      return 'ETC';
-    default:
-      throw new Error('프로젝트 카테고리를 다시 선택해 주세요.');
+  const category = PROJECT_CATEGORIES.find((item) => item.id === categoryId);
+
+  if (!category) {
+    throw new Error('프로젝트 카테고리를 다시 선택해 주세요.');
   }
+
+  return category.code;
 }
 
 function mapCategoryApiValueToId(category: BackendProjectDetailResponse['projectCategory']) {
-  switch (category) {
-    case 'CAPSTONE':
-      return 'capstone';
-    case 'CREATIVE_SEMESTER':
-      return 'creative-semester';
-    case 'CLUB':
-      return 'club';
-    case 'ETC':
-      return 'other';
-  }
+  return findProjectCategoryByCode(category)?.id ?? 'other';
 }
 
 function mapPlatformToApiValue(
@@ -603,6 +602,7 @@ export function buildProjectCreatePayload(values: ProjectFormValues, jobFields: 
     recruitments,
     recruitmentDeadlineType: values.isRecruitUntilComplete ? 'RECRUITMENT_COMPLETED' : 'END_DATE',
     endDate: values.isRecruitUntilComplete ? undefined : values.recruitDeadline,
+    ...toCollaborationRequest(values),
   } satisfies ProjectCreateRequestPayload;
 }
 
@@ -680,6 +680,7 @@ export function buildProjectEditPayload(
     recruitments: buildRecruitmentRequests(values, jobFields),
     confirmDeletePositionsWithPendingApplicants:
       options.confirmDeletePositionsWithPendingApplicants ?? false,
+    ...toCollaborationRequest(values),
     ...(values.removeImage && !values.coverImage ? { removeImage: true } : {}),
   } satisfies ProjectEditRequestPayload;
 }
@@ -788,11 +789,15 @@ export async function fetchProjectApplicationPage(
 
 export async function fetchProjectApplications(
   projectId: string | number,
+  status: ProjectApplicationListStatus = 'PENDING',
 ): Promise<ProjectApplicant[]> {
-  const response = await apiFetch(`${API_BASE_URL}/api/v1/projects/${projectId}/applications`, {
-    method: 'GET',
-    cache: 'no-store',
-  });
+  const response = await apiFetch(
+    `${API_BASE_URL}/api/v1/projects/${projectId}/applications?status=${status}`,
+    {
+      method: 'GET',
+      cache: 'no-store',
+    },
+  );
 
   const applications = await readEnvelope<BackendProjectApplicationListResponse[]>(
     response,
@@ -1045,6 +1050,7 @@ export async function fetchProjectEditPrefill(
       recruitDeadline: project.endDate ?? '',
       isRecruitUntilComplete,
       coverImage: null,
+      ...parseProjectCollaboration(project),
     },
     coverImageUrl: project.imageUrl ?? '',
     editable: project.editable,
@@ -1118,6 +1124,7 @@ export async function fetchProjectDetail(
     recruitTechStacks,
     recruitDeadline: project.endDate ?? '',
     isRecruitUntilComplete: project.recruitmentDeadlineType === 'RECRUITMENT_COMPLETED',
+    ...parseProjectCollaboration(project),
     targetMemberCount:
       project.recruitments.reduce((sum, recruitment) => sum + recruitment.recruitmentCount, 0) + 1,
     members,

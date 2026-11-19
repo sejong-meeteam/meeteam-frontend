@@ -13,7 +13,29 @@ export type RecruitInterest = Interest & {
 export type ProjectStatus = 'recruiting' | 'closed';
 export type ProjectRecruitmentStatus = 'RECRUITING' | 'CLOSED' | 'SUSPENDED';
 
-export type ProjectCategoryId = 'capstone' | 'creative-semester' | 'club' | 'other';
+export type ProjectCategoryId =
+  | 'capstone'
+  | 'creative-semester'
+  | 'club'
+  | 'study'
+  | 'contest'
+  | 'other';
+
+export type ProjectCategoryCode =
+  | 'CAPSTONE'
+  | 'CREATIVE_SEMESTER'
+  | 'CLUB'
+  | 'STUDY'
+  | 'CONTEST'
+  | 'ETC';
+
+export type MeetingMode = 'ONLINE' | 'OFFLINE' | 'HYBRID';
+
+export type ProjectCollaboration = {
+  meetingMode: MeetingMode | null;
+  weeklyHours: number | null;
+  meetingNote: string | null;
+};
 
 export type ReleasePlatform = '웹' | 'iOS' | '안드로이드';
 
@@ -44,6 +66,7 @@ export type ProjectApplicant = {
   introduction: string;
   avatarUrl: string;
   status: ProjectApplicantStatus;
+  decidedAt?: string | null;
   age?: number | null;
   gender?: 'MALE' | 'FEMALE' | string | null;
   techStacks?: ProjectApplicantTechStack[];
@@ -66,7 +89,7 @@ export type ProjectFormValues = {
   isRecruitUntilComplete: boolean;
   coverImage?: File | null;
   removeImage?: boolean;
-};
+} & ProjectCollaboration;
 
 export type ProjectRecruitmentDetail = {
   id: string;

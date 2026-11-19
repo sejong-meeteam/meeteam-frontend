@@ -6,7 +6,7 @@ import { qnaHandlers } from './qnaHandlers';
 import { adminHandlers } from './adminHandlers';
 import { githubHandlers } from './githubHandlers';
 import { proposalHandlers } from './proposalHandlers';
-import { isProjectOpen, isProjectVisible } from './projectContract';
+import { isProjectOpen, isProjectVisible, matchesMeetingMode } from './projectContract';
 import { toProjectCard, toProjectDetail, toMemberCard, pageResponse } from './responseMappers';
 import { z } from 'zod';
 import { profileImageSchema } from '@/components/features/profile/schema';
@@ -213,14 +213,14 @@ export const handlers = [
       const name = params.get('name') ?? '';
       const skills = params.getAll('techStackNames');
       const fieldId = Number(params.get('jobFieldId'));
-      const fieldNames: Record<number, string> = { 2: '디자인', 3: '프론트', 4: '백엔드' };
+      const fieldName = fieldId ? JOB_OPTIONS.fields[fieldId - 1]?.name : undefined;
       const cards = getMembers()
         .filter(isPubliclyListed)
         .map(toMemberCard)
         .filter(
           (member) =>
             member.name.includes(name) &&
-            (!fieldId || member.jobFieldName === fieldNames[fieldId]) &&
+            (!fieldId || member.jobFieldName === fieldName) &&
             skills.every((skill) => member.techStacks.some((item) => item.name === skill)),
         );
       cards.sort((a, b) =>
@@ -445,6 +445,7 @@ export const handlers = [
     const category = params.get('projectCategory') ?? '';
     const jobField = params.get('jobField') ?? '';
     const platform = params.get('platformCategory') ?? '';
+    const meetingMode = params.get('meetingMode') ?? '';
     const recruitingOnly = params.get('recruitment') === 'RECRUITING';
     const techStackId = Number(params.get('techStackId'));
     const page = Math.max(0, Number(params.get('page')) || 0);
@@ -457,6 +458,7 @@ export const handlers = [
           `${project.name} ${project.leaderName}`.toLocaleLowerCase().includes(keyword)) &&
         (!category || project.category === category) &&
         (!platform || project.platform === platform) &&
+        matchesMeetingMode(project, meetingMode) &&
         (!recruitingOnly || isProjectOpen(project)) &&
         (!jobField || project.recruitments.some((item) => item.jobFieldCode === jobField)) &&
         (!techStackId ||

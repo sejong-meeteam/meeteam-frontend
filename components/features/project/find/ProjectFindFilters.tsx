@@ -6,8 +6,14 @@ import {
   FINDER_PLATFORM_OPTIONS,
 } from '@/components/features/project/constants';
 import type { JobFieldFilterOption } from '@/constants/jobField';
-import { RECRUIT_STATUS_OPTIONS } from './projectFinder';
-import type { CategoryFilter, FieldFilter, PlatformFilter, RecruitFilter } from './types';
+import { MEETING_FILTER_OPTIONS, RECRUIT_STATUS_OPTIONS } from './projectFinder';
+import type {
+  CategoryFilter,
+  FieldFilter,
+  MeetingFilter,
+  PlatformFilter,
+  RecruitFilter,
+} from './types';
 
 function FilterChip({
   label,
@@ -79,12 +85,14 @@ type ProjectFindFiltersProps = {
   category: CategoryFilter;
   recruitOnly: RecruitFilter;
   platform: PlatformFilter;
+  meeting: MeetingFilter;
   field: FieldFilter;
   fieldOptions: JobFieldFilterOption[];
   onSearchValueChange: (value: string) => void;
   onCategoryChange: (value: CategoryFilter) => void;
   onRecruitOnlyChange: (value: RecruitFilter) => void;
   onPlatformChange: (value: PlatformFilter) => void;
+  onMeetingChange: (value: MeetingFilter) => void;
   onFieldChange: (value: FieldFilter) => void;
 };
 
@@ -93,12 +101,14 @@ export function ProjectFindFilters({
   category,
   recruitOnly,
   platform,
+  meeting,
   field,
   fieldOptions,
   onSearchValueChange,
   onCategoryChange,
   onRecruitOnlyChange,
   onPlatformChange,
+  onMeetingChange,
   onFieldChange,
 }: ProjectFindFiltersProps) {
   return (
@@ -154,6 +164,25 @@ export function ProjectFindFilters({
                   active={platform === option}
                   onClick={() => onPlatformChange(option)}
                   dataCy="project-platform-filter"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="h-px w-full bg-mt-border" />
+
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-8">
+            <span className="w-12 shrink-0 text-sm leading-5 font-semibold text-mt-text-primary">
+              회의
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {MEETING_FILTER_OPTIONS.map((option) => (
+                <FilterChip
+                  key={option.value}
+                  label={option.label}
+                  active={meeting === option.value}
+                  onClick={() => onMeetingChange(option.value)}
+                  dataCy="project-meeting-filter"
                 />
               ))}
             </div>

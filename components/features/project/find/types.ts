@@ -9,12 +9,14 @@ export type FieldFilter = JobFieldFilter;
 export type RecruitFilter = 'all' | 'recruiting';
 export type SortFilter = 'latest' | 'deadline';
 export type CategoryFilter = (typeof FINDER_CATEGORY_OPTIONS)[number];
+export type MeetingFilter = 'all' | 'online';
 
 export type ProjectFinderFilters = {
   searchValue: string;
   category: CategoryFilter;
   recruitOnly: RecruitFilter;
   platform: PlatformFilter;
+  meeting: MeetingFilter;
   field: FieldFilter;
   sort: SortFilter;
 };

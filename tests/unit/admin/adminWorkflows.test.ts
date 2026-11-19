@@ -124,6 +124,7 @@ describe('project actions', () => {
         category: '모든 카테고리',
         recruitOnly: 'all',
         platform: '전체',
+        meeting: 'all',
         field: '전체',
         sort: 'latest',
       },

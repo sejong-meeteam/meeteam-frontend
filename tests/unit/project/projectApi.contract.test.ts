@@ -58,6 +58,9 @@ const PROJECT_VALUES: ProjectFormValues = {
   recruitDeadline: '2026-06-30',
   isRecruitUntilComplete: false,
   coverImage: null,
+  meetingMode: null,
+  weeklyHours: null,
+  meetingNote: null,
 };
 
 afterEach(() => {
@@ -91,6 +94,9 @@ describe('buildProjectCreatePayload', () => {
       ],
       recruitmentDeadlineType: 'END_DATE',
       endDate: '2026-06-30',
+      meetingMode: null,
+      weeklyHours: null,
+      meetingNote: null,
     });
   });
 
@@ -228,6 +234,9 @@ describe('buildProjectEditPayload', () => {
         },
       ],
       confirmDeletePositionsWithPendingApplicants: true,
+      meetingMode: null,
+      weeklyHours: null,
+      meetingNote: null,
     });
   });
 

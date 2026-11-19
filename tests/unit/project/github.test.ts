@@ -77,6 +77,7 @@ describe('GitHub 연동 - 공개 개발 현황', () => {
         category: '모든 카테고리',
         recruitOnly: 'all',
         platform: '전체',
+        meeting: 'all',
         field: '전체',
         sort: 'latest',
       },
