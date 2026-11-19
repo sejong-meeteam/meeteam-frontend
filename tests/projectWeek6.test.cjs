@@ -90,7 +90,7 @@ test('validation rejects blank role, short and overlong motivations; trims valid
     false,
   );
   assert.equal(
-    projectApplicationSchema.safeParse({ ...payload, motivation: 'a'.repeat(1001) }).success,
+    projectApplicationSchema.safeParse({ ...payload, motivation: 'a'.repeat(701) }).success,
     false,
   );
   assert.equal(

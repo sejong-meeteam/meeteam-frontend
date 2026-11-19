@@ -19,7 +19,8 @@ describe('지원·관리·상태 갱신', () => {
     cy.visitMock('/projects/102/apply', { memberId: 1 });
     cy.get('[data-cy=project-application-motivation]').type('짧음');
     cy.get('[data-cy=project-application-submit]').click();
-    cy.contains('[role=status]', '10자').should('be.visible');
+    cy.get('[data-cy=project-application-motivation]').should('have.attr', 'aria-invalid', 'true');
+    cy.contains('[data-cy=project-application-motivation-error]', '10자').should('be.visible');
     cy.get('[data-cy=project-application-motivation]')
       .clear()
       .type('함께 안정적인 서비스를 만들며 성장하고 싶습니다.');

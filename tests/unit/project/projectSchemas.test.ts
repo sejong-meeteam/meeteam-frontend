@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { projectApplicationSchema } from '@/components/features/project/apply/schema';
+import {
+  APPLICATION_MESSAGE_MAX_LENGTH,
+  projectApplicationSchema,
+} from '@/components/features/project/apply/schema';
 import { projectFormSchema } from '@/components/features/project/create/schema';
 
 const VALID_PROJECT_FORM_VALUES = {
@@ -143,7 +146,7 @@ describe('projectFormSchema', () => {
 });
 
 describe('projectApplicationSchema', () => {
-  it('지원 포지션과 10자 이상 지원동기를 허용한다', () => {
+  it('지원 포지션과 10자 이상 지원 메시지를 허용한다', () => {
     expect(
       projectApplicationSchema.safeParse({
         jobPositionCode: 'WEB_FRONTEND',
@@ -155,7 +158,7 @@ describe('projectApplicationSchema', () => {
   it('지원 포지션이 없으면 오류를 반환한다', () => {
     const result = projectApplicationSchema.safeParse({
       jobPositionCode: '',
-      motivation: '지원동기는 충분히 길게 입력했습니다.',
+      motivation: '지원 메시지는 충분히 길게 입력했습니다.',
     });
 
     expect(result.success).toBe(false);
@@ -164,7 +167,7 @@ describe('projectApplicationSchema', () => {
     ]);
   });
 
-  it('지원동기는 10자 이상이어야 한다', () => {
+  it('지원 메시지는 10자 이상이어야 한다', () => {
     const result = projectApplicationSchema.safeParse({
       jobPositionCode: 'WEB_FRONTEND',
       motivation: '짧아요',
@@ -172,19 +175,25 @@ describe('projectApplicationSchema', () => {
 
     expect(result.success).toBe(false);
     expect(result.error?.flatten().fieldErrors.motivation).toEqual([
-      '지원 사유를 10자 이상 입력해 주세요.',
+      '지원 메시지를 10자 이상 입력해 주세요.',
     ]);
   });
 
-  it('지원동기는 1000자를 초과할 수 없다', () => {
-    const result = projectApplicationSchema.safeParse({
+  it('지원 메시지는 입력창 최대 길이(700자)까지 허용하고 넘으면 거부한다', () => {
+    const atLimit = projectApplicationSchema.safeParse({
       jobPositionCode: 'WEB_FRONTEND',
-      motivation: '가'.repeat(1001),
+      motivation: '가'.repeat(APPLICATION_MESSAGE_MAX_LENGTH),
+    });
+    const overLimit = projectApplicationSchema.safeParse({
+      jobPositionCode: 'WEB_FRONTEND',
+      motivation: '가'.repeat(APPLICATION_MESSAGE_MAX_LENGTH + 1),
     });
 
-    expect(result.success).toBe(false);
-    expect(result.error?.flatten().fieldErrors.motivation).toEqual([
-      '지원 사유는 1000자 이하로 입력해 주세요.',
+    expect(APPLICATION_MESSAGE_MAX_LENGTH).toBe(700);
+    expect(atLimit.success).toBe(true);
+    expect(overLimit.success).toBe(false);
+    expect(overLimit.error?.flatten().fieldErrors.motivation).toEqual([
+      '지원 메시지는 700자 이하로 입력해 주세요.',
     ]);
   });
 });

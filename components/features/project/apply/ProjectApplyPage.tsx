@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { type FormEvent, useEffect, useMemo, useState } from 'react';
+import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { MessageSquareText } from 'lucide-react';
 import { useAuthRequiredModal } from '@/components/features/auth/useAuthRequiredModal';
 import { fetchJobOptions } from '@/components/features/auth/signupApi';
@@ -15,7 +15,17 @@ import {
   findProjectJobField,
   findProjectJobPosition,
 } from '@/components/features/project/projectJobOptions';
-import { projectApplicationSchema } from '@/components/features/project/apply/schema';
+import {
+  clearApplicationDraft,
+  readApplicationDraft,
+  saveApplicationDraft,
+} from '@/components/features/project/apply/applicationDraft';
+import {
+  APPLICATION_MESSAGE_MAX_LENGTH,
+  APPLICATION_MESSAGE_MIN_LENGTH,
+  applicationMessageSchema,
+  projectApplicationSchema,
+} from '@/components/features/project/apply/schema';
 import { PROJECT_CATEGORIES } from '@/components/features/project/constants';
 import BaseButton from '@/components/shared/BaseButton';
 import BaseTextarea from '@/components/shared/BaseTextarea';
@@ -43,7 +53,9 @@ type ApplicationPositionOption = {
   techStacks: string[];
 };
 
-const PROJECT_APPLICATION_MAX_LENGTH = 700;
+const MESSAGE_LABEL_ID = 'project-application-message-label';
+const MESSAGE_ERROR_ID = 'project-application-message-error';
+const MESSAGE_COUNTER_ID = 'project-application-message-counter';
 const PROJECT_APPLY_FALLBACK_IMAGE_SRC = '/brand/meeteam_character_hat.png';
 
 function InfoChip({ label, tone = 'position' }: { label: string; tone?: 'position' | 'tech' }) {
@@ -126,6 +138,12 @@ function ProjectApplyThumbnail({
   );
 }
 
+function getMessageError(message: string) {
+  const result = applicationMessageSchema.safeParse(message);
+
+  return result.success ? null : (result.error.issues[0]?.message ?? null);
+}
+
 function buildApplicationPositions(
   applicationPage: ProjectApplicationPage | null,
   jobFields: JobFieldOption[],
@@ -182,6 +200,8 @@ export default function ProjectApplyPage({
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [motivationError, setMotivationError] = useState<string | null>(null);
+  const motivationRef = useRef<HTMLTextAreaElement>(null);
 
   const positionOptions = useMemo(
     () => buildApplicationPositions(applicationPage, jobFields),
@@ -251,14 +271,30 @@ export default function ProjectApplyPage({
         (option.fieldName === initialJobField && option.positionName === initialJobPosition),
     );
 
-    setSelectedJobPositionCode(queryMatchedOption?.code ?? positionOptions[0].code);
+    const nextJobPositionCode = queryMatchedOption?.code ?? positionOptions[0].code;
+
+    setSelectedJobPositionCode(nextJobPositionCode);
+    setMotivation(readApplicationDraft({ projectId, jobPositionCode: nextJobPositionCode }));
   }, [
     initialJobField,
     initialJobPosition,
     initialJobPositionCode,
     positionOptions,
+    projectId,
     selectedJobPositionCode,
   ]);
+
+  const handleMotivationChange = (nextMotivation: string) => {
+    setMotivation(nextMotivation);
+
+    if (selectedJobPositionCode) {
+      saveApplicationDraft({ projectId, jobPositionCode: selectedJobPositionCode }, nextMotivation);
+    }
+
+    if (motivationError) {
+      setMotivationError(getMessageError(nextMotivation));
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -270,7 +306,16 @@ export default function ProjectApplyPage({
     });
 
     if (!result.success) {
-      setErrorMessage(result.error.issues[0]?.message ?? '지원 정보를 다시 확인해 주세요.');
+      const motivationIssue = result.error.issues.find((issue) => issue.path[0] === 'motivation');
+      const otherIssue = result.error.issues.find((issue) => issue.path[0] !== 'motivation');
+
+      setMotivationError(motivationIssue?.message ?? null);
+      setErrorMessage(otherIssue?.message ?? null);
+
+      if (motivationIssue) {
+        motivationRef.current?.focus();
+      }
+
       return;
     }
 
@@ -279,6 +324,7 @@ export default function ProjectApplyPage({
       setErrorMessage(null);
 
       const application = await applyToProject(projectId, result.data);
+      clearApplicationDraft({ projectId, jobPositionCode: result.data.jobPositionCode });
       showToast({ tone: 'success', message: '지원서를 제출했습니다.' });
       router.push(`/projects/${projectId}/apply/${application.applicationId}`);
     } catch (error) {
@@ -391,25 +437,52 @@ export default function ProjectApplyPage({
                   aria-hidden
                   strokeWidth={1.8}
                 />
-                <h2 className="text-base leading-6 font-extrabold text-mt-text-primary">
+                <h2
+                  id={MESSAGE_LABEL_ID}
+                  className="text-base leading-6 font-extrabold text-mt-text-primary"
+                >
                   지원 메시지
                 </h2>
               </div>
 
               <BaseTextarea
+                ref={motivationRef}
                 rows={7}
                 value={motivation}
                 data-cy="project-application-motivation"
-                onChange={(event) => setMotivation(event.target.value)}
+                onChange={(event) => handleMotivationChange(event.target.value)}
                 disabled={isSubmitting || positionOptions.length === 0}
                 placeholder="팀에게 보낼 메시지를 입력해 주세요."
-                maxLength={PROJECT_APPLICATION_MAX_LENGTH}
-                className="mt-4 min-h-60 resize-none bg-mt-white text-base leading-7"
+                maxLength={APPLICATION_MESSAGE_MAX_LENGTH}
+                aria-labelledby={MESSAGE_LABEL_ID}
+                aria-invalid={motivationError ? true : undefined}
+                aria-describedby={
+                  motivationError ? `${MESSAGE_ERROR_ID} ${MESSAGE_COUNTER_ID}` : MESSAGE_COUNTER_ID
+                }
+                className={`mt-4 min-h-60 resize-none text-base leading-7 ${
+                  motivationError
+                    ? '!border-mt-hero-blue !bg-mt-badge-bg/20 focus:!ring-mt-hero-blue/20'
+                    : 'bg-mt-white'
+                }`}
               />
 
-              <div className="mt-3 flex justify-end">
-                <p className="text-right text-xs leading-4 font-medium text-mt-text-secondary">
-                  {motivation.length}/{PROJECT_APPLICATION_MAX_LENGTH}자
+              <div className="mt-3 flex items-start gap-3">
+                {motivationError ? (
+                  <p
+                    id={MESSAGE_ERROR_ID}
+                    role="alert"
+                    data-cy="project-application-motivation-error"
+                    className="text-sm leading-5 text-feedback-error"
+                  >
+                    {motivationError}
+                  </p>
+                ) : null}
+                <p
+                  id={MESSAGE_COUNTER_ID}
+                  className="ml-auto shrink-0 text-right text-xs leading-5 font-medium text-mt-text-secondary"
+                >
+                  최소 {APPLICATION_MESSAGE_MIN_LENGTH}자 · {motivation.length}/
+                  {APPLICATION_MESSAGE_MAX_LENGTH}자
                 </p>
               </div>
             </div>
@@ -439,7 +512,7 @@ export default function ProjectApplyPage({
 
                 <button
                   type="button"
-                  onClick={() => router.push('/profile')}
+                  onClick={() => router.push('/profile?edit=1')}
                   className="inline-flex h-9 shrink-0 items-center justify-center self-start rounded-lg border border-mt-border bg-mt-white px-3 text-xs leading-4 font-bold text-mt-text-secondary shadow-sm transition-colors hover:bg-mt-bg-soft sm:self-auto"
                 >
                   프로필 수정

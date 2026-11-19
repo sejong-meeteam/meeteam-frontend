@@ -204,8 +204,8 @@ export default function ProjectApplicationDetailPage({
                 role="status"
                 className="rounded-xl bg-mt-bg-soft p-4 text-sm text-mt-text-secondary"
               >
-                현재 지원 동기 상세 조회가 제한되어 있습니다. 지원 상태 확인과 대기 중인 지원 취소는
-                이용할 수 있습니다.
+                현재 지원 메시지 상세 조회가 제한되어 있습니다. 지원 상태 확인과 대기 중인 지원
+                취소는 이용할 수 있습니다.
               </p>
             )}
             <div className="grid gap-3 text-sm text-mt-text-secondary md:grid-cols-3">
@@ -244,11 +244,11 @@ export default function ProjectApplicationDetailPage({
             </div>
 
             <div className="rounded-2xl border border-mt-border bg-mt-white p-5">
-              <p className="text-sm font-bold text-mt-text-primary">지원 동기</p>
+              <p className="text-sm font-bold text-mt-text-primary">지원 메시지</p>
               <div className="mt-3">
                 <MarkdownContent
                   value={application.introduction}
-                  emptyText="지원 동기가 비어 있습니다."
+                  emptyText="지원 메시지가 비어 있습니다."
                   className="text-sm leading-6"
                 />
               </div>
