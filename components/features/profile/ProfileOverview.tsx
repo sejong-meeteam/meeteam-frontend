@@ -1,15 +1,17 @@
 'use client';
 
 import { Github, Link2 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useAuthRequiredModal } from '@/components/features/auth/useAuthRequiredModal';
 import AuthRequiredFallback from '@/components/features/auth/AuthRequiredFallback';
+import { getLoginPromptCopy } from '@/components/features/auth/protectedPaths';
 import { fetchJobOptions } from '@/components/features/auth/signupApi';
 import IntroductionCard from '@/components/features/profile/IntroductionCard';
 import JoinedProjectCard from '@/components/features/profile/JoinedProjectCard';
 import ProfileOverviewSkeleton from '@/components/features/profile/ProfileOverviewSkeleton';
 import ProfileSidebar from '@/components/features/profile/ProfileSidebar';
+import ProjectProposalDialog from '@/components/features/project/proposal/ProjectProposalDialog';
 import ToastMessage from '@/components/shared/ToastMessage';
 import {
   fetchMemberProfile,
@@ -20,6 +22,7 @@ import {
   updateMyProfile,
 } from '@/components/features/profile/profileApi';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useLoginModalStore } from '@/stores/useLoginModalStore';
 import { useToastStore } from '@/stores/useToastStore';
 import type { JobFieldOption, JobPositionOption } from '@/types/auth';
 
@@ -27,6 +30,7 @@ interface ProfileOverviewProps {
   memberId?: number;
   editable?: boolean;
   actionLabel?: string;
+  initialEditing?: boolean;
 }
 
 interface ProfileFormState {
@@ -48,11 +52,17 @@ export default function ProfileOverview({
   memberId,
   editable = true,
   actionLabel = '제안 보내기',
+  initialEditing = false,
 }: ProfileOverviewProps) {
   const handleAuthRequired = useAuthRequiredModal();
   const showToast = useToastStore((state) => state.showToast);
+  const openLoginModal = useLoginModalStore((state) => state.openLoginModal);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const [isEditing, setIsEditing] = useState(false);
+  const viewerId = useAuthStore((state) => state.memberId);
+  const canEdit = editable && !memberId;
+  const canPropose = Boolean(memberId) && memberId !== viewerId;
+  const [isEditing, setIsEditing] = useState(initialEditing && canEdit);
+  const [isProposalOpen, setIsProposalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isAuthBlocked, setIsAuthBlocked] = useState(false);
@@ -67,7 +77,6 @@ export default function ProfileOverview({
   const [editableSkills, setEditableSkills] = useState<string[]>([]);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
-  const canEdit = editable && !memberId;
   const hasChanges =
     Boolean(profileForm?.profileImageFile) ||
     JSON.stringify(profileForm) !== JSON.stringify(originalForm) ||
@@ -223,6 +232,18 @@ export default function ProfileOverview({
 
     void handleSave();
   };
+
+  const handleProposalAction = () => {
+    if (!isAuthenticated) {
+      const redirectPath = `/profile/${memberId}`;
+      openLoginModal({ redirectPath, ...getLoginPromptCopy(redirectPath) });
+      return;
+    }
+
+    setIsProposalOpen(true);
+  };
+
+  const closeProposal = useCallback(() => setIsProposalOpen(false), []);
 
   const handleCancelEdit = () => {
     if (profile) {
@@ -412,7 +433,7 @@ export default function ProfileOverview({
           socialContacts={socialContacts}
           actionLabel={currentActionLabel}
           isEditing={isEditing}
-          onAction={canEdit ? handleAction : undefined}
+          onAction={canEdit ? handleAction : canPropose ? handleProposalAction : undefined}
           onImageChange={handleImageChange}
           actionDisabled={isSaving}
           onToggleParticipation={handleToggleParticipation}
@@ -424,6 +445,18 @@ export default function ProfileOverview({
           availableSkills={availableSkills}
           onSkillsChange={(_groupIndex, nextSkills) => setEditableSkills(nextSkills)}
         />
+
+        {canPropose && memberId ? (
+          <ProjectProposalDialog
+            isOpen={isProposalOpen}
+            onClose={closeProposal}
+            target={{
+              memberId,
+              name: profile.name,
+              representativePosition: profile.representativePosition,
+            }}
+          />
+        ) : null}
 
         <div className="flex min-w-0 flex-col gap-8">
           <IntroductionCard

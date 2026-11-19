@@ -8,6 +8,7 @@ import {
   CircleX,
   Clock3,
   Github,
+  Handshake,
   UserRoundPlus,
 } from 'lucide-react';
 import type { NotificationCardProps, NotificationCardVariant } from './types';
@@ -68,6 +69,14 @@ const CARD_VARIANT_STYLES: Record<
     iconWrapperClassName: 'bg-mt-badge-bg',
     icon: Github,
     iconClassName: 'text-mt-text-primary',
+    titleClassName: 'text-mt-text-primary',
+    descriptionClassName: 'text-mt-text-nav',
+  },
+  proposal: {
+    containerClassName: 'border-mt-border shadow-sm',
+    iconWrapperClassName: 'bg-mt-border',
+    icon: Handshake,
+    iconClassName: 'text-mt-primary',
     titleClassName: 'text-mt-text-primary',
     descriptionClassName: 'text-mt-text-nav',
   },

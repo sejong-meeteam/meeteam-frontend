@@ -3,13 +3,25 @@ import { getSessionMember } from './storage';
 import { pageResponse } from './responseMappers';
 import type { NotificationType } from '@/components/features/notification/types';
 
+type MockNotificationExtra = {
+  proposerId?: number;
+  proposerName?: string;
+  jobFieldName?: string;
+  jobPositionName?: string;
+  proposalMessage?: string;
+};
 type MockNotification = {
   id: number;
   receiverId: number;
   type: NotificationType;
   createdAt: string;
   isRead: boolean;
-  payload: { projectId: number; projectName: string; applicantId?: number; applicantName?: string };
+  payload: {
+    projectId: number;
+    projectName: string;
+    applicantId?: number;
+    applicantName?: string;
+  } & MockNotificationExtra;
 };
 const STORAGE_KEY = 'meeteam-notifications';
 
@@ -24,6 +36,7 @@ export function addMockNotification(
   projectName: string,
   applicantId?: number,
   applicantName?: string,
+  extra: MockNotificationExtra = {},
 ) {
   const notifications = getMockNotifications();
   const notification: MockNotification = {
@@ -32,7 +45,7 @@ export function addMockNotification(
     type,
     createdAt: new Date().toISOString(),
     isRead: false,
-    payload: { projectId, projectName, applicantId, applicantName },
+    payload: { projectId, projectName, applicantId, applicantName, ...extra },
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify([notification, ...notifications]));
   return notification;

@@ -6,7 +6,8 @@ export type NotificationType =
   | 'PROJECT_END'
   | 'GITHUB_REPO_INVITED'
   | 'GITHUB_REVIEW_REQUESTED'
-  | 'GITHUB_PR_MERGED';
+  | 'GITHUB_PR_MERGED'
+  | 'PROJECT_PROPOSAL_RECEIVED';
 
 export type NotificationCardVariant =
   | 'welcome'
@@ -14,7 +15,8 @@ export type NotificationCardVariant =
   | 'rejected'
   | 'submitted'
   | 'ended'
-  | 'github';
+  | 'github'
+  | 'proposal';
 
 export interface NotificationCardProps {
   title: string;

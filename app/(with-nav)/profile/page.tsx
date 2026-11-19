@@ -1,10 +1,16 @@
 import RequireAuth from '@/components/features/auth/RequireAuth';
 import ProfileOverview from '@/components/features/profile/ProfileOverview';
 
-export default function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ edit?: string | string[] }>;
+}) {
+  const { edit } = await searchParams;
+
   return (
     <RequireAuth>
-      <ProfileOverview />
+      <ProfileOverview initialEditing={edit === '1'} />
     </RequireAuth>
   );
 }

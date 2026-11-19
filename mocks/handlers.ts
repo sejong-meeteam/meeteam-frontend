@@ -5,6 +5,7 @@ import { projectManagementHandlers } from './projectManagementHandlers';
 import { qnaHandlers } from './qnaHandlers';
 import { adminHandlers } from './adminHandlers';
 import { githubHandlers } from './githubHandlers';
+import { proposalHandlers } from './proposalHandlers';
 import { isProjectOpen, isProjectVisible } from './projectContract';
 import { toProjectCard, toProjectDetail, toMemberCard, pageResponse } from './responseMappers';
 import { z } from 'zod';
@@ -200,6 +201,7 @@ function imageDataUrl(file: File | null): Promise<string | null> {
 export const handlers = [
   ...adminHandlers,
   ...githubHandlers,
+  ...proposalHandlers,
   ...notificationHandlers,
   ...projectManagementHandlers,
   ...qnaHandlers,

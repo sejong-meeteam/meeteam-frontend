@@ -19,6 +19,7 @@ export const NOTIFICATION_EVENT_TYPES = [
   'GITHUB_REPO_INVITED',
   'GITHUB_REVIEW_REQUESTED',
   'GITHUB_PR_MERGED',
+  'PROJECT_PROPOSAL_RECEIVED',
 ] satisfies NotificationType[];
 
 type BackendNotificationPayload = {
@@ -34,6 +35,11 @@ type BackendNotificationPayload = {
   date?: string | null;
   localDate?: string | null;
   occurredAt?: string | null;
+  proposerId?: number | null;
+  proposerName?: string | null;
+  jobFieldName?: string | null;
+  jobPositionName?: string | null;
+  proposalMessage?: string | null;
 };
 
 type BackendNotificationResponse = {
@@ -283,7 +289,36 @@ function getNotificationCopy(
         actionHref: projectHref,
         actionLabel: '개발 현황 보기',
       };
+    case 'PROJECT_PROPOSAL_RECEIVED': {
+      const proposerName = payload.proposerName?.trim() || '프로젝트 리더';
+      const positionName = payload.jobPositionName?.trim();
+      const positionPhrase = positionName ? ` ${positionName} 포지션으로` : '';
+      const proposalMessage = payload.proposalMessage?.trim();
+
+      return {
+        title: '프로젝트 합류 제안이 도착했습니다.',
+        description:
+          message ??
+          `${proposerName}님이 '${projectName}' 프로젝트에${positionPhrase} 함께하자고 제안했어요.${proposalMessage ? ` “${proposalMessage}”` : ''} 프로젝트를 살펴보고 직접 지원 여부를 정해보세요.`,
+        variant: 'proposal',
+        actionHref: buildProposalHref(payload),
+        actionLabel: '프로젝트 살펴보기',
+      };
+    }
   }
+}
+
+function buildProposalHref(payload: BackendNotificationPayload) {
+  if (!payload.projectId) {
+    return '/projects';
+  }
+
+  const params = new URLSearchParams();
+  if (payload.jobFieldName) params.set('jobField', payload.jobFieldName);
+  if (payload.jobPositionName) params.set('jobPosition', payload.jobPositionName);
+  const query = params.toString();
+
+  return `/projects/${payload.projectId}${query ? `?${query}` : ''}`;
 }
 
 function formatNotificationTimestamp(value: string) {
